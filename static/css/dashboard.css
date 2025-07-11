@@ -1,0 +1,391 @@
+/* Dashboard CSS - Optimized for TV Display */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #ffffff;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.dashboard-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Header Styles */
+.dashboard-header {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid #4CAF50;
+    min-height: 120px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.main-logo {
+    height: 80px;
+    width: auto;
+}
+
+.secondary-logo {
+    height: 60px;
+    width: auto;
+}
+
+.header-info {
+    text-align: right;
+}
+
+.company-name {
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.datetime-info {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.datetime-info span {
+    margin-left: 20px;
+}
+
+.last-update {
+    font-size: 24px;
+    opacity: 0.8;
+}
+
+/* Carousel Styles */
+.carousel-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+}
+
+.slide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.slide-title {
+    font-size: 56px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 40px;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+}
+
+.slide-data {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Production Monthly Template */
+.production-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    height: 100%;
+}
+
+.production-item {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.production-item.success {
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.2);
+}
+
+.production-item.warning {
+    border-color: #FF9800;
+    background: rgba(255, 152, 0, 0.2);
+}
+
+.production-item.danger {
+    border-color: #F44336;
+    background: rgba(244, 67, 54, 0.2);
+}
+
+.production-item h3 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.production-numbers {
+    margin-bottom: 20px;
+}
+
+.production-produced {
+    font-size: 72px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.production-target {
+    font-size: 32px;
+    opacity: 0.8;
+}
+
+.production-percentage {
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.production-percentage.success {
+    color: #4CAF50;
+}
+
+.production-percentage.warning {
+    color: #FF9800;
+}
+
+.production-percentage.danger {
+    color: #F44336;
+}
+
+/* Forecast Template */
+.forecast-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.forecast-chart {
+    width: 80%;
+    max-width: 800px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 40px;
+    margin-bottom: 40px;
+}
+
+.forecast-bars {
+    display: flex;
+    align-items: end;
+    justify-content: space-around;
+    height: 300px;
+    margin-bottom: 20px;
+}
+
+.forecast-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 120px;
+}
+
+.bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.bar {
+    width: 60px;
+    background: #2196F3;
+    border-radius: 5px 5px 0 0;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.bar-forecast {
+    background: #FF9800;
+}
+
+.bar-real {
+    background: #4CAF50;
+}
+
+.bar-label {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.bar-value {
+    font-size: 20px;
+    margin-top: 5px;
+}
+
+/* Total Value Template */
+.value-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.value-main {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.value-current {
+    font-size: 120px;
+    font-weight: bold;
+    color: #4CAF50;
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+.value-label {
+    font-size: 48px;
+    opacity: 0.8;
+}
+
+.value-chart {
+    width: 80%;
+    max-width: 1000px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px;
+}
+
+/* Footer Styles */
+.dashboard-footer {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px 40px;
+    border-top: 3px solid #4CAF50;
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+}
+
+.legend-color {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+}
+
+.legend-color.success {
+    background: #4CAF50;
+}
+
+.legend-color.warning {
+    background: #FF9800;
+}
+
+.legend-color.danger {
+    background: #F44336;
+}
+
+.legend-color.info {
+    background: #2196F3;
+}
+
+/* Responsive Design */
+@media (max-width: 1920px) {
+    .production-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .slide-title {
+        font-size: 48px;
+    }
+    
+    .production-produced {
+        font-size: 60px;
+    }
+}
+
+@media (max-width: 1366px) {
+    .production-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .slide-title {
+        font-size: 40px;
+    }
+    
+    .production-produced {
+        font-size: 48px;
+    }
+    
+    .company-name {
+        font-size: 36px;
+    }
+}
+
+/* Animation for carousel transitions */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-in-out;
+}
+
+.fade-out {
+    animation: fadeOut 1s ease-in-out;
+} 
