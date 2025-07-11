@@ -5,7 +5,7 @@ services:
       - "8000:5000"
     volumes:
       - ./data:/app/data
-      - ./assets:/app/static/assets
+      - ./static:/app/static
     environment:
       - FLASK_ENV=production
     restart: unless-stopped

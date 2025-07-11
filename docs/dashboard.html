@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Fabril - Produção</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            border-bottom: 2px solid #60a5fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: #bfdbfe;
+        }
+
+        .time-info {
+            text-align: right;
+        }
+
+        .time {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .date {
+            font-size: 1.25rem;
+            color: #bfdbfe;
+        }
+
+        .title-section {
+            text-align: center;
+            padding: 24px 0;
+        }
+
+        .main-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #fde047;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 0 32px 32px;
+        }
+
+        .production-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .family-card {
+            background: white;
+            color: #1f2937;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            border: 4px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .family-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+
+        .family-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+
+        .production-numbers {
+            margin-bottom: 16px;
+        }
+
+        .produced {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .target {
+            font-size: 1.25rem;
+            color: #6b7280;
+        }
+
+        .percentage {
+            padding: 12px 24px;
+            border-radius: 9999px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: white;
+        }
+
+        .percentage.green { background-color: #10b981; }
+        .percentage.yellow { background-color: #f59e0b; }
+        .percentage.red { background-color: #ef4444; }
+
+        .evolution {
+            text-align: center;
+        }
+
+        .evolution-title {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .mini-chart {
+            height: 48px;
+            width: 96px;
+            margin: 0 auto;
+        }
+
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .forecast-card {
+            background: white;
+            color: #1f2937;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+        }
+
+        .forecast-month {
+            background: #dbeafe;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .forecast-icon {
+            color: #2563eb;
+            font-size: 3rem;
+            margin: 0 auto 16px;
+        }
+
+        .forecast-month-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+
+        .forecast-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .forecast-units {
+            font-size: 1.125rem;
+            color: #6b7280;
+        }
+
+        .financial-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+
+        .financial-card {
+            background: white;
+            color: #1f2937;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+        }
+
+        .highlight-box {
+            border: 4px solid #fbbf24;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            background: #fefce8;
+        }
+
+        .highlight-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-align: center;
+            color: #1f2937;
+        }
+
+        .current-value {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #059669;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .value-label {
+            font-size: 1.125rem;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        .accumulated-section {
+            text-align: center;
+        }
+
+        .accumulated-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+
+        .accumulated-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 8px;
+        }
+
+        .budget-info {
+            font-size: 1.125rem;
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+
+        .chart-container {
+            height: 256px;
+            margin-bottom: 16px;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 16px;
+            font-size: 0.875rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-line {
+            width: 16px;
+            height: 3px;
+        }
+
+        .legend-dashed {
+            border-top: 3px dashed #3b82f6;
+        }
+
+        .legend-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .forecast-section {
+            border-top: 2px solid #e5e7eb;
+            padding-top: 16px;
+        }
+
+        .forecast-title {
+            font-size: 1.125rem;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+
+        .forecast-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #dbeafe;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .forecast-month-label {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .forecast-amount {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .footer {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            border-top: 2px solid #60a5fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .legend-section {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .legend-green { background-color: #10b981; }
+        .legend-yellow { background-color: #f59e0b; }
+        .legend-red { background-color: #ef4444; }
+
+        .update-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-dots {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .nav-dot.active {
+            background: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .family-details {
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .family-details h3 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+
+        .family-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .family-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .family-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .family-item-icon {
+            font-size: 1.5rem;
+        }
+
+        .family-item-name {
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+
+        .family-item-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div>
+            <h1>FÁBRICA EQUIPAMENTOS</h1>
+            <p>Dashboard de Produção</p>
+        </div>
+        <div class="time-info">
+            <div class="time" id="current-time"></div>
+            <div class="date" id="current-date"></div>
+        </div>
+    </header>
+
+    <section class="title-section">
+        <h2 class="main-title" id="view-title">PRODUÇÃO MENSAL</h2>
+        <div class="subtitle" id="view-subtitle">📊 NOVEMBRO 2024 (ÚLTIMO MÊS FECHADO)</div>
+    </section>
+
+    <main class="content">
+        <div id="production-view" class="view">
+            <div class="production-grid">
+                <div class="family-card">
+                    <div class="family-icon">💧</div>
+                    <h3 class="family-name">Bombas Hidráulicas</h3>
+                    <div class="production-numbers">
+                        <div class="produced">145</div>
+                        <div class="target">de 150 unidades</div>
+                    </div>
+                    <div class="percentage yellow">97%</div>
+                    <div class="evolution">
+                        <div class="evolution-title">Evolução 2024</div>
+                        <div class="mini-chart">
+                            <canvas id="chart-bombas" width="96" height="48"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="family-card">
+                    <div class="family-icon">⚡</div>
+                    <h3 class="family-name">Motores Elétricos</h3>
+                    <div class="production-numbers">
+                        <div class="produced">89</div>
+                        <div class="target">de 120 unidades</div>
+                    </div>
+                    <div class="percentage red">74%</div>
+                    <div class="evolution">
+                        <div class="evolution-title">Evolução 2024</div>
+                        <div class="mini-chart">
+                            <canvas id="chart-motores" width="96" height="48"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="family-card">
+                    <div class="family-icon">🔧</div>
+                    <h3 class="family-name">Compressores</h3>
+                    <div class="production-numbers">
+                        <div class="produced">78</div>
+                        <div class="target">de 75 unidades</div>
+                    </div>
+                    <div class="percentage green">104%</div>
+                    <div class="evolution">
+                        <div class="evolution-title">Evolução 2024</div>
+                        <div class="mini-chart">
+                            <canvas id="chart-compressores" width="96" height="48"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="family-card">
+                    <div class="family-icon">🔩</div>
+                    <h3 class="family-name">Válvulas</h3>
+                    <div class="production-numbers">
+                        <div class="produced">234</div>
+                        <div class="target">de 200 unidades</div>
+                    </div>
+                    <div class="percentage green">117%</div>
+                    <div class="evolution">
+                        <div class="evolution-title">Evolução 2024</div>
+                        <div class="mini-chart">
+                            <canvas id="chart-valvulas" width="96" height="48"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="family-card">
+                    <div class="family-icon">📡</div>
+                    <h3 class="family-name">Sensores</h3>
+                    <div class="production-numbers">
+                        <div class="produced">167</div>
+                        <div class="target">de 180 unidades</div>
+                    </div>
+                    <div class="percentage yellow">93%</div>
+                    <div class="evolution">
+                        <div class="evolution-title">Evolução 2024</div>
+                        <div class="mini-chart">
+                            <canvas id="chart-sensores" width="96" height="48"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="family-card">
+                    <div class="family-icon">🖥️</div>
+                    <h3 class="family-name">Controladores</h3>
+                    <div class="production-numbers">
+                        <div class="produced">56</div>
+                        <div class="target">de 60 unidades</div>
+                    </div>
+                    <div class="percentage yellow">93%</div>
+                    <div class="evolution">
+                        <div class="evolution-title">Evolução 2024</div>
+                        <div class="mini-chart">
+                            <canvas id="chart-controladores" width="96" height="48"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="forecast-view" class="view hidden">
+            <div class="forecast-grid">
+                <div class="forecast-card">
+                    <div class="forecast-month">
+                        <div class="forecast-icon">📅</div>
+                        <h3 class="forecast-month-name">Dezembro</h3>
+                        <div class="forecast-value">850</div>
+                        <div class="forecast-units">unidades</div>
+                    </div>
+                </div>
+
+                <div class="forecast-card">
+                    <div class="forecast-month">
+                        <div class="forecast-icon">📅</div>
+                        <h3 class="forecast-month-name">Janeiro</h3>
+                        <div class="forecast-value">920</div>
+                        <div class="forecast-units">unidades</div>
+                    </div>
+                </div>
+
+                <div class="forecast-card">
+                    <div class="forecast-month">
+                        <div class="forecast-icon">📅</div>
+                        <h3 class="forecast-month-name">Fevereiro</h3>
+                        <div class="forecast-value">880</div>
+                        <div class="forecast-units">unidades</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="family-details">
+                <h3>Previsão por Família</h3>
+                <div class="family-grid">
+                    <div class="family-item">
+                        <div class="family-item-left">
+                            <span class="family-item-icon">💧</span>
+                            <span class="family-item-name">Bombas Hidráulicas</span>
+                        </div>
+                        <div class="family-item-value">165</div>
+                    </div>
+                    <div class="family-item">
+                        <div class="family-item-left">
+                            <span class="family-item-icon">⚡</span>
+                            <span class="family-item-name">Motores Elétricos</span>
+                        </div>
+                        <div class="family-item-value">132</div>
+                    </div>
+                    <div class="family-item">
+                        <div class="family-item-left">
+                            <span class="family-item-icon">🔧</span>
+                            <span class="family-item-name">Compressores</span>
+                        </div>
+                        <div class="family-item-value">83</div>
+                    </div>
+                    <div class="family-item">
+                        <div class="family-item-left">
+                            <span class="family-item-icon">🔩</span>
+                            <span class="family-item-name">Válvulas</span>
+                        </div>
+                        <div class="family-item-value">220</div>
+                    </div>
+                    <div class="family-item">
+                        <div class="family-item-left">
+                            <span class="family-item-icon">📡</span>
+                            <span class="family-item-name">Sensores</span>
+                        </div>
+                        <div class="family-item-value">198</div>
+                    </div>
+                    <div class="family-item">
+                        <div class="family-item-left">
+                            <span class="family-item-icon">🖥️</span>
+                            <span class="family-item-name">Controladores</span>
+                        </div>
+                        <div class="family-item-value">66</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="financial-view" class="view hidden">
+            <div class="financial-grid">
+                <div class="financial-card">
+                    <div class="highlight-box">
+                        <h3 class="highlight-title">🏆 NOVEMBRO 2024 (FECHADO)</h3>
+                        <div class="current-value">488k€</div>
+                        <div class="value-label">Valor mensal</div>
+                    </div>
+                    
+                    <div class="accumulated-section">
+                        <h4 class="accumulated-title">ACUMULADO 2024</h4>
+                        <div class="accumulated-value">5120k€</div>
+                        <div class="budget-info">Orçamento: 4950k€</div>
+                        <div class="percentage green">103%</div>
+                    </div>
+                </div>
+                
+                <div class="financial-card">
+                    <h3 class="accumulated-title">EVOLUÇÃO vs ORÇAMENTO</h3>
+                    <div class="chart-container">
+                        <canvas id="financial-chart" width="400" height="256"></canvas>
+                    </div>
+                    
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-line legend-dashed"></div>
+                            <span>Orçamento</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot legend-green"></div>
+                            <span>Real (Acima)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot legend-red"></div>
+                            <span>Real (Abaixo)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="forecast-section">
+                        <h4 class="forecast-title">PREVISÃO PRÓXIMOS 3 MESES</h4>
+                        <div class="forecast-item">
+                            <span class="forecast-month-label">Dezembro</span>
+                            <span class="forecast-amount">535k€</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-month-label">Janeiro</span>
+                            <span class="forecast-amount">575k€</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-month-label">Fevereiro</span>
+                            <span class="forecast-amount">550k€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="legend-section">
+            <div style="display: flex; align-items: center;">
+                <div class="legend-color legend-green"></div>
+                <span>Acima da Meta</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div class="legend-color legend-yellow"></div>
+                <span>Próximo da Meta</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div class="legend-color legend-red"></div>
+                <span>Abaixo da Meta</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <span>📁</span>
+                <span style="margin-left: 8px;">Dados: dashboard_dados.xlsx</span>
+            </div>
+        </div>
+        <div class="update-info">
+            <span>🕐</span>
+            <span>Última atualização: <span id="last-update"></span></span>
+        </div>
+    </footer>
+
+    <div class="nav-dots">
+        <div class="nav-dot active" data-view="0"></div>
+        <div class="nav-dot" data-view="1"></div>
+        <div class="nav-dot" data-view="2"></div>
+    </div>
+
+    <script>
+        var productionData = {
+            'Bombas Hidráulicas': [120, 135, 142, 138, 148, 152, 146, 140, 155, 149, 145],
+            'Motores Elétricos': [95, 88, 102, 110, 95, 108, 92, 98, 105, 87, 89],
+            'Compressores': [65, 70, 68, 72, 75, 78, 74, 76, 82, 79, 78],
+            'Válvulas': [180, 195, 205, 188, 210, 218, 202, 195, 225, 220, 234],
+            'Sensores': [140, 152, 148, 155, 162, 158, 168, 165, 172, 169, 167],
+            'Controladores': [45, 48, 52, 49, 54, 56, 51, 53, 58, 55, 56]
+        };
+
+        var financialData = {
+            actual: [420, 865, 1333, 1785, 2260, 2745, 3207, 3662, 4154, 4632, 5120],
+            budget: [450, 900, 1350, 1800, 2250, 2700, 3150, 3600, 4050, 4500, 4950]
+        };
+
+        var months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov'];
+        var currentView = 0;
+        var views = ['production-view', 'forecast-view', 'financial-view'];
+        var titles = ['PRODUÇÃO MENSAL', 'PREVISÃO 3 MESES', 'VALOR TOTAL'];
+        var subtitles = ['📊 NOVEMBRO 2024 (ÚLTIMO MÊS FECHADO)', '', ''];
+
+        function updateTime() {
+            var now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('pt-PT', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('current-date').textContent = now.toLocaleDateString('pt-PT', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('last-update').textContent = now.toLocaleTimeString('pt-PT');
+        }
+
+        function createMiniChart(canvasId, data) {
+            try {
+                var canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+                
+                var ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            data: data,
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#3B82F6',
+                            pointBorderColor: '#3B82F6',
+                            pointRadius: 2,
+                            tension: 0
+                        }]
+                    },
+                    options: {
+                        responsive: false,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                display: true,
+                                grid: { display: false },
+                                ticks: { display: false }
+                            },
+                            y: {
+                                display: false,
+                                grid: { display: false }
+                            }
+                        },
+                        elements: {
+                            point: { hoverRadius: 0 }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.warn('Error creating mini chart:', error);
+            }
+        }
+
+        function createFinancialChart() {
+            try {
+                var canvas = document.getElementById('financial-chart');
+                if (!canvas) return;
+                
+                var ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [
+                            {
+                                label: 'Orçamento',
+                                data: financialData.budget,
+                                borderColor: '#3B82F6',
+                                backgroundColor: 'transparent',
+                                borderWidth: 3,
+                                borderDash: [8, 4],
+                                pointBackgroundColor: '#3B82F6',
+                                pointRadius: 4,
+                                tension: 0
+                            },
+                            {
+                                label: 'Real',
+                                data: financialData.actual,
+                                borderColor: '#10B981',
+                                backgroundColor: 'transparent',
+                                borderWidth: 3,
+                                pointBackgroundColor: financialData.actual.map(function(val, idx) {
+                                    return val >= financialData.budget[idx] ? '#10B981' : '#EF4444';
+                                }),
+                                pointRadius: 4,
+                                tension: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: false,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                display: true,
+                                grid: { display: true, color: '#E5E7EB' },
+                                ticks: { color: '#6B7280', font: { size: 12 } }
+                            },
+                            y: {
+                                display: true,
+                                grid: { display: true, color: '#E5E7EB' },
+                                ticks: { color: '#6B7280', font: { size: 12 } }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.warn('Error creating financial chart:', error);
+            }
+        }
+
+        function switchView(viewIndex) {
+            for (var i = 0; i < views.length; i++) {
+                var viewElement = document.getElementById(views[i]);
+                if (viewElement) {
+                    if (i === viewIndex) {
+                        viewElement.classList.remove('hidden');
+                    } else {
+                        viewElement.classList.add('hidden');
+                    }
+                }
+            }
+
+            var titleElement = document.getElementById('view-title');
+            var subtitleElement = document.getElementById('view-subtitle');
+            
+            if (titleElement) {
+                titleElement.textContent = titles[viewIndex];
+            }
+            
+            if (subtitleElement) {
+                subtitleElement.textContent = subtitles[viewIndex];
+                if (!subtitles[viewIndex]) {
+                    subtitleElement.style.display = 'none';
+                } else {
+                    subtitleElement.style.display = 'block';
+                }
+            }
+
+            var dots = document.querySelectorAll('.nav-dot');
+            for (var i = 0; i < dots.length; i++) {
+                if (i === viewIndex) {
+                    dots[i].classList.add('active');
+                } else {
+                    dots[i].classList.remove('active');
+                }
+            }
+
+            currentView = viewIndex;
+        }
+
+        function initDashboard() {
+            console.log('Initializing dashboard...');
+            
+            if (typeof Chart === 'undefined') {
+                console.log('Chart.js not loaded yet, waiting...');
+                setTimeout(initDashboard, 500);
+                return;
+            }
+            
+            console.log('Chart.js loaded successfully!');
+            
+            try {
+                createMiniChart('chart-bombas', productionData['Bombas Hidráulicas']);
+                createMiniChart('chart-motores', productionData['Motores Elétricos']);
+                createMiniChart('chart-compressores', productionData['Compressores']);
+                createMiniChart('chart-valvulas', productionData['Válvulas']);
+                createMiniChart('chart-sensores', productionData['Sensores']);
+                createMiniChart('chart-controladores', productionData['Controladores']);
+                
+                createFinancialChart();
+                
+                console.log('All charts created successfully!');
+            } catch (error) {
+                console.warn('Error creating charts:', error);
+            }
+
+            console.log('Setting up auto-rotation...');
+            setInterval(function() {
+                currentView = (currentView + 1) % views.length;
+                console.log('Auto-switching to view:', currentView);
+                switchView(currentView);
+            }, 5000);
+
+            var dots = document.querySelectorAll('.nav-dot');
+            for (var i = 0; i < dots.length; i++) {
+                (function(index) {
+                    dots[index].addEventListener('click', function() {
+                        console.log('Manual switch to view:', index);
+                        switchView(index);
+                    });
+                })(i);
+            }
+
+            setInterval(updateTime, 1000);
+            updateTime();
+            
+            console.log('Dashboard initialized successfully!');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, starting initialization...');
+            setTimeout(initDashboard, 500);
+        });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDashboard);
+        } else {
+            initDashboard();
+        }
+    </script>
+</body>
+</html>
