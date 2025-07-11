@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Jayme da Costa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Jayme da Costa" class="main-logo">
+                <img src="{{ url_for('static', filename='assets/getsitelogo.jpeg') }}" alt="Logo Secundário" class="secondary-logo">
+            </div>
+            <div class="header-info">
+                <h1 class="company-name">Jayme da Costa</h1>
+                <div class="datetime-info">
+                    <span id="current-date"></span>
+                    <span id="current-time"></span>
+                </div>
+                <div class="last-update">
+                    Última atualização: <span id="last-update-time"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Carousel Container -->
+        <div class="carousel-container">
+            {% for page in pages %}
+            <div class="carousel-slide" data-template="{{ page[2] }}" data-page-id="{{ page[0] }}">
+                <div class="slide-content">
+                    <h2 class="slide-title">{{ page[1] }}</h2>
+                    <div class="slide-data" id="data-{{ page[2] }}">
+                        <!-- Data will be loaded here via JavaScript -->
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Legend -->
+        <footer class="dashboard-footer">
+            <div class="legend">
+                <div class="legend-item">
+                    <span class="legend-color success"></span>
+                    <span>Acima da meta</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color warning"></span>
+                    <span>Próximo da meta</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color danger"></span>
+                    <span>Abaixo da meta</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color info"></span>
+                    <span>Informação neutra</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html> 
