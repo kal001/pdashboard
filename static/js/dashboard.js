@@ -1,9 +1,9 @@
-// Dashboard JavaScript - Modern Design with Chart.js
+// Dashboard JavaScript - Modular Page System
 class DashboardCarousel {
     constructor() {
         this.currentSlide = 0;
-        this.slides = document.querySelectorAll('.carousel-slide');
-        this.totalSlides = this.slides.length;
+        this.pages = [];
+        this.totalSlides = 0;
         this.interval = 10000; // 10 seconds
         this.carouselTimer = null;
         this.dataCache = {};
@@ -12,9 +12,8 @@ class DashboardCarousel {
         this.init();
     }
     
-    init() {
-        if (this.totalSlides === 0) return;
-        
+    async init() {
+        await this.loadPages();
         this.updateDateTime();
         this.startCarousel();
         this.loadAllData();
@@ -25,6 +24,61 @@ class DashboardCarousel {
         
         // Update data every 5 minutes
         setInterval(() => this.loadAllData(), 300000);
+    }
+    
+    async loadPages() {
+        try {
+            const response = await fetch('/api/pages');
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.pages = data.pages.filter(page => page.active);
+                this.totalSlides = this.pages.length;
+                this.renderPages();
+            } else {
+                console.error('Error loading pages:', data.error);
+            }
+        } catch (error) {
+            console.error('Failed to load pages:', error);
+        }
+    }
+    
+    renderPages() {
+        const container = document.getElementById('carousel-container');
+        const navDots = document.getElementById('nav-dots');
+        
+        if (!container || !navDots) return;
+        
+        // Clear existing content
+        container.innerHTML = '';
+        navDots.innerHTML = '';
+        
+        // Create slides
+        this.pages.forEach((page, index) => {
+            const slide = document.createElement('div');
+            slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
+            slide.dataset.pageId = page.page_id;
+            slide.dataset.pageType = page.type;
+            
+            slide.innerHTML = `
+                <div class="slide-content">
+                    <div class="page-content" id="page-content-${page.page_id}">
+                        <!-- Page content will be loaded here -->
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(slide);
+            
+            // Create navigation dot
+            const dot = document.createElement('div');
+            dot.className = `nav-dot ${index === 0 ? 'active' : ''}`;
+            dot.dataset.view = index;
+            navDots.appendChild(dot);
+        });
+        
+        // Update slides reference
+        this.slides = document.querySelectorAll('.carousel-slide');
     }
     
     updateDateTime() {
@@ -40,10 +94,15 @@ class DashboardCarousel {
             minute: '2-digit'
         });
         
-        document.getElementById('current-date').textContent = dateStr;
-        document.getElementById('current-time').textContent = timeStr;
-        document.getElementById('last-update-time').textContent = timeStr;
-        document.getElementById('last-update').textContent = timeStr;
+        const dateElement = document.getElementById('current-date');
+        const timeElement = document.getElementById('current-time');
+        const updateTimeElement = document.getElementById('last-update-time');
+        const lastUpdateElement = document.getElementById('last-update');
+        
+        if (dateElement) dateElement.textContent = dateStr;
+        if (timeElement) timeElement.textContent = timeStr;
+        if (updateTimeElement) updateTimeElement.textContent = timeStr;
+        if (lastUpdateElement) lastUpdateElement.textContent = timeStr;
     }
     
     initNavigationDots() {
@@ -56,6 +115,8 @@ class DashboardCarousel {
     }
     
     startCarousel() {
+        if (this.totalSlides === 0) return;
+        
         this.showSlide(0);
         this.carouselTimer = setInterval(() => {
             this.nextSlide();
@@ -63,6 +124,8 @@ class DashboardCarousel {
     }
     
     showSlide(index) {
+        if (this.totalSlides === 0) return;
+        
         // Hide all slides
         this.slides.forEach(slide => {
             slide.classList.remove('active');
@@ -83,10 +146,10 @@ class DashboardCarousel {
                 }
             });
             
-            // Load data for current slide if not cached
-            const template = this.slides[index].dataset.template;
-            if (template && !this.dataCache[template]) {
-                this.loadData(template);
+            // Load page content
+            const page = this.pages[index];
+            if (page) {
+                this.loadPageContent(page);
             }
         }
     }
@@ -96,422 +159,113 @@ class DashboardCarousel {
         this.showSlide(nextIndex);
     }
     
-    async loadAllData() {
-        const templates = ['production_monthly', 'forecast_3months', 'total_value'];
+    async loadPageContent(page) {
+        const contentContainer = document.getElementById(`page-content-${page.page_id}`);
+        if (!contentContainer) return;
         
-        for (const template of templates) {
-            await this.loadData(template);
-        }
-    }
-    
-    async loadData(template) {
+        // Load page template
         try {
-            const response = await fetch(`/api/data/${template}`);
-            const data = await response.json();
-            
+            const response = await fetch(`/pages/${page.page_id}/${page.config.template}`);
             if (response.ok) {
-                this.dataCache[template] = data;
-                this.renderData(template, data);
-            } else {
-                console.error(`Error loading ${template} data:`, data.error);
-            }
-        } catch (error) {
-            console.error(`Failed to load ${template} data:`, error);
-        }
-    }
-    
-    renderData(template, data) {
-        const container = document.getElementById(`data-${template}`);
-        const subtitleContainer = document.getElementById(`subtitle-${template}`);
-        
-        if (!container) return;
-        
-        switch (template) {
-            case 'production_monthly':
-                this.renderProductionMonthly(container, subtitleContainer, data);
-                break;
-            case 'forecast_3months':
-                this.renderForecast3Months(container, subtitleContainer, data);
-                break;
-            case 'total_value':
-                this.renderTotalValue(container, subtitleContainer, data);
-                break;
-        }
-    }
-    
-    renderProductionMonthly(container, subtitleContainer, data) {
-        if (subtitleContainer) {
-            subtitleContainer.textContent = '📊 NOVEMBRO 2024 (ÚLTIMO MÊS FECHADO)';
-        }
-        
-        const grid = document.createElement('div');
-        grid.className = 'production-grid';
-        
-        const icons = ['💧', '⚡', '🔧', '🔩', '📡', '🖥️'];
-        
-        data.forEach((item, index) => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = `production-item ${item.status}`;
-            
-            const percentage = Math.round((item.produzido / item.meta) * 100);
-            const statusClass = percentage >= 100 ? 'success' : 
-                              percentage >= 95 ? 'warning' : 'danger';
-            
-            itemDiv.innerHTML = `
-                <div class="production-icon">${icons[index] || '📦'}</div>
-                <h3 class="family-name">${item.familia}</h3>
-                <div class="production-numbers">
-                    <div class="produced">${item.produzido.toLocaleString('pt-PT')}</div>
-                    <div class="target">de ${item.meta.toLocaleString('pt-PT')} unidades</div>
-                </div>
-                <div class="production-percentage ${statusClass}">${percentage}%</div>
-                <div class="production-status">
-                    ${percentage >= 100 ? '✅ Acima da meta' : 
-                      percentage >= 95 ? '⚠️ Próximo da meta' : '❌ Abaixo da meta'}
-                </div>
-                <div class="evolution">
-                    <div class="evolution-title">Evolução 2024</div>
-                    <div class="mini-chart">
-                        <canvas id="chart-${index}" width="96" height="48"></canvas>
-                    </div>
-                </div>
-            `;
-            
-            grid.appendChild(itemDiv);
-        });
-        
-        container.innerHTML = '';
-        container.appendChild(grid);
-        
-        // Create mini charts after DOM is updated
-        setTimeout(() => {
-            this.createMiniCharts(data);
-        }, 100);
-    }
-    
-    createMiniCharts(data) {
-        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov'];
-        
-        data.forEach((item, index) => {
-            const canvasId = `chart-${index}`;
-            const canvas = document.getElementById(canvasId);
-            
-            if (canvas && typeof Chart !== 'undefined') {
-                // Generate sample data for the chart
-                const chartData = this.generateChartData(item.produzido, item.meta);
-                
-                if (this.charts[canvasId]) {
-                    this.charts[canvasId].destroy();
-                }
-                
-                this.charts[canvasId] = new Chart(canvas, {
-                    type: 'line',
-                    data: {
-                        labels: months,
-                        datasets: [{
-                            data: chartData,
-                            borderColor: '#3B82F6',
-                            backgroundColor: 'transparent',
-                            borderWidth: 2,
-                            pointBackgroundColor: '#3B82F6',
-                            pointBorderColor: '#3B82F6',
-                            pointRadius: 2,
-                            tension: 0
-                        }]
-                    },
-                    options: {
-                        responsive: false,
-                        maintainAspectRatio: false,
-                        animation: false,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            x: {
-                                display: true,
-                                grid: { display: false },
-                                ticks: { display: false }
-                            },
-                            y: {
-                                display: false,
-                                grid: { display: false }
-                            }
-                        },
-                        elements: {
-                            point: { hoverRadius: 0 }
+                const html = await response.text();
+                contentContainer.innerHTML = html;
+                // Evaluate all <script> tags in the loaded HTML
+                const scripts = contentContainer.querySelectorAll('script');
+                scripts.forEach(script => {
+                    if (script.textContent) {
+                        try {
+                            window.eval(script.textContent);
+                        } catch (e) {
+                            console.error('Error evaluating script:', e);
                         }
                     }
                 });
-            }
-        });
-    }
-    
-    generateChartData(currentValue, target) {
-        // Generate realistic chart data based on current value and target
-        const data = [];
-        const baseValue = target * 0.8; // Start at 80% of target
-        
-        for (let i = 0; i < 11; i++) {
-            if (i === 10) {
-                data.push(currentValue); // Current month
+                // Load and render data for this page
+                await this.loadPageData(page);
             } else {
-                // Generate realistic progression
-                const progress = i / 10;
-                const variation = (Math.random() - 0.5) * 0.2; // ±10% variation
-                const value = baseValue + (currentValue - baseValue) * progress;
-                data.push(Math.round(value * (1 + variation)));
+                contentContainer.innerHTML = `<div class="error-message">Erro ao carregar página: ${page.title}</div>`;
             }
+        } catch (error) {
+            console.error(`Error loading page ${page.page_id}:`, error);
+            contentContainer.innerHTML = `<div class="error-message">Erro ao carregar página: ${page.title}</div>`;
         }
-        
-        return data;
     }
     
-    renderForecast3Months(container, subtitleContainer, data) {
-        if (subtitleContainer) {
-            subtitleContainer.textContent = '';
-            subtitleContainer.style.display = 'none';
-        }
+    async loadPageData(page) {
+        const dataSource = page.config.data_source;
+        if (!dataSource) return;
         
-        const forecastDiv = document.createElement('div');
-        forecastDiv.className = 'forecast-container';
-        
-        const gridDiv = document.createElement('div');
-        gridDiv.className = 'forecast-grid';
-        
-        const months = ['Dezembro', 'Janeiro', 'Fevereiro'];
-        
-        data.forEach((item, index) => {
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'forecast-card';
+        try {
+            const response = await fetch(`/api/data/${dataSource}`);
+            const data = await response.json();
             
-            cardDiv.innerHTML = `
-                <div class="forecast-month">
-                    <div class="forecast-icon">📅</div>
-                    <h3 class="forecast-month-name">${months[index] || item.mes}</h3>
-                    <div class="forecast-value">${item.previsao}</div>
-                    <div class="forecast-units">unidades</div>
-                </div>
-            `;
-            
-            gridDiv.appendChild(cardDiv);
-        });
-        
-        // Add family details section
-        const detailsDiv = document.createElement('div');
-        detailsDiv.className = 'family-details';
-        detailsDiv.innerHTML = `
-            <h3>Previsão por Família</h3>
-            <div class="family-grid">
-                <div class="family-item">
-                    <div class="family-item-left">
-                        <span class="family-item-icon">💧</span>
-                        <span class="family-item-name">Equipamentos A</span>
-                    </div>
-                    <div class="family-item-value">165</div>
-                </div>
-                <div class="family-item">
-                    <div class="family-item-left">
-                        <span class="family-item-icon">⚡</span>
-                        <span class="family-item-name">Equipamentos B</span>
-                    </div>
-                    <div class="family-item-value">132</div>
-                </div>
-                <div class="family-item">
-                    <div class="family-item-left">
-                        <span class="family-item-icon">🔧</span>
-                        <span class="family-item-name">Equipamentos C</span>
-                    </div>
-                    <div class="family-item-value">83</div>
-                </div>
-                <div class="family-item">
-                    <div class="family-item-left">
-                        <span class="family-item-icon">🔩</span>
-                        <span class="family-item-name">Equipamentos D</span>
-                    </div>
-                    <div class="family-item-value">220</div>
-                </div>
-                <div class="family-item">
-                    <div class="family-item-left">
-                        <span class="family-item-icon">📡</span>
-                        <span class="family-item-name">Equipamentos E</span>
-                    </div>
-                    <div class="family-item-value">198</div>
-                </div>
-                <div class="family-item">
-                    <div class="family-item-left">
-                        <span class="family-item-icon">🖥️</span>
-                        <span class="family-item-name">Equipamentos F</span>
-                    </div>
-                    <div class="family-item-value">66</div>
-                </div>
-            </div>
-        `;
-        
-        forecastDiv.appendChild(gridDiv);
-        forecastDiv.appendChild(detailsDiv);
-        
-        container.innerHTML = '';
-        container.appendChild(forecastDiv);
-    }
-    
-    renderTotalValue(container, subtitleContainer, data) {
-        if (subtitleContainer) {
-            subtitleContainer.textContent = '';
-            subtitleContainer.style.display = 'none';
-        }
-        
-        const valueDiv = document.createElement('div');
-        valueDiv.className = 'value-container';
-        
-        // Get current month value
-        const currentMonth = data[data.length - 1];
-        const currentValue = currentMonth.valor;
-        
-        const gridDiv = document.createElement('div');
-        gridDiv.className = 'value-grid';
-        
-        // First card - Current month highlight
-        const highlightCard = document.createElement('div');
-        highlightCard.className = 'value-card';
-        highlightCard.innerHTML = `
-            <div class="highlight-box">
-                <h3 class="highlight-title">🏆 NOVEMBRO 2024 (FECHADO)</h3>
-                <div class="value-current">${(currentValue / 1000).toFixed(0)}k€</div>
-                <div class="value-label">Valor mensal</div>
-            </div>
-            
-            <div class="accumulated-section">
-                <h4 class="accumulated-title">ACUMULADO 2024</h4>
-                <div class="accumulated-value">5120k€</div>
-                <div class="budget-info">Orçamento: 4950k€</div>
-                <div class="percentage success">103%</div>
-            </div>
-        `;
-        
-        // Second card - Chart and forecast
-        const chartCard = document.createElement('div');
-        chartCard.className = 'value-card';
-        chartCard.innerHTML = `
-            <h3 class="accumulated-title">EVOLUÇÃO vs ORÇAMENTO</h3>
-            <div class="chart-container">
-                <canvas id="financial-chart" width="400" height="256"></canvas>
-            </div>
-            
-            <div class="chart-legend">
-                <div class="legend-item">
-                    <div class="legend-line legend-dashed"></div>
-                    <span>Orçamento</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-dot legend-green"></div>
-                    <span>Real (Acima)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-dot legend-red"></div>
-                    <span>Real (Abaixo)</span>
-                </div>
-            </div>
-            
-            <div class="forecast-section">
-                <h4 class="forecast-title">PREVISÃO PRÓXIMOS 3 MESES</h4>
-                <div class="forecast-item">
-                    <span class="forecast-month-label">Dezembro</span>
-                    <span class="forecast-amount">535k€</span>
-                </div>
-                <div class="forecast-item">
-                    <span class="forecast-month-label">Janeiro</span>
-                    <span class="forecast-amount">575k€</span>
-                </div>
-                <div class="forecast-item">
-                    <span class="forecast-month-label">Fevereiro</span>
-                    <span class="forecast-amount">550k€</span>
-                </div>
-            </div>
-        `;
-        
-        gridDiv.appendChild(highlightCard);
-        gridDiv.appendChild(chartCard);
-        valueDiv.appendChild(gridDiv);
-        
-        container.innerHTML = '';
-        container.appendChild(valueDiv);
-        
-        // Create financial chart
-        setTimeout(() => {
-            this.createFinancialChart();
-        }, 100);
-    }
-    
-    createFinancialChart() {
-        const canvas = document.getElementById('financial-chart');
-        
-        if (canvas && typeof Chart !== 'undefined') {
-            const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov'];
-            const actual = [420, 865, 1333, 1785, 2260, 2745, 3207, 3662, 4154, 4632, 5120];
-            const budget = [450, 900, 1350, 1800, 2250, 2700, 3150, 3600, 4050, 4500, 4950];
-            
-            if (this.charts['financial-chart']) {
-                this.charts['financial-chart'].destroy();
+            if (response.ok) {
+                this.dataCache[dataSource] = data;
+                this.renderPageData(page, data);
+            } else {
+                console.error(`Error loading ${dataSource} data:`, data.error);
             }
-            
-            this.charts['financial-chart'] = new Chart(canvas, {
-                type: 'line',
-                data: {
-                    labels: months,
-                    datasets: [
-                        {
-                            label: 'Orçamento',
-                            data: budget,
-                            borderColor: '#3B82F6',
-                            backgroundColor: 'transparent',
-                            borderWidth: 3,
-                            borderDash: [8, 4],
-                            pointBackgroundColor: '#3B82F6',
-                            pointRadius: 4,
-                            tension: 0
-                        },
-                        {
-                            label: 'Real',
-                            data: actual,
-                            borderColor: '#10B981',
-                            backgroundColor: 'transparent',
-                            borderWidth: 3,
-                            pointBackgroundColor: actual.map((val, idx) => {
-                                return val >= budget[idx] ? '#10B981' : '#EF4444';
-                            }),
-                            pointRadius: 4,
-                            tension: 0
-                        }
-                    ]
-                },
-                options: {
-                    responsive: false,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        x: {
-                            display: true,
-                            grid: { display: true, color: '#E5E7EB' },
-                            ticks: { color: '#6B7280', font: { size: 12 } }
-                        },
-                        y: {
-                            display: true,
-                            grid: { display: true, color: '#E5E7EB' },
-                            ticks: { color: '#6B7280', font: { size: 12 } }
-                        }
-                    }
+        } catch (error) {
+            console.error(`Failed to load ${dataSource} data:`, error);
+        }
+    }
+    
+    renderPageData(page, data) {
+        const dataSource = page.config.data_source;
+        
+        switch (dataSource) {
+            case 'production':
+                if (typeof renderProductionPage === 'function') {
+                    renderProductionPage(data);
                 }
-            });
+                break;
+            case 'forecast':
+                if (typeof renderForecastPage === 'function') {
+                    renderForecastPage(data);
+                }
+                break;
+            case 'financial':
+                if (typeof renderFinancialPage === 'function') {
+                    renderFinancialPage(data);
+                }
+                break;
+            case 'performance':
+                if (typeof renderPerformancePage === 'function') {
+                    renderPerformancePage(data);
+                }
+                break;
+        }
+    }
+    
+    async loadAllData() {
+        const dataSources = [...new Set(this.pages.map(page => page.config.data_source))];
+        
+        for (const dataSource of dataSources) {
+            if (dataSource) {
+                await this.loadData(dataSource);
+            }
+        }
+    }
+    
+    async loadData(dataSource) {
+        try {
+            const response = await fetch(`/api/data/${dataSource}`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.dataCache[dataSource] = data;
+            } else {
+                console.error(`Error loading ${dataSource} data:`, data.error);
+            }
+        } catch (error) {
+            console.error(`Failed to load ${dataSource} data:`, error);
         }
     }
 }
 
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new DashboardCarousel();
+    window.dashboardCarousel = new DashboardCarousel();
 });
 
 // Handle visibility change to pause/resume carousel

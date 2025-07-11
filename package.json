@@ -1,0 +1,32 @@
+{
+  "name": "pdashboard",
+  "version": "1.0.0",
+  "description": "Sistema de dashboards para monitorização de performance operacional em ambiente fabril, otimizado para exibição em ecrãs de TV.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./static/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./src/input.css -o ./static/css/tailwind.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kal001/pdashboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kal001/pdashboard/issues"
+  },
+  "homepage": "https://github.com/kal001/pdashboard#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.11",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11"
+  }
+}

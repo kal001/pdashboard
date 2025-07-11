@@ -2,72 +2,84 @@
 
 ## Visão Geral
 
-O PDashboard é um sistema de dashboards para monitorização de performance operacional em ambiente fabril, otimizado para exibição em ecrãs de TV. O sistema foi desenvolvido para a empresa **Jayme da Costa** e implementa todas as regras de design definidas no documento `dashboard_rules.md`.
+O PDashboard é um sistema de dashboards modular para monitorização de performance operacional em ambiente fabril, otimizado para exibição em ecrãs de TV. O sistema foi desenvolvido para a empresa **Jayme da Costa** e implementa todas as regras de design definidas no documento `dashboard_rules.md`.
 
 ## Características Implementadas
 
 ### ✅ Funcionalidades Principais
-- **Carrossel Automático**: Rotação de páginas a cada 10 segundos
-- **Interface Moderna**: Design glass-morphism com cards brancos
+- **Sistema Modular**: Cada página é um módulo independente com configuração própria
+- **Carrossel Automático**: Rotação de páginas com duração configurável por página
+- **Interface Moderna**: Design responsivo com Tailwind CSS v4
 - **Navegação Manual**: Pontos de navegação para controlo manual
-- **Backoffice Admin**: Gestão completa de páginas
-- **Dados Dinâmicos**: Suporte para Excel e dados de exemplo
-- **Gráficos Interativos**: Chart.js para visualizações
+- **Dados Dinâmicos**: Suporte para Excel com configuração por widget
+- **Layout 3x2**: Grid de widgets otimizado para TV
 - **Dockerização Completa**: Deploy simples e portável
 
 ### 🎨 Design Implementado
-- **Glass-morphism**: Efeito de vidro com transparência
-- **Cards Brancos**: Layout limpo e moderno
-- **Ícones Emoji**: Interface amigável e intuitiva
-- **Tipografia Clara**: Fontes grandes para legibilidade
-- **Cores Consistentes**: Verde, amarelo, vermelho, azul
+- **Tailwind CSS v4**: Framework CSS moderno e responsivo
+- **Layout 3x2**: Grid de widgets para máxima utilização do ecrã
+- **Tipografia Clara**: Fontes grandes para legibilidade em TV
+- **Cores Consistentes**: Verde (sucesso), amarelo (aviso), vermelho (perigo), azul (info)
 - **Responsivo**: Adaptado para ecrãs de TV widescreen
+- **CSS Modular**: Estilos específicos por página
 
 ## Stack Tecnológico
 
 ### Backend
 - **Flask**: Framework web Python
-- **SQLite**: Base de dados leve
 - **Pandas**: Processamento de dados Excel
 - **OpenPyXL**: Leitura de ficheiros Excel
 
 ### Frontend
 - **HTML5**: Estrutura semântica
-- **CSS3**: Estilos modernos com glass-morphism
+- **Tailwind CSS v4**: Framework CSS moderno
 - **JavaScript (Vanilla)**: Interatividade sem dependências
-- **Chart.js**: Gráficos interativos
 
 ### Infraestrutura
 - **Docker**: Containerização da aplicação
 - **Docker Compose**: Orquestração de serviços
 - **Volumes**: Persistência de dados
 
+### Build Tools
+- **Node.js**: Para build do Tailwind CSS
+- **Tailwind CLI**: Compilação de CSS otimizado
+
 ## Estrutura do Projeto
 
 ```
 pdashboard/
 ├── app.py                 # Aplicação Flask principal
-├── database.py           # Gestão da base de dados SQLite
 ├── requirements.txt      # Dependências Python
 ├── templates/            # Templates HTML
-│   ├── dashboard.html    # Template do dashboard principal
-│   └── admin.html        # Template do backoffice
+│   └── carousel.html     # Template único para todas as páginas
 ├── static/               # Ficheiros estáticos
 │   ├── css/
-│   │   └── dashboard.css # Estilos principais
-│   ├── js/
-│   │   └── dashboard.js  # JavaScript do dashboard
-│   └── assets/           # Logos e imagens
-│       ├── logo.png      # Logo principal
-│       └── getsitelogo.jpeg # Logo secundário
+│   │   ├── tailwind.css  # CSS compilado do Tailwind
+│   │   └── producao.css  # CSS específico para páginas
+│   └── js/
+│       └── carousel.js   # JavaScript do carrossel
+├── pages/                # Páginas modulares
+│   ├── producao/         # Página de produção
+│   │   ├── config.json   # Configuração da página
+│   │   └── widgets.json  # Configuração dos widgets
+│   ├── previsoes/        # Página de previsões
+│   │   └── config.json
+│   ├── valores/          # Página de valores
+│   │   └── config.json
+│   └── performance/      # Página de performance
+│       └── config.json
 ├── data/                 # Dados Excel (volume Docker)
+│   └── producao.xlsx     # Ficheiro Excel com dados
+├── src/                  # Ficheiros fonte
+│   └── input.css         # CSS fonte do Tailwind
 ├── docs/                 # Documentação
 │   ├── dashboard_rules.md # Regras de design
 │   └── instructions.md   # Este ficheiro
+├── package.json          # Configuração Node.js e scripts
+├── tailwind.config.js    # Configuração Tailwind CSS
 ├── Dockerfile           # Configuração Docker
 ├── docker-compose.yml   # Orquestração de containers
-├── README.md            # Documentação principal
-└── LICENSE              # Licença Apache 2.0
+└── README.md            # Documentação principal
 ```
 
 ## Instalação e Configuração
@@ -75,7 +87,7 @@ pdashboard/
 ### Pré-requisitos
 - Docker
 - Docker Compose
-- Ficheiros Excel com dados (opcional)
+- Node.js (para desenvolvimento local)
 
 ### Passos de Instalação
 
@@ -85,114 +97,152 @@ pdashboard/
    cd pdashboard
    ```
 
-2. **Prepare os dados (opcional)**
-   - Coloque ficheiros Excel na pasta `data/`
-   - Configure as folhas e colunas em `app.py`
+2. **Instale as dependências Node.js (para build do CSS)**
+   ```bash
+   npm install
+   ```
 
-3. **Execute com Docker**
+3. **Build do CSS**
+   ```bash
+   npm run build:css
+   ```
+
+4. **Execute com Docker**
    ```bash
    docker-compose up -d
    ```
 
-4. **Aceda ao sistema**
+5. **Aceda ao sistema**
    - Dashboard: http://localhost:8000
-   - Admin: http://localhost:8000/admin
+
+## Sistema Modular
+
+### Estrutura de Páginas
+
+Cada página é um módulo independente na pasta `pages/` com:
+
+#### config.json
+```json
+{
+  "id": "producao",
+  "active": true,
+  "type": "carousel",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "producao.css"
+}
+```
+
+#### widgets.json (opcional)
+```json
+[
+  {
+    "id": "widget1",
+    "title": "Produção Total",
+    "type": "metric",
+    "data_source": "producao.xlsx",
+    "sheet": "Total",
+    "value_column": "B",
+    "target_column": "C"
+  }
+]
+```
+
+### Configuração de Widgets
+
+Os widgets são configurados para ler dados do ficheiro Excel `data/producao.xlsx`:
+
+- **data_source**: Nome do ficheiro Excel
+- **sheet**: Nome da folha
+- **value_column**: Coluna com o valor atual
+- **target_column**: Coluna com o valor objetivo
+- **comparison**: Comparação automática (verde/amarelo/vermelho)
 
 ## Configuração de Dados
 
-### Estrutura Excel Recomendada
+### Estrutura Excel
 
-O sistema suporta ficheiros Excel com a seguinte estrutura:
+O sistema usa um único ficheiro `data/producao.xlsx` com múltiplas folhas:
 
 ```
-Produção.xlsx
-├── Folha: "Produção"
-│   ├── Coluna A: Família
-│   ├── Coluna B: Unidades Produzidas
-│   ├── Coluna C: Meta
-│   └── Coluna D: Mês
-├── Folha: "Previsões"
-│   ├── Coluna A: Família
-│   ├── Coluna B: Previsão
-│   └── Coluna C: Mês
-└── Folha: "Valores"
-    ├── Coluna A: Valor (k€)
-    ├── Coluna B: Mês
-    └── Coluna C: Tipo
+producao.xlsx
+├── Folha: "Total"
+│   ├── Coluna A: Mês
+│   ├── Coluna B: Valor Atual
+│   └── Coluna C: Meta
+├── Folha: "Familia1"
+│   ├── Coluna A: Mês
+│   ├── Coluna B: Valor Atual
+│   └── Coluna C: Meta
+└── ... (outras folhas)
 ```
 
 ### Dados de Exemplo
 
-Se não tiver ficheiros Excel, o sistema usa dados simulados que incluem:
+O sistema inclui dados simulados que demonstram:
 - Produção mensal por família de equipamento
-- Previsões para os próximos 3 meses
-- Valores monetários em k€
-- Gráficos de evolução
+- Comparação com metas
+- Indicadores de performance
+- Valores monetários
 
 ## Funcionalidades do Dashboard
 
 ### Carrossel Automático
-- **Intervalo**: 10 segundos por página
-- **Transição**: Efeito fade suave
-- **Controlo**: Pontos de navegação na parte inferior
+- **Duração Configurável**: Cada página pode ter duração diferente
+- **Transição Suave**: Efeito fade entre páginas
+- **Navegação Manual**: Pontos clicáveis na parte inferior
 
-### Páginas Disponíveis
-1. **Produção Mensal**: Dados de produção por família
-2. **Previsões**: Previsões para próximos meses
-3. **Valores**: Valores monetários em k€
-4. **Performance**: Indicadores de performance
+### Layout 3x2
+- **Grid Responsivo**: 3 colunas x 2 linhas de widgets
+- **Utilização Total**: Aproveita todo o espaço do ecrã
+- **Widgets Flexíveis**: Adaptam-se ao conteúdo
 
-### Gráficos e Visualizações
-- **Mini Charts**: Gráficos pequenos em cada card
-- **Financial Charts**: Gráficos de barras para valores
-- **Progress Bars**: Indicadores de progresso
-- **Trend Indicators**: Setas de tendência
+### Sistema de Cores
+- **Verde**: Valor >= 90% da meta
+- **Amarelo**: Valor entre 70-89% da meta
+- **Vermelho**: Valor < 70% da meta
 
-## Backoffice Admin
+## Desenvolvimento
 
-### Acesso
-- URL: http://localhost:8000/admin
-- Sem autenticação (ambiente local)
+### Scripts Disponíveis
 
-### Funcionalidades
-- **Toggle Páginas**: Ativar/desativar páginas
-- **Reordenação**: Drag & drop para reorganizar
-- **Preview**: Visualização em tempo real
-- **Persistência**: Alterações guardadas automaticamente
+```bash
+# Build do CSS para produção
+npm run build:css
 
-### Interface
-- **Cards Interativos**: Clique para ativar/desativar
-- **Drag & Drop**: Arrastar para reordenar
-- **Feedback Visual**: Indicadores de estado
-- **Responsivo**: Funciona em diferentes ecrãs
-
-## Personalização
-
-### Cores e Estilos
-Edite `static/css/dashboard.css`:
-
-```css
-:root {
-  --primary-color: #4CAF50;    /* Verde */
-  --warning-color: #FF9800;    /* Amarelo */
-  --danger-color: #F44336;     /* Vermelho */
-  --info-color: #2196F3;       /* Azul */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --card-bg: rgba(255, 255, 255, 0.9);
-}
+# Watch para desenvolvimento
+npm run watch:css
 ```
 
-### Logos
-- Substitua `assets/logo.png` (logo principal)
-- Substitua `assets/getsitelogo.jpeg` (logo secundário)
-- Formatos suportados: PNG, JPEG, SVG
+### Adicionar Nova Página
 
-### Configuração de Dados
-Edite `app.py` para configurar:
-- Caminhos dos ficheiros Excel
-- Estrutura das folhas
-- Mapeamento de colunas
-- Dados de exemplo
+1. **Criar pasta** em `pages/nova-pagina/`
+2. **Criar config.json**:
+   ```json
+   {
+     "id": "nova-pagina",
+     "active": true,
+     "type": "carousel",
+     "duration": 10,
+     "template": "carousel.html",
+     "css_file": "producao.css"
+   }
+   ```
+3. **Adicionar dados** ao Excel se necessário
+4. **Reiniciar** a aplicação
+
+### Personalização de Estilos
+
+#### CSS Global
+Edite `src/input.css` para estilos globais.
+
+#### CSS por Página
+Crie ficheiros CSS específicos e referencie em `config.json`:
+```json
+{
+  "css_file": "minha-pagina.css"
+}
+```
 
 ## Comandos Úteis
 
@@ -216,10 +266,17 @@ docker-compose exec dashboard bash
 
 ### Desenvolvimento
 ```bash
-# Instalar dependências localmente
+# Instalar dependências
 pip install -r requirements.txt
+npm install
 
-# Executar em modo desenvolvimento
+# Build CSS
+npm run build:css
+
+# Watch CSS (desenvolvimento)
+npm run watch:css
+
+# Executar Flask
 python app.py
 ```
 
@@ -227,88 +284,39 @@ python app.py
 
 ### Problemas Comuns
 
-1. **Porta 8000 em uso**
+1. **CSS não atualiza**
    ```bash
-   # Altere no docker-compose.yml
-   ports:
-     - "8001:8000"
+   # Rebuild do CSS
+   npm run build:css
    ```
 
-2. **Dados não carregam**
-   - Verifique se os ficheiros Excel estão em `data/`
-   - Confirme a estrutura das folhas
+2. **Páginas não aparecem**
+   - Verifique se `active: true` em `config.json`
+   - Confirme a estrutura das pastas
    - Verifique os logs: `docker-compose logs dashboard`
 
-3. **Logos não aparecem**
-   - Verifique se os ficheiros estão em `assets/`
-   - Confirme as permissões dos ficheiros
-   - Verifique o volume Docker
+3. **Dados não carregam**
+   - Verifique se `producao.xlsx` está em `data/`
+   - Confirme a estrutura das folhas
+   - Verifique os nomes das colunas
 
-4. **Erro de pandas/numpy**
+4. **Erro de Tailwind**
    ```bash
-   # Rebuild com versões compatíveis
-   docker-compose build --no-cache
+   # Reinstalar dependências
+   rm -rf node_modules package-lock.json
+   npm install
+   npm run build:css
    ```
 
-### Logs e Debug
+### Logs Úteis
 ```bash
-# Ver logs em tempo real
+# Logs da aplicação
+docker-compose logs dashboard
+
+# Logs em tempo real
 docker-compose logs -f dashboard
 
-# Ver logs de erro
-docker-compose logs dashboard | grep ERROR
-
-# Verificar estado dos containers
-docker-compose ps
+# Verificar volumes
+docker volume ls
 ```
-
-## Manutenção
-
-### Backup de Dados
-- Os dados Excel são persistentes no volume `./data`
-- Faça backup regular da pasta `data/`
-- Considere backup da base de dados SQLite
-
-### Atualizações
-1. Pull das alterações
-2. Rebuild dos containers
-3. Teste em ambiente de desenvolvimento
-4. Deploy em produção
-
-### Monitorização
-- Verifique logs regularmente
-- Monitore uso de recursos
-- Valide funcionamento dos dados
-
-## Próximos Passos
-
-### Melhorias Sugeridas
-- [ ] Autenticação para o backoffice
-- [ ] Mais tipos de gráficos
-- [ ] Exportação de relatórios
-- [ ] Notificações em tempo real
-- [ ] Integração com APIs externas
-- [ ] Temas personalizáveis
-- [ ] Modo escuro/claro
-- [ ] Responsividade para tablets
-
-### Configuração Avançada
-- [ ] Load balancer
-- [ ] Cache Redis
-- [ ] Logs estruturados
-- [ ] Métricas de performance
-- [ ] Health checks
-- [ ] Auto-scaling
-
-## Suporte
-
-Para questões e suporte:
-1. Consulte a documentação em `docs/`
-2. Verifique os logs do sistema
-3. Abra uma issue no repositório
-4. Contacte a equipa de desenvolvimento
-
----
-
-**Nota**: Este sistema foi desenvolvido especificamente para a Jayme da Costa e implementa todas as regras de design fabril definidas. Para uso noutras empresas, adapte os logos, cores e estrutura de dados conforme necessário.
 

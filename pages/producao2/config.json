@@ -1,0 +1,19 @@
+{
+  "id": "producao2",
+  "title": "Produção Linha 2",
+  "description": "Dashboard de produção linha 2",
+  "active": true,
+  "type": "3x2",
+  "duration": 8,
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "xlsx_file": "producao.xlsx",
+  "widgets": [
+    { "id": "widget1", "active": true, "name": "Linha 2 - Máquina X", "sheet": "ModeloA", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget2", "active": true, "name": "Linha 2 - Máquina Y", "sheet": "ModeloB", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget3", "active": true, "name": "Linha 2 - Máquina Z", "sheet": "ModeloC", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget4", "active": true, "name": "Linha 2 - Máquina W", "sheet": "ModeloD", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget5", "active": true, "name": "Linha 2 - Máquina Q", "sheet": "ModeloE", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget6", "active": true, "name": "Linha 2 - Máquina R", "sheet": "ModeloF", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" }
+  ]
+} 

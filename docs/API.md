@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-A API do PDashboard fornece endpoints para gestão de páginas, dados e configuração do sistema. Todos os endpoints retornam dados em formato JSON.
+A API do PDashboard fornece endpoints para gestão de páginas modulares, dados e configuração do sistema. Todos os endpoints retornam dados em formato JSON.
 
 ## Base URL
 
@@ -15,67 +15,102 @@ http://localhost:8000
 ### Dashboard Principal
 
 #### GET /
-Retorna a página principal do dashboard.
+Retorna a página principal do dashboard com carrossel de páginas modulares.
 
 **Resposta:** HTML da página do dashboard
 
 ---
 
-### Backoffice Admin
-
-#### GET /admin
-Retorna a interface de administração.
-
-**Resposta:** HTML da página de administração
-
----
-
-### Gestão de Páginas
+### Gestão de Páginas Modulares
 
 #### GET /api/pages
-Retorna a lista de todas as páginas com seu estado atual.
+Retorna a lista de todas as páginas modulares com sua configuração.
 
 **Resposta:**
 ```json
 {
   "pages": [
     {
-      "id": 1,
-      "title": "Produção Mensal",
+      "id": "producao",
       "active": true,
-      "order": 1,
-      "type": "production"
+      "type": "carousel",
+      "duration": 10,
+      "template": "carousel.html",
+      "css_file": "producao.css",
+      "widgets": [
+        {
+          "id": "widget1",
+          "title": "Produção Total",
+          "type": "metric",
+          "data_source": "producao.xlsx",
+          "sheet": "Total",
+          "value_column": "B",
+          "target_column": "C"
+        }
+      ]
     },
     {
-      "id": 2,
-      "title": "Previsões",
+      "id": "previsoes",
       "active": true,
-      "order": 2,
-      "type": "forecast"
+      "type": "carousel",
+      "duration": 8,
+      "template": "carousel.html",
+      "css_file": "producao.css"
     },
     {
-      "id": 3,
-      "title": "Valores",
+      "id": "valores",
       "active": false,
-      "order": 3,
-      "type": "financial"
+      "type": "carousel",
+      "duration": 12,
+      "template": "carousel.html",
+      "css_file": "producao.css"
     },
     {
-      "id": 4,
-      "title": "Performance",
+      "id": "performance",
       "active": true,
-      "order": 4,
-      "type": "performance"
+      "type": "carousel",
+      "duration": 10,
+      "template": "carousel.html",
+      "css_file": "producao.css"
     }
   ]
 }
 ```
 
-#### POST /api/pages/{id}/toggle
+#### GET /api/pages/{page_id}
+Retorna a configuração de uma página específica.
+
+**Parâmetros:**
+- `page_id` (path): ID da página
+
+**Resposta:**
+```json
+{
+  "id": "producao",
+  "active": true,
+  "type": "carousel",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "widgets": [
+    {
+      "id": "widget1",
+      "title": "Produção Total",
+      "type": "metric",
+      "data_source": "producao.xlsx",
+      "sheet": "Total",
+      "value_column": "B",
+      "target_column": "C"
+    }
+  ]
+}
+```
+
+#### POST /api/pages/{page_id}/toggle
 Ativa ou desativa uma página específica.
 
 **Parâmetros:**
-- `id` (path): ID da página
+- `page_id` (path): ID da página
 
 **Resposta:**
 ```json
@@ -83,27 +118,9 @@ Ativa ou desativa uma página específica.
   "success": true,
   "message": "Página ativada/desativada com sucesso",
   "page": {
-    "id": 1,
+    "id": "producao",
     "active": true
   }
-}
-```
-
-#### POST /api/pages/reorder
-Reordena as páginas baseado na nova ordem fornecida.
-
-**Body:**
-```json
-{
-  "order": [1, 3, 2, 4]
-}
-```
-
-**Resposta:**
-```json
-{
-  "success": true,
-  "message": "Páginas reordenadas com sucesso"
 }
 ```
 
@@ -112,75 +129,72 @@ Reordena as páginas baseado na nova ordem fornecida.
 ### Dados do Dashboard
 
 #### GET /api/data
-Retorna todos os dados necessários para o dashboard.
+Retorna todos os dados necessários para o dashboard baseado na configuração das páginas.
 
 **Resposta:**
 ```json
 {
-  "production": {
-    "families": [
-      {
-        "name": "Família A",
-        "produced": 150,
-        "target": 140,
-        "percentage": 107,
-        "status": "success",
-        "trend": [120, 130, 140, 150]
-      },
-      {
-        "name": "Família B",
-        "produced": 95,
-        "target": 100,
-        "percentage": 95,
-        "status": "warning",
-        "trend": [110, 105, 100, 95]
-      }
-    ],
-    "total_produced": 245,
-    "total_target": 240,
-    "overall_percentage": 102
-  },
-  "forecast": {
-    "months": ["Janeiro", "Fevereiro", "Março"],
-    "families": [
-      {
-        "name": "Família A",
-        "values": [160, 170, 180]
-      },
-      {
-        "name": "Família B",
-        "values": [110, 115, 120]
-      }
-    ]
-  },
-  "financial": {
-    "current_month": 1250,
-    "previous_month": 1180,
-    "trend": [1000, 1050, 1100, 1150, 1180, 1250],
-    "months": ["Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
-  },
-  "performance": {
-    "indicators": [
-      {
-        "name": "Eficiência",
-        "value": 87,
-        "target": 90,
-        "status": "warning"
-      },
-      {
-        "name": "Qualidade",
-        "value": 98,
-        "target": 95,
-        "status": "success"
-      },
-      {
-        "name": "Disponibilidade",
-        "value": 92,
-        "target": 95,
-        "status": "warning"
-      }
-    ]
-  },
+  "pages": [
+    {
+      "id": "producao",
+      "widgets": [
+        {
+          "id": "widget1",
+          "title": "Produção Total",
+          "value": 1250,
+          "target": 1200,
+          "percentage": 104,
+          "status": "success",
+          "color": "green"
+        },
+        {
+          "id": "widget2",
+          "title": "Família A",
+          "value": 450,
+          "target": 500,
+          "percentage": 90,
+          "status": "warning",
+          "color": "yellow"
+        },
+        {
+          "id": "widget3",
+          "title": "Família B",
+          "value": 800,
+          "target": 700,
+          "percentage": 114,
+          "status": "success",
+          "color": "green"
+        },
+        {
+          "id": "widget4",
+          "title": "Família C",
+          "value": 300,
+          "target": 400,
+          "percentage": 75,
+          "status": "danger",
+          "color": "red"
+        },
+        {
+          "id": "widget5",
+          "title": "Família D",
+          "value": 600,
+          "target": 550,
+          "percentage": 109,
+          "status": "success",
+          "color": "green"
+        },
+        {
+          "id": "widget6",
+          "title": "Família E",
+          "value": 350,
+          "target": 400,
+          "percentage": 88,
+          "status": "warning",
+          "color": "yellow"
+        }
+      ]
+    }
+  ],
   "metadata": {
     "last_update": "2024-01-15T14:30:00Z",
     "company": "Jayme da Costa",
@@ -189,55 +203,66 @@ Retorna todos os dados necessários para o dashboard.
 }
 ```
 
-#### GET /api/data/production
-Retorna apenas os dados de produção.
+#### GET /api/data/{page_id}
+Retorna os dados de uma página específica.
 
-**Resposta:** Subset dos dados de produção do endpoint `/api/data`
+**Parâmetros:**
+- `page_id` (path): ID da página
 
-#### GET /api/data/forecast
-Retorna apenas os dados de previsão.
+**Resposta:** Dados dos widgets da página específica
 
-**Resposta:** Subset dos dados de previsão do endpoint `/api/data`
+#### GET /api/data/{page_id}/{widget_id}
+Retorna os dados de um widget específico.
 
-#### GET /api/data/financial
-Retorna apenas os dados financeiros.
+**Parâmetros:**
+- `page_id` (path): ID da página
+- `widget_id` (path): ID do widget
 
-**Resposta:** Subset dos dados financeiros do endpoint `/api/data`
-
-#### GET /api/data/performance
-Retorna apenas os dados de performance.
-
-**Resposta:** Subset dos dados de performance do endpoint `/api/data`
+**Resposta:**
+```json
+{
+  "id": "widget1",
+  "title": "Produção Total",
+  "value": 1250,
+  "target": 1200,
+  "percentage": 104,
+  "status": "success",
+  "color": "green"
+}
+```
 
 ---
 
 ### Configuração do Sistema
 
 #### GET /api/config
-Retorna a configuração atual do sistema.
+Retorna a configuração geral do sistema.
 
 **Resposta:**
 ```json
 {
-  "carousel_interval": 10000,
-  "company_name": "Jayme da Costa",
-  "logo_primary": "/static/assets/logo.png",
-  "logo_secondary": "/static/assets/getsitelogo.jpeg",
-  "theme": {
-    "primary_color": "#4CAF50",
-    "warning_color": "#FF9800",
-    "danger_color": "#F44336",
-    "info_color": "#2196F3"
+  "carousel": {
+    "auto_rotate": true,
+    "default_duration": 10,
+    "transition_effect": "fade"
+  },
+  "layout": {
+    "grid": "3x2",
+    "responsive": true
+  },
+  "data": {
+    "excel_file": "producao.xlsx",
+    "auto_refresh": false
+  },
+  "styling": {
+    "default_css": "producao.css",
+    "theme": "dark"
   }
 }
 ```
 
----
-
-### Health Check
-
 #### GET /api/health
-Verifica o estado de saúde da aplicação.
+Verifica o estado de saúde do sistema.
 
 **Resposta:**
 ```json
@@ -245,8 +270,11 @@ Verifica o estado de saúde da aplicação.
   "status": "healthy",
   "timestamp": "2024-01-15T14:30:00Z",
   "version": "1.0.0",
-  "database": "connected",
-  "data_files": "loaded"
+  "services": {
+    "flask": "running",
+    "excel_data": "available",
+    "pages": "loaded"
+  }
 }
 ```
 
@@ -254,125 +282,65 @@ Verifica o estado de saúde da aplicação.
 
 ## Códigos de Status
 
-| Código | Descrição |
-|--------|-----------|
-| 200 | Sucesso |
-| 400 | Erro de requisição |
-| 404 | Recurso não encontrado |
-| 500 | Erro interno do servidor |
+- `200 OK`: Requisição bem-sucedida
+- `400 Bad Request`: Parâmetros inválidos
+- `404 Not Found`: Recurso não encontrado
+- `500 Internal Server Error`: Erro interno do servidor
 
-## Estruturas de Dados
+## Estrutura de Dados
 
-### Página (Page)
+### Widget Data
 ```json
 {
-  "id": 1,
-  "title": "Nome da Página",
-  "active": true,
-  "order": 1,
-  "type": "production"
+  "id": "string",
+  "title": "string",
+  "value": "number",
+  "target": "number",
+  "percentage": "number",
+  "status": "success|warning|danger",
+  "color": "green|yellow|red"
 }
 ```
 
-### Família de Produção (Production Family)
+### Page Configuration
 ```json
 {
-  "name": "Nome da Família",
-  "produced": 150,
-  "target": 140,
-  "percentage": 107,
-  "status": "success",
-  "trend": [120, 130, 140, 150]
+  "id": "string",
+  "active": "boolean",
+  "type": "carousel",
+  "duration": "number",
+  "template": "string",
+  "css_file": "string",
+  "widgets": "array"
 }
 ```
-
-### Indicador de Performance (Performance Indicator)
-```json
-{
-  "name": "Nome do Indicador",
-  "value": 87,
-  "target": 90,
-  "status": "warning"
-}
-```
-
-## Status Codes
-
-### Status de Produção
-- `success`: Produção acima da meta (verde)
-- `warning`: Produção próxima da meta (amarelo)
-- `danger`: Produção abaixo da meta (vermelho)
-
-### Status de Performance
-- `success`: Valor acima do target
-- `warning`: Valor próximo do target
-- `danger`: Valor abaixo do target
 
 ## Exemplos de Uso
 
-### JavaScript - Carregar Dados
-```javascript
-fetch('/api/data')
-  .then(response => response.json())
-  .then(data => {
-    console.log('Dados carregados:', data);
-    updateDashboard(data);
-  })
-  .catch(error => {
-    console.error('Erro ao carregar dados:', error);
-  });
+### Obter todas as páginas ativas
+```bash
+curl http://localhost:8000/api/pages
 ```
 
-### JavaScript - Toggle Página
-```javascript
-fetch('/api/pages/1/toggle', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
-.then(response => response.json())
-.then(data => {
-  if (data.success) {
-    console.log('Página atualizada:', data.message);
-  }
-});
+### Ativar uma página
+```bash
+curl -X POST http://localhost:8000/api/pages/producao/toggle
 ```
 
-### JavaScript - Reordenar Páginas
-```javascript
-fetch('/api/pages/reorder', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    order: [1, 3, 2, 4]
-  })
-})
-.then(response => response.json())
-.then(data => {
-  if (data.success) {
-    console.log('Páginas reordenadas');
-  }
-});
+### Obter dados de uma página específica
+```bash
+curl http://localhost:8000/api/data/producao
 ```
 
-## Limitações
+### Verificar saúde do sistema
+```bash
+curl http://localhost:8000/api/health
+```
 
-- Todos os endpoints são de leitura exceto os de gestão de páginas
-- Não há autenticação (ambiente local)
-- Dados são carregados de ficheiros Excel ou simulados
-- Cache não implementado
+## Notas de Implementação
 
-## Versionamento
-
-A API está na versão 1.0.0. Mudanças futuras serão documentadas com versionamento semântico.
-
-## Suporte
-
-Para questões sobre a API:
-1. Verifique os logs da aplicação
-2. Teste os endpoints com ferramentas como Postman
-3. Consulte a documentação de desenvolvimento
-4. Abra uma issue no repositório 
+- Todos os endpoints são síncronos
+- Os dados são lidos do ficheiro Excel `data/producao.xlsx`
+- As configurações das páginas são lidas dos ficheiros `config.json`
+- O sistema suporta hot-reload de templates
+- Os dados são atualizados a cada requisição 

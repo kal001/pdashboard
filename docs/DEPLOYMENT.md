@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Este guia fornece instruções detalhadas para deploy do PDashboard em diferentes ambientes, desde desenvolvimento local até produção.
+Este guia fornece instruções detalhadas para deploy do PDashboard modular em diferentes ambientes, desde desenvolvimento local até produção.
 
 ## Ambientes Suportados
 
@@ -10,11 +10,13 @@ Este guia fornece instruções detalhadas para deploy do PDashboard em diferente
 - Docker Desktop (macOS/Windows)
 - Docker Engine (Linux)
 - Docker Compose
+- Node.js (para build do CSS)
 
 ### Produção
 - Servidor Linux
 - Docker Engine
 - Docker Compose
+- Node.js (para build do CSS)
 - Nginx (opcional)
 - SSL/TLS (opcional)
 
@@ -23,6 +25,7 @@ Este guia fornece instruções detalhadas para deploy do PDashboard em diferente
 ### Pré-requisitos
 - Docker Desktop ou Docker Engine
 - Docker Compose
+- Node.js (versão 16 ou superior)
 - Git
 
 ### Passos
@@ -33,28 +36,39 @@ Este guia fornece instruções detalhadas para deploy do PDashboard em diferente
    cd pdashboard
    ```
 
-2. **Configure os dados (opcional)**
+2. **Instale as dependências Node.js**
+   ```bash
+   npm install
+   ```
+
+3. **Build do CSS**
+   ```bash
+   npm run build:css
+   ```
+
+4. **Configure os dados (opcional)**
    ```bash
    # Crie a pasta de dados
    mkdir -p data
    
-   # Adicione ficheiros Excel
-   cp /path/to/your/excel/files/*.xlsx data/
+   # Adicione o ficheiro Excel principal
+   cp /path/to/your/producao.xlsx data/
    ```
 
-3. **Configure os logos**
+5. **Configure as páginas modulares**
    ```bash
-   # Substitua os logos da empresa
-   cp /path/to/company/logo.png static/assets/logo.png
-   cp /path/to/company/getsitelogo.jpeg static/assets/getsitelogo.jpeg
+   # Edite as configurações das páginas
+   nano pages/producao/config.json
+   nano pages/previsoes/config.json
+   # ... outras páginas
    ```
 
-4. **Execute o sistema**
+6. **Execute o sistema**
    ```bash
    docker-compose up -d
    ```
 
-5. **Verifique o funcionamento**
+7. **Verifique o funcionamento**
    ```bash
    # Verifique os logs
    docker-compose logs dashboard
@@ -63,13 +77,18 @@ Este guia fornece instruções detalhadas para deploy do PDashboard em diferente
    docker-compose ps
    ```
 
-6. **Aceda ao sistema**
+8. **Aceda ao sistema**
    - Dashboard: http://localhost:8000
-   - Admin: http://localhost:8000/admin
 
 ### Comandos Úteis
 
 ```bash
+# Build do CSS
+npm run build:css
+
+# Watch CSS (desenvolvimento)
+npm run watch:css
+
 # Iniciar
 docker-compose up -d
 
@@ -97,10 +116,10 @@ tar -czf backup-$(date +%Y%m%d).tar.gz data/
 ```bash
 # Ubuntu/Debian
 sudo apt update
-sudo apt install -y docker.io docker-compose git curl
+sudo apt install -y docker.io docker-compose git curl nodejs npm
 
 # CentOS/RHEL
-sudo yum install -y docker docker-compose git curl
+sudo yum install -y docker docker-compose git curl nodejs npm
 
 # Iniciar e habilitar Docker
 sudo systemctl start docker
@@ -108,6 +127,10 @@ sudo systemctl enable docker
 
 # Adicionar utilizador ao grupo docker
 sudo usermod -aG docker $USER
+
+# Verificar Node.js
+node --version
+npm --version
 ```
 
 #### Configuração de Rede
@@ -125,9 +148,11 @@ sudo ufw enable
    git clone <repository-url>
    cd pdashboard
    
-   # Configure variáveis de ambiente
-   cp .env.example .env
-   nano .env
+   # Instale dependências Node.js
+   npm install
+   
+   # Build do CSS para produção
+   npm run build:css
    ```
 
 2. **Configure o ambiente de produção**
@@ -148,7 +173,7 @@ sudo ufw enable
          - PORT=8000
        volumes:
          - ./data:/app/data
-         - ./static/assets:/app/static/assets
+         - ./templates:/app/templates
        restart: unless-stopped
        healthcheck:
          test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
@@ -157,7 +182,17 @@ sudo ufw enable
          retries: 3
    ```
 
-3. **Execute o deploy**
+3. **Configure as páginas modulares**
+   ```bash
+   # Ative apenas as páginas necessárias
+   nano pages/producao/config.json
+   # {"active": true, "duration": 10, ...}
+   
+   nano pages/previsoes/config.json
+   # {"active": true, "duration": 8, ...}
+   ```
+
+4. **Execute o deploy**
    ```bash
    # Build e deploy
    docker-compose up -d --build
@@ -212,47 +247,11 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-#### Docker Compose com Nginx
-```yaml
-version: '3.8'
-services:
-  dashboard:
-    build: .
-    expose:
-      - "8000"
-    environment:
-      - FLASK_ENV=production
-    volumes:
-      - ./data:/app/data
-      - ./static/assets:/app/static/assets
-    restart: unless-stopped
-    networks:
-      - dashboard-network
+### Deploy com SSL/TLS
 
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
-    depends_on:
-      - dashboard
-    restart: unless-stopped
-    networks:
-      - dashboard-network
-
-networks:
-  dashboard-network:
-    driver: bridge
-```
-
-### SSL/TLS com Let's Encrypt
-
-#### Instalação Certbot
+#### Certbot (Let's Encrypt)
 ```bash
-# Ubuntu/Debian
+# Instalar Certbot
 sudo apt install -y certbot python3-certbot-nginx
 
 # Obter certificado
@@ -263,290 +262,188 @@ sudo crontab -e
 # Adicionar: 0 12 * * * /usr/bin/certbot renew --quiet
 ```
 
-#### Configuração Nginx com SSL
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    return 301 https://$server_name$request_uri;
-}
+## Configuração Avançada
 
-server {
-    listen 443 ssl http2;
-    server_name your-domain.com;
-    
-    ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
-    
-    location / {
-        proxy_pass http://localhost:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
+### Variáveis de Ambiente
+
+Crie um ficheiro `.env`:
+```bash
+# Ambiente
+FLASK_ENV=production
+PORT=8000
+
+# Configuração do carrossel
+DEFAULT_DURATION=10
+AUTO_ROTATE=true
+
+# Configuração de dados
+EXCEL_FILE=producao.xlsx
+AUTO_REFRESH=false
+```
+
+### Configuração de Páginas
+
+Cada página pode ser configurada independentemente:
+
+```json
+{
+  "id": "producao",
+  "active": true,
+  "type": "carousel",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "producao.css"
 }
+```
+
+### Configuração de Widgets
+
+Os widgets são configurados para ler dados do Excel:
+
+```json
+[
+  {
+    "id": "widget1",
+    "title": "Produção Total",
+    "type": "metric",
+    "data_source": "producao.xlsx",
+    "sheet": "Total",
+    "value_column": "B",
+    "target_column": "C"
+  }
+]
 ```
 
 ## Monitorização e Manutenção
 
-### Logs e Monitorização
+### Health Checks
 ```bash
-# Logs da aplicação
-docker-compose logs -f dashboard
-
-# Logs do Nginx
-sudo tail -f /var/log/nginx/access.log
-sudo tail -f /var/log/nginx/error.log
-
-# Monitorização de recursos
-docker stats
-
-# Health check
+# Verificar saúde da aplicação
 curl http://localhost:8000/api/health
+
+# Verificar logs
+docker-compose logs dashboard
+
+# Verificar recursos
+docker stats
 ```
 
 ### Backup e Restore
 ```bash
-# Script de backup automático
-#!/bin/bash
-BACKUP_DIR="/backup/pdashboard"
-DATE=$(date +%Y%m%d_%H%M%S)
+# Backup dos dados
+tar -czf backup-$(date +%Y%m%d).tar.gz data/
 
-# Criar backup
-mkdir -p $BACKUP_DIR
-tar -czf $BACKUP_DIR/data_$DATE.tar.gz data/
-tar -czf $BACKUP_DIR/config_$DATE.tar.gz docker-compose.yml .env
+# Backup das configurações
+tar -czf config-backup-$(date +%Y%m%d).tar.gz pages/
 
-# Limpar backups antigos (manter últimos 7 dias)
-find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
-
-echo "Backup criado: $BACKUP_DIR/data_$DATE.tar.gz"
+# Restore
+tar -xzf backup-20240115.tar.gz
 ```
 
 ### Atualizações
 ```bash
-# Script de atualização
-#!/bin/bash
-echo "Iniciando atualização do PDashboard..."
-
-# Backup antes da atualização
-./backup.sh
-
 # Pull das alterações
 git pull origin main
 
-# Rebuild e restart
+# Rebuild do CSS
+npm run build:css
+
+# Rebuild dos containers
 docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
-
-# Verificar status
-docker-compose ps
-curl http://localhost:8000/api/health
-
-echo "Atualização concluída!"
-```
-
-## Configurações Avançadas
-
-### Variáveis de Ambiente
-```bash
-# .env
-FLASK_ENV=production
-PORT=8000
-DATABASE_URL=sqlite:///data/dashboard.db
-LOG_LEVEL=INFO
-CAROUSEL_INTERVAL=10000
-COMPANY_NAME="Jayme da Costa"
-```
-
-### Dockerfile Otimizado
-```dockerfile
-FROM python:3.11-slim
-
-# Instalar dependências do sistema
-RUN apt-get update && apt-get install -y \
-    gcc \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-
-# Copiar requirements primeiro para cache
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copiar código
-COPY . .
-
-# Criar utilizador não-root
-RUN useradd -m -u 1000 dashboard && \
-    chown -R dashboard:dashboard /app
-USER dashboard
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/api/health || exit 1
-
-EXPOSE 8000
-CMD ["python", "app.py"]
-```
-
-### Docker Compose para Produção
-```yaml
-version: '3.8'
-services:
-  dashboard:
-    build: .
-    expose:
-      - "8000"
-    environment:
-      - FLASK_ENV=production
-      - PORT=8000
-    volumes:
-      - ./data:/app/data
-      - ./static/assets:/app/static/assets
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - dashboard-network
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
-      - ./logs/nginx:/var/log/nginx
-    depends_on:
-      - dashboard
-    restart: unless-stopped
-    networks:
-      - dashboard-network
-
-networks:
-  dashboard-network:
-    driver: bridge
-
-volumes:
-  data:
-  logs:
+docker-compose up -d --build
 ```
 
 ## Troubleshooting
 
 ### Problemas Comuns
 
-1. **Porta em uso**
+1. **CSS não atualiza**
    ```bash
-   # Verificar portas em uso
-   sudo netstat -tulpn | grep :8000
-   
-   # Alterar porta
-   # Editar docker-compose.yml
-   ports:
-     - "8001:8000"
+   # Rebuild do CSS
+   npm run build:css
    ```
 
-2. **Permissões de ficheiros**
-   ```bash
-   # Corrigir permissões
-   sudo chown -R $USER:$USER data/
-   sudo chown -R $USER:$USER static/assets/
-   ```
+2. **Páginas não aparecem**
+   - Verifique se `active: true` em `config.json`
+   - Confirme a estrutura das pastas
+   - Verifique os logs: `docker-compose logs dashboard`
 
 3. **Dados não carregam**
+   - Verifique se `producao.xlsx` está em `data/`
+   - Confirme a estrutura das folhas
+   - Verifique os nomes das colunas
+
+4. **Erro de Tailwind**
    ```bash
-   # Verificar logs
-   docker-compose logs dashboard
-   
-   # Verificar ficheiros Excel
-   ls -la data/
-   
-   # Testar API
-   curl http://localhost:8000/api/data
+   # Reinstalar dependências
+   rm -rf node_modules package-lock.json
+   npm install
+   npm run build:css
    ```
 
-4. **Erro de memória**
-   ```bash
-   # Aumentar memória Docker
-   # Docker Desktop: Settings > Resources > Memory
-   # Linux: /etc/docker/daemon.json
-   {
-     "default-shm-size": "256M"
-   }
-   ```
-
-### Logs de Debug
+### Logs Úteis
 ```bash
-# Logs detalhados
-docker-compose logs dashboard | grep -E "(ERROR|WARNING|Exception)"
+# Logs da aplicação
+docker-compose logs dashboard
 
-# Logs de rede
-docker-compose logs nginx
+# Logs em tempo real
+docker-compose logs -f dashboard
 
-# Logs do sistema
-sudo journalctl -u docker.service -f
+# Verificar volumes
+docker volume ls
+
+# Verificar recursos
+docker stats
 ```
 
 ## Segurança
 
-### Boas Práticas
-- Use HTTPS em produção
-- Configure firewall adequadamente
-- Mantenha o sistema atualizado
-- Use utilizadores não-root
-- Faça backups regulares
-- Monitore logs de segurança
-
-### Configuração de Segurança
+### Firewall
 ```bash
-# Firewall básico
+# Configurar firewall
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw allow ssh
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 sudo ufw enable
-
-# Fail2ban (proteção contra ataques)
-sudo apt install -y fail2ban
-sudo systemctl enable fail2ban
-sudo systemctl start fail2ban
 ```
+
+### Docker Security
+```bash
+# Executar como utilizador não-root
+docker run --user 1000:1000 ...
+
+# Limitar recursos
+docker run --memory=512m --cpus=1 ...
+```
+
+### SSL/TLS
+- Sempre use HTTPS em produção
+- Configure renovação automática de certificados
+- Use headers de segurança
 
 ## Performance
 
 ### Otimizações
-- Use Nginx como proxy reverso
-- Configure cache para ficheiros estáticos
-- Use imagens Docker otimizadas
+- Use Nginx para servir ficheiros estáticos
+- Configure cache para CSS/JS
+- Use compressão gzip
 - Monitore uso de recursos
-- Configure logs rotation
 
-### Monitorização de Performance
+### Scaling
 ```bash
-# Monitorização de recursos
-docker stats
+# Múltiplas instâncias
+docker-compose up -d --scale dashboard=3
 
-# Análise de logs
-docker-compose logs dashboard | grep "response_time"
-
-# Teste de carga
-ab -n 1000 -c 10 http://localhost:8000/
+# Load balancer
+# Configure Nginx como load balancer
 ```
 
 ## Suporte
 
 Para questões de deploy:
-1. Verifique os logs do sistema
-2. Consulte a documentação
-3. Teste em ambiente de desenvolvimento
-4. Contacte a equipa de infraestrutura 
+1. Verifique os logs da aplicação
+2. Consulte a documentação em `docs/`
+3. Verifique a configuração do sistema
+4. Abra uma issue no repositório 

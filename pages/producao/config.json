@@ -1,0 +1,19 @@
+{
+  "id": "producao",
+  "title": "Produção Mensal",
+  "description": "Dashboard de produção por família de equipamento",
+  "active": true,
+  "type": "3x2",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "xlsx_file": "producao.xlsx",
+  "widgets": [
+    { "id": "widget1", "active": true, "name": "TV Modelo A", "sheet": "ModeloA", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget2", "active": true, "name": "TV Modelo B", "sheet": "ModeloB", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget3", "active": true, "name": "TV Modelo C", "sheet": "ModeloC", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget4", "active": true, "name": "TV Modelo D", "sheet": "ModeloD", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget5", "active": true, "name": "TV Modelo E", "sheet": "ModeloE", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget6", "active": true, "name": "TV Modelo F", "sheet": "ModeloF", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" }
+  ]
+} 

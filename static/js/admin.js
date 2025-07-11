@@ -1,15 +1,74 @@
-// Admin Panel JavaScript
+// Admin Panel JavaScript - Modular Page System
 class AdminPanel {
     constructor() {
         this.pagesList = document.getElementById('pages-list');
         this.draggedItem = null;
+        this.pages = [];
         
         this.init();
     }
     
-    init() {
+    async init() {
+        await this.loadPages();
         this.initDragAndDrop();
         this.loadDataStatus();
+    }
+    
+    async loadPages() {
+        try {
+            const response = await fetch('/api/pages');
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.pages = data.pages;
+                this.renderPages();
+            } else {
+                console.error('Error loading pages:', data.error);
+            }
+        } catch (error) {
+            console.error('Failed to load pages:', error);
+        }
+    }
+    
+    renderPages() {
+        if (!this.pagesList) return;
+        
+        this.pagesList.innerHTML = '';
+        
+        this.pages.forEach(page => {
+            const pageItem = document.createElement('div');
+            pageItem.className = 'page-item';
+            pageItem.dataset.pageId = page.id;
+            pageItem.setAttribute('draggable', true);
+            
+            pageItem.innerHTML = `
+                <div class="page-info">
+                    <div class="page-header">
+                        <span class="page-icon">${page.icon}</span>
+                        <h3>${page.title}</h3>
+                    </div>
+                    <p class="page-description">${page.description}</p>
+                    <p class="page-type">Tipo: ${page.type}</p>
+                    <p class="page-order">Ordem: ${page.order}</p>
+                    <div class="page-extra-info" style="margin-top: 10px;">
+                        <p><strong>Template:</strong> ${page.config && page.config.template ? page.config.template : '-'}</p>
+                        <p><strong>CSS:</strong> ${page.config && page.config.css_file ? page.config.css_file : '-'}</p>
+                        <p><strong>Widgets ativos:</strong> ${page.config && page.config.widgets ? page.config.widgets.filter(w => w.active !== false).map(w => w.name).join(', ') : '-'}</p>
+                    </div>
+                </div>
+                <div class="page-actions">
+                    <button class="toggle-btn ${page.active ? 'active' : 'inactive'}" 
+                            onclick="togglePage(${page.id})">
+                        ${page.active ? 'Ativo' : 'Inativo'}
+                    </button>
+                </div>
+                <div class="drag-handle">⋮⋮</div>
+            `;
+            
+            this.pagesList.appendChild(pageItem);
+        });
+        
+        this.initDragAndDrop();
     }
     
     initDragAndDrop() {
@@ -18,8 +77,6 @@ class AdminPanel {
         const pageItems = this.pagesList.querySelectorAll('.page-item');
         
         pageItems.forEach(item => {
-            item.setAttribute('draggable', true);
-            
             item.addEventListener('dragstart', (e) => {
                 this.draggedItem = item;
                 item.classList.add('dragging');
@@ -61,10 +118,7 @@ class AdminPanel {
     
     updateOrder() {
         const items = Array.from(this.pagesList.querySelectorAll('.page-item'));
-        const orderData = items.map((item, index) => ({
-            id: parseInt(item.dataset.pageId),
-            order: index + 1
-        }));
+        const orderData = items.map((item, index) => parseInt(item.dataset.pageId));
         
         // Update visual order numbers
         items.forEach((item, index) => {
@@ -80,15 +134,17 @@ class AdminPanel {
     
     async saveOrder(orderData) {
         try {
-            const response = await fetch('/admin/reorder', {
+            const response = await fetch('/api/pages/reorder', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(orderData)
+                body: JSON.stringify({ order: orderData })
             });
             
-            if (response.ok) {
+            const result = await response.json();
+            
+            if (response.ok && result.success) {
                 this.showMessage('Ordem das páginas atualizada com sucesso!', 'success');
             } else {
                 this.showMessage('Erro ao atualizar ordem das páginas.', 'error');
@@ -104,20 +160,25 @@ class AdminPanel {
         if (!statusContainer) return;
         
         try {
-            // Check if Excel file exists
-            const response = await fetch('/api/data/production_monthly');
+            // Check if data is available
+            const response = await fetch('/api/data');
             const data = await response.json();
             
             if (response.ok) {
+                const lastUpdate = new Date(data.metadata.last_update).toLocaleString('pt-PT');
+                
                 statusContainer.innerHTML = `
                     <div style="color: #4CAF50; font-weight: bold;">
                         ✅ Dados carregados com sucesso
                     </div>
                     <div style="margin-top: 10px; font-size: 14px;">
-                        <strong>Última atualização:</strong> ${new Date().toLocaleString('pt-PT')}
+                        <strong>Última atualização:</strong> ${lastUpdate}
                     </div>
                     <div style="margin-top: 5px; font-size: 14px;">
-                        <strong>Fonte:</strong> ${data.length > 0 ? 'Ficheiro Excel' : 'Dados de exemplo'}
+                        <strong>Versão:</strong> ${data.metadata.version}
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <strong>Páginas ativas:</strong> ${this.pages.filter(p => p.active).length} de ${this.pages.length}
                     </div>
                 `;
             } else {
@@ -126,7 +187,7 @@ class AdminPanel {
                         ❌ Erro ao carregar dados
                     </div>
                     <div style="margin-top: 10px; font-size: 14px;">
-                        Verifique se o ficheiro Excel existe em data/dashboard_data.xlsx
+                        Verifique se os ficheiros Excel existem na pasta data/
                     </div>
                 `;
             }
@@ -166,20 +227,58 @@ class AdminPanel {
 }
 
 // Global function for toggle button
-function togglePage(pageId) {
+async function togglePage(pageId) {
     // Add loading state
     const button = event.target;
     const originalText = button.textContent;
     button.textContent = 'Carregando...';
     button.disabled = true;
     
-    // Redirect to toggle endpoint
-    window.location.href = `/admin/toggle_page/${pageId}`;
+    try {
+        const response = await fetch(`/api/pages/${pageId}/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            // Update button state
+            const isActive = result.page.active;
+            button.textContent = isActive ? 'Ativo' : 'Inativo';
+            button.className = `toggle-btn ${isActive ? 'active' : 'inactive'}`;
+            
+            // Show success message
+            const adminPanel = window.adminPanel;
+            if (adminPanel) {
+                adminPanel.showMessage(result.message, 'success');
+            }
+        } else {
+            button.textContent = originalText;
+            button.disabled = false;
+            
+            const adminPanel = window.adminPanel;
+            if (adminPanel) {
+                adminPanel.showMessage('Erro ao alterar estado da página.', 'error');
+            }
+        }
+    } catch (error) {
+        console.error('Error toggling page:', error);
+        button.textContent = originalText;
+        button.disabled = false;
+        
+        const adminPanel = window.adminPanel;
+        if (adminPanel) {
+            adminPanel.showMessage('Erro de conexão.', 'error');
+        }
+    }
 }
 
 // Initialize admin panel when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new AdminPanel();
+    window.adminPanel = new AdminPanel();
 });
 
 // Keyboard shortcuts

@@ -22,37 +22,18 @@
                 <p>Ative ou desative páginas e altere a ordem de exibição no carrossel.</p>
                 
                 <div class="pages-list" id="pages-list">
-                    {% for page in pages %}
-                    <div class="page-item" data-page-id="{{ page[0] }}">
-                        <div class="page-info">
-                            <h3>{{ page[1] }}</h3>
-                            <p class="page-template">Template: {{ page[2] }}</p>
-                            <p class="page-order">Ordem: {{ page[4] }}</p>
-                        </div>
-                        <div class="page-actions">
-                            <button class="toggle-btn {% if page[3] %}active{% else %}inactive{% endif %}" 
-                                    onclick="togglePage({{ page[0] }})">
-                                {% if page[3] %}Ativo{% else %}Inativo{% endif %}
-                            </button>
-                        </div>
-                        <div class="drag-handle">⋮⋮</div>
-                    </div>
-                    {% endfor %}
+                    <!-- Pages will be loaded dynamically -->
                 </div>
             </section>
 
             <section class="data-management">
                 <h2>Gestão de Dados</h2>
-                <p>Os dados são carregados automaticamente do ficheiro Excel em <code>data/dashboard_data.xlsx</code></p>
+                <p>Os dados são carregados automaticamente dos ficheiros Excel na pasta <code>data/</code></p>
                 
                 <div class="data-info">
                     <div class="data-file-info">
-                        <h3>Estrutura do Ficheiro Excel</h3>
-                        <ul>
-                            <li><strong>Folha "production"</strong>: Dados de produção mensal por família</li>
-                            <li><strong>Folha "forecast"</strong>: Previsões para os próximos 3 meses</li>
-                            <li><strong>Folha "values"</strong>: Valores totais em euros</li>
-                        </ul>
+                        <h3>Estrutura dos Ficheiros Excel</h3>
+                        <p>Os ficheiros de dados são carregados automaticamente da pasta <code>data/</code>. Certifique-se de que os ficheiros necessários estão presentes e atualizados.</p>
                     </div>
                     
                     <div class="data-status">
@@ -66,6 +47,10 @@
         </main>
     </div>
 
+    <script>
+        // Pages data will be loaded via API
+        let pagesData = [];
+    </script>
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 </body>
 </html> 

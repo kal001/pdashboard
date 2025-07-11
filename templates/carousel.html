@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Carrossel</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    {{ css_link|safe }}
+</head>
+<body class="bg-[#141a1f] h-screen min-h-screen" style='font-family: Inter, "Noto Sans", sans-serif;'>
+    <div id="carousel-root" class="flex flex-col min-h-screen h-screen"></div>
+    <div id="carousel-dots" class="fixed bottom-8 left-0 w-full flex justify-center items-center z-50"></div>
+    <script>
+    const pages = {{ pages|tojson }};
+    let current = 0;
+    function renderDots(currentIdx) {
+        const dots = pages.map((_, i) =>
+            `<span class="inline-block w-4 h-4 mx-1 rounded-full transition-all duration-300 ${i === currentIdx ? 'bg-white' : 'bg-[#2b3640]'} cursor-pointer" onclick="jumpToPage(${i})"></span>`
+        ).join('');
+        document.getElementById('carousel-dots').innerHTML = dots;
+    }
+    let carouselTimeout;
+    function renderPage(idx) {
+        const page = pages[idx];
+        let html = '';
+        if (page.type === '3x2') {
+            html += `
+            <header class="flex items-center justify-between border-b border-[#2b3640] px-10 py-3 bg-[#102366]">
+                <div class="flex items-center gap-4">
+                    <img src="/static/assets/logo.png" alt="Jayme da Costa" class="h-10 w-auto bg-white rounded shadow p-1">
+                    <img src="/static/assets/getsitelogo.jpeg" alt="Logo Secundário" class="h-10 w-auto bg-white rounded shadow p-1">
+                </div>
+                <div class="flex-1 flex flex-col items-center">
+                    <span class="text-3xl font-extrabold text-white">{{ last_update_month }}</span>
+                </div>
+                <div class="text-right text-white">
+                    <h1 class="text-2xl font-bold">Jayme da Costa</h1>
+                    <div class="text-sm">${page.title}</div>
+                </div>
+            </header>
+            <main class="flex-1 flex flex-col h-full min-h-0 min-w-0 p-4">
+                <div class="w-full h-full flex-1 min-h-0 min-w-0">
+                    <div class="grid grid-cols-3 grid-rows-2 gap-8 w-full h-full min-h-0 min-w-0">
+                        ${page.widgets.map((widget, i) => `
+                        <div class="widget-card p-8 flex flex-col h-full w-full min-h-0 min-w-0">
+                            <div class="flex flex-col gap-2 flex-1">
+                                <span class="widget-title">${widget.title}</span>
+                                <div class="flex items-end gap-4 mt-2">
+                                    <span class="widget-value" style="color: ${widget.value_color}">${widget.value}</span>
+                                    <span class="widget-target">/ ${widget.target}</span>
+                                </div>
+                                <div class="flex gap-2 items-center mb-2 mt-2">
+                                    <span class="widget-label">Mês Anterior</span>
+                                    <span class="percent-change" style="color: ${widget.trend_color}">
+                                        ${widget.trend}
+                                        ${widget.percent_change > 0 ? '+' : ''}${widget.percent_change}%
+                                    </span>
+                                </div>
+                                <div class="flex-1 flex flex-col justify-end">
+                                    <canvas id="chart-${i}" height="60"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </main>
+            <footer class="flex items-center justify-between border-t border-[#2b3640] px-10 py-3 bg-[#102366] text-white text-sm">
+                <!-- Legend removed as x-axis labels are now visible -->
+                <div class="flex items-center gap-2">
+                    <span>🕐</span>
+                    <span>Última atualização</span>
+                </div>
+            </footer>
+            `;
+        } else {
+            html += `<div class='text-white text-3xl p-10'>Tipo de página não suportado: ${page.type}</div>`;
+        }
+        document.getElementById('carousel-root').innerHTML = html;
+        renderDots(idx);
+        // Render charts
+        if (page.type === '3x2') {
+            page.widgets.forEach((widget, i) => {
+                const ctx = document.getElementById(`chart-${i}`);
+                if (ctx) {
+                    new Chart(ctx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: widget.labels,
+                            datasets: [{
+                                data: widget.chart_data,
+                                borderColor: '#9dadbe',
+                                backgroundColor: 'rgba(43,54,64,0.35)',
+                                borderWidth: 5,
+                                pointRadius: 0,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: {
+                                    display: true,
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(43,54,64,0.5)',
+                                        lineWidth: 2
+                                    },
+                                    ticks: {
+                                        color: '#e0e0e0',
+                                        font: { size: 20, weight: 'bold' }
+                                    }
+                                },
+                                y: {
+                                    display: false,
+                                    min: 0,
+                                    max: Math.max(...widget.chart_data, 0)
+                                }
+                            },
+                            elements: { line: { borderJoinStyle: 'round' } },
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+                }
+            });
+        }
+    }
+    function jumpToPage(idx) {
+        current = idx;
+        clearTimeout(carouselTimeout);
+        renderPage(current);
+        carouselTimeout = setTimeout(nextPage, (pages[current].duration || 10) * 1000);
+    }
+    function nextPage() {
+        current = (current + 1) % pages.length;
+        renderPage(current);
+        carouselTimeout = setTimeout(nextPage, (pages[current].duration || 10) * 1000);
+    }
+    // Start carousel
+    renderPage(current);
+    carouselTimeout = setTimeout(nextPage, (pages[current].duration || 10) * 1000);
+    </script>
+</body>
+</html> 

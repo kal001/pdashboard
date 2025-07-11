@@ -1,0 +1,19 @@
+{
+  "id": "producao3",
+  "title": "Produção Linha 3",
+  "description": "Dashboard de produção linha 3",
+  "active": true,
+  "type": "3x2",
+  "duration": 12,
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "xlsx_file": "producao.xlsx",
+  "widgets": [
+    { "id": "widget1", "active": true, "name": "Linha 3 - Equipamento A", "sheet": "ModeloA", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget2", "active": true, "name": "Linha 3 - Equipamento B", "sheet": "ModeloB", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget3", "active": true, "name": "Linha 3 - Equipamento C", "sheet": "ModeloC", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget4", "active": true, "name": "Linha 3 - Equipamento D", "sheet": "ModeloD", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget5", "active": true, "name": "Linha 3 - Equipamento E", "sheet": "ModeloE", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" },
+    { "id": "widget6", "active": true, "name": "Linha 3 - Equipamento F", "sheet": "ModeloF", "column_total": "Total", "column_target": "Meta", "column_month": "Mês" }
+  ]
+} 

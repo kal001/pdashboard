@@ -1,0 +1,44 @@
+/* Produção Dashboard Custom Styles */
+
+/* Widget Title (equipment name) */
+.widget-title {
+  color: #fff;
+  font-size: 2.2rem;
+  font-weight: bold;
+  letter-spacing: -1px;
+}
+
+/* Widget Value (produced units) */
+.widget-value {
+  color: #fff;
+  font-size: 2.2rem;
+  font-weight: bold;
+  letter-spacing: -1px;
+}
+
+/* Widget Target (target units) */
+.widget-target {
+  font-size: 1.2rem;
+  color: #e0e0e0;
+  font-weight: 600;
+}
+
+/* Month Labels */
+.widget-label {
+  font-size: 1rem;
+  color: #e0e0e0;
+  font-weight: bold;
+}
+
+/* Trend Text */
+.widget-trend {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* General widget background override (optional) */
+.widget-card {
+  background: rgba(255,255,255,0.08);
+  border-radius: 1.25rem;
+} 

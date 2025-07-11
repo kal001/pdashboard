@@ -4,10 +4,13 @@ services:
     ports:
       - "8000:5000"
     volumes:
+      - ./app.py:/app/app.py
       - ./data:/app/data
       - ./static:/app/static
-    environment:
-      - FLASK_ENV=production
+      - ./pages:/app/pages
+      - ./templates:/app/templates
+    env_file:
+      - .env
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/"]
