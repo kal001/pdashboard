@@ -162,6 +162,15 @@ Este projeto está licenciado sob a Licença Apache 2.0 - veja o ficheiro [LICEN
 4. Push para a branch
 5. Abra um Pull Request
 
+## 📚 Documentação
+
+Para documentação detalhada, consulte os ficheiros na pasta `docs/`:
+
+- **[Instruções de Implementação](docs/instructions.md)** - Guia completo de implementação e configuração
+- **[Documentação da API](docs/API.md)** - Referência completa da API REST
+- **[Guia de Deploy](docs/DEPLOYMENT.md)** - Instruções de deploy local e produção
+- **[Regras de Design](docs/dashboard_rules.md)** - Regras de design para dashboards fabris
+
 ## 📞 Suporte
 
 Para questões e suporte, consulte a documentação detalhada em `docs/` ou abra uma issue no repositório. 
