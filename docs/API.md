@@ -2,13 +2,23 @@
 
 ## Visão Geral
 
-A API do PDashboard fornece endpoints para gestão de páginas modulares, dados e configuração do sistema. Todos os endpoints retornam dados em formato JSON.
+A API do PDashboard fornece endpoints para gestão de páginas modulares, widgets e configuração do sistema. Todos os endpoints retornam dados em formato JSON.
 
 ## Base URL
 
 ```
 http://localhost:8000
 ```
+
+## Documentação Interativa
+
+A documentação interativa da API (Swagger UI) está disponível em:
+
+```
+http://localhost:8000/api/v1/docs/
+```
+
+Você pode explorar e testar todos os endpoints diretamente pelo navegador.
 
 ## Endpoints
 
@@ -37,8 +47,8 @@ Retorna a lista de todas as páginas modulares com sua configuração.
       "template": "carousel.html",
       "css_file": "producao.css",
       "widgets": [
-        { "id": "widget1", "active": true, "name": "Linha 3 - Equipamento A" },
-        { "id": "widget2", "active": true, "name": "Linha 3 - Equipamento B" }
+        { "id": "widget1", "active": true, "name": "Linha 3 - Equipamento A", "sheet": "ModeloA" },
+        { "id": "widget2", "active": true, "name": "Linha 3 - Equipamento B", "sheet": "ModeloB" }
       ]
     }
   ]
@@ -56,22 +66,14 @@ Retorna a configuração de uma página específica.
 **Resposta:**
 ```json
 {
-  "id": "producao",
+  "id": "producao3",
   "active": true,
-  "type": "carousel",
-  "duration": 10,
+  "type": "3x2",
   "template": "carousel.html",
   "css_file": "producao.css",
   "widgets": [
-    {
-      "id": "widget1",
-      "title": "Produção Total",
-      "type": "metric",
-      "data_source": "producao.xlsx",
-      "sheet": "Total",
-      "value_column": "B",
-      "target_column": "C"
-    }
+    { "id": "widget1", "active": true, "name": "Linha 3 - Equipamento A", "sheet": "ModeloA" },
+    { "id": "widget2", "active": true, "name": "Linha 3 - Equipamento B", "sheet": "ModeloB" }
   ]
 }
 ```
@@ -88,9 +90,27 @@ Ativa ou desativa uma página específica.
   "success": true,
   "message": "Página ativada/desativada com sucesso",
   "page": {
-    "id": "producao",
+    "id": "producao3",
     "active": true
   }
+}
+```
+
+#### POST /api/pages/reorder
+Reordena as páginas do dashboard.
+
+**Body:**
+```json
+{
+  "order": [1, 2, 3]
+}
+```
+
+**Resposta:**
+```json
+{
+  "success": true,
+  "message": "Páginas reordenadas com sucesso"
 }
 ```
 
@@ -99,74 +119,44 @@ Ativa ou desativa uma página específica.
 ### Dados do Dashboard
 
 #### GET /api/data
-Retorna todos os dados necessários para o dashboard baseado na configuração das páginas.
+Retorna todos os dados necessários para o dashboard baseado na configuração das páginas e widgets.
 
 **Resposta:**
 ```json
 {
   "pages": [
     {
-      "id": "producao",
+      "id": "producao3",
       "widgets": [
         {
           "id": "widget1",
-          "title": "Produção Total",
+          "name": "Linha 3 - Equipamento A",
           "value": 1250,
           "target": 1200,
-          "percentage": 104,
-          "status": "success",
-          "color": "green"
+          "percent_change": 4.2,
+          "trend": "▲",
+          "trend_color": "green",
+          "labels": ["Jan", "Fev", "Mar"],
+          "chart_data": [1000, 1100, 1250],
+          "value_color": "#0bda5b"
         },
         {
           "id": "widget2",
-          "title": "Família A",
-          "value": 450,
-          "target": 500,
-          "percentage": 90,
-          "status": "warning",
-          "color": "yellow"
-        },
-        {
-          "id": "widget3",
-          "title": "Família B",
-          "value": 800,
-          "target": 700,
-          "percentage": 114,
-          "status": "success",
-          "color": "green"
-        },
-        {
-          "id": "widget4",
-          "title": "Família C",
-          "value": 300,
-          "target": 400,
-          "percentage": 75,
-          "status": "danger",
-          "color": "red"
-        },
-        {
-          "id": "widget5",
-          "title": "Família D",
-          "value": 600,
-          "target": 550,
-          "percentage": 109,
-          "status": "success",
-          "color": "green"
-        },
-        {
-          "id": "widget6",
-          "title": "Família E",
-          "value": 350,
-          "target": 400,
-          "percentage": 88,
-          "status": "warning",
-          "color": "yellow"
+          "name": "Linha 3 - Equipamento B",
+          "value": 900,
+          "target": 950,
+          "percent_change": -2.1,
+          "trend": "▼",
+          "trend_color": "red",
+          "labels": ["Jan", "Fev", "Mar"],
+          "chart_data": [950, 920, 900],
+          "value_color": "#fa6238"
         }
       ]
     }
   ],
   "metadata": {
-    "last_update": "2024-01-15T14:30:00Z",
+    "last_update": "2024-07-11T22:57:35Z",
     "company": "Jayme da Costa",
     "version": "1.0.0"
   }
@@ -179,7 +169,7 @@ Retorna os dados de uma página específica.
 **Parâmetros:**
 - `page_id` (path): ID da página
 
-**Resposta:** Dados dos widgets da página específica
+**Resposta:** Dados dos widgets da página específica (mesma estrutura do array `widgets` acima)
 
 #### GET /api/data/{page_id}/{widget_id}
 Retorna os dados de um widget específico.
@@ -192,12 +182,15 @@ Retorna os dados de um widget específico.
 ```json
 {
   "id": "widget1",
-  "title": "Produção Total",
+  "name": "Linha 3 - Equipamento A",
   "value": 1250,
   "target": 1200,
-  "percentage": 104,
-  "status": "success",
-  "color": "green"
+  "percent_change": 4.2,
+  "trend": "▲",
+  "trend_color": "green",
+  "labels": ["Jan", "Fev", "Mar"],
+  "chart_data": [1000, 1100, 1250],
+  "value_color": "#0bda5b"
 }
 ```
 
@@ -211,22 +204,15 @@ Retorna a configuração geral do sistema.
 **Resposta:**
 ```json
 {
-  "carousel": {
-    "auto_rotate": true,
-    "default_duration": 10,
-    "transition_effect": "fade"
-  },
-  "layout": {
-    "grid": "3x2",
-    "responsive": true
-  },
-  "data": {
-    "excel_file": "producao.xlsx",
-    "auto_refresh": false
-  },
-  "styling": {
-    "default_css": "producao.css",
-    "theme": "dark"
+  "carousel_interval": 10000,
+  "company_name": "Jayme da Costa",
+  "logo_primary": "/static/assets/logo.png",
+  "logo_secondary": "/static/assets/getsitelogo.jpeg",
+  "theme": {
+    "primary_color": "#4CAF50",
+    "warning_color": "#FF9800",
+    "danger_color": "#F44336",
+    "info_color": "#2196F3"
   }
 }
 ```
@@ -238,13 +224,10 @@ Verifica o estado de saúde do sistema.
 ```json
 {
   "status": "healthy",
-  "timestamp": "2024-01-15T14:30:00Z",
+  "timestamp": "2024-07-11T22:57:35Z",
   "version": "1.0.0",
-  "services": {
-    "flask": "running",
-    "excel_data": "available",
-    "pages": "loaded"
-  }
+  "database": "connected",
+  "data_files": "loaded"
 }
 ```
 
@@ -263,12 +246,15 @@ Verifica o estado de saúde do sistema.
 ```json
 {
   "id": "string",
-  "title": "string",
+  "name": "string",
   "value": "number",
   "target": "number",
-  "percentage": "number",
-  "status": "success|warning|danger",
-  "color": "green|yellow|red"
+  "percent_change": "number",
+  "trend": "▲|▼|→",
+  "trend_color": "green|red|gray",
+  "labels": ["string"],
+  "chart_data": ["number"],
+  "value_color": "string"
 }
 ```
 
@@ -277,29 +263,38 @@ Verifica o estado de saúde do sistema.
 {
   "id": "string",
   "active": "boolean",
-  "type": "carousel",
-  "duration": "number",
+  "type": "3x2",
   "template": "string",
   "css_file": "string",
-  "widgets": "array"
+  "widgets": [ ... ]
 }
 ```
 
 ## Exemplos de Uso
 
-### Obter todas as páginas ativas
+### Obter todas as páginas
 ```bash
 curl http://localhost:8000/api/pages
 ```
 
-### Ativar uma página
+### Ativar/desativar uma página
 ```bash
-curl -X POST http://localhost:8000/api/pages/producao/toggle
+curl -X POST http://localhost:8000/api/pages/producao3/toggle
+```
+
+### Reordenar páginas
+```bash
+curl -X POST http://localhost:8000/api/pages/reorder -H "Content-Type: application/json" -d '{"order": [1,2,3]}'
 ```
 
 ### Obter dados de uma página específica
 ```bash
-curl http://localhost:8000/api/data/producao
+curl http://localhost:8000/api/data/producao3
+```
+
+### Obter dados de um widget específico
+```bash
+curl http://localhost:8000/api/data/producao3/widget1
 ```
 
 ### Verificar saúde do sistema
@@ -310,7 +305,7 @@ curl http://localhost:8000/api/health
 ## Notas de Implementação
 
 - Todos os endpoints são síncronos
-- Os dados são lidos do ficheiro Excel `data/producao.xlsx`
-- As configurações das páginas são lidas dos ficheiros `config.json`
-- O sistema suporta hot-reload de templates
-- Os dados são atualizados a cada requisição 
+- Os dados são lidos do ficheiro Excel em `data/`
+- As configurações das páginas são lidas dos ficheiros `config.json` em `pages/`
+- O sistema suporta hot-reload de templates em desenvolvimento
+- O sistema é extensível para novos tipos de página e widgets no futuro 

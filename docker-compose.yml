@@ -10,7 +10,7 @@ services:
       - ./pages:/app/pages
       - ./templates:/app/templates
     env_file:
-      - .env
+      - .env.development
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/"]

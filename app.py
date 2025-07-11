@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory, abort
 from markupsafe import Markup
 import sqlite3
 import os
@@ -7,9 +7,20 @@ from datetime import datetime
 import pandas as pd
 import glob
 import openpyxl
+from flasgger import Swagger, swag_from
+from flask import Blueprint
 
 app = Flask(__name__)
 app.secret_key = 'jayme_da_costa_dashboard_2024'
+
+# Configure Flask to handle trailing slashes properly
+app.url_map.strict_slashes = False
+
+# Move Swagger UI to /api/v1/docs
+app.config['SWAGGER'] = {
+    'swagger_ui': True,
+    'specs_route': '/api/v1/docs/'
+}
 
 # Database initialization
 def init_db():
@@ -281,204 +292,220 @@ def reorder_pages():
 
 @app.route('/api/data')
 def get_all_data():
-    """API endpoint to get all dashboard data"""
+    """API endpoint to get all dashboard data (modular, per-page, per-widget)"""
     try:
+        pages_data = []
+        for page in get_active_pages():
+            page_widgets = []
+            if page['type'] == '3x2':
+                xlsx_path = os.path.join('data', page['xlsx_file'])
+                if not os.path.exists(xlsx_path):
+                    continue
+                wb = openpyxl.load_workbook(xlsx_path, data_only=True)
+                for widget_cfg in page['widgets']:
+                    if not widget_cfg.get('active', True):
+                        continue
+                    sheet = wb[widget_cfg['sheet']]
+                    months, totals, targets = [], [], []
+                    for row in sheet.iter_rows(min_row=2, values_only=True):
+                        if row[1] is not None and row[2] is not None:
+                            months.append(row[0])
+                            totals.append(row[1])
+                            targets.append(row[2])
+                    if len(totals) >= 2:
+                        value = totals[-1]
+                        target = targets[-1]
+                        prev = totals[-2]
+                        curr = totals[-1]
+                        if prev is not None and curr is not None and prev != 0:
+                            percent_change = ((curr - prev) / prev) * 100
+                            if percent_change > 0:
+                                trend = '▲'
+                                trend_color = 'green'
+                            elif percent_change < 0:
+                                trend = '▼'
+                                trend_color = 'red'
+                            else:
+                                trend = '→'
+                                trend_color = 'gray'
+                        else:
+                            percent_change = 0
+                            trend = ''
+                            trend_color = 'gray'
+                    else:
+                        value = totals[-1] if totals else 0
+                        target = targets[-1] if targets else 0
+                        percent_change = 0
+                        trend = ''
+                        trend_color = 'gray'
+                    value_color = "#0bda5b" if value >= target else "#fa6238"
+                    page_widgets.append({
+                        "id": widget_cfg['id'],
+                        "name": widget_cfg['name'],
+                        "value": value,
+                        "target": target,
+                        "percent_change": round(percent_change, 1),
+                        "trend": trend,
+                        "trend_color": trend_color,
+                        "labels": months,
+                        "chart_data": totals,
+                        "value_color": value_color
+                    })
+            pages_data.append({
+                "id": page['id'],
+                "widgets": page_widgets
+            })
         data = {
-            'production': get_production_data(),
-            'forecast': get_forecast_data(),
-            'financial': get_financial_data(),
-            'performance': get_performance_data(),
-            'metadata': {
-                'last_update': datetime.now().isoformat(),
-                'company': 'Jayme da Costa',
-                'version': '1.0.0'
+            "pages": pages_data,
+            "metadata": {
+                "last_update": datetime.now().isoformat(),
+                "company": "Jayme da Costa",
+                "version": "1.0.0"
             }
         }
         return jsonify(data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/data/<data_type>')
-def get_data(data_type):
-    """API endpoint to get specific data type"""
+@app.route('/api/data/<page_id>')
+def get_page_data(page_id):
+    """API endpoint to get data for a specific page"""
     try:
-        if data_type == 'production':
-            return jsonify(get_production_data())
-        elif data_type == 'forecast':
-            return jsonify(get_forecast_data())
-        elif data_type == 'financial':
-            return jsonify(get_financial_data())
-        elif data_type == 'performance':
-            return jsonify(get_performance_data())
-        else:
-            return jsonify({'error': 'Tipo de dados não encontrado'}), 404
+        page = None
+        for p in get_active_pages():
+            if p['id'] == page_id:
+                page = p
+                break
+        if not page:
+            return abort(404)
+        page_widgets = []
+        if page['type'] == '3x2':
+            xlsx_path = os.path.join('data', page['xlsx_file'])
+            if not os.path.exists(xlsx_path):
+                return abort(404)
+            wb = openpyxl.load_workbook(xlsx_path, data_only=True)
+            for widget_cfg in page['widgets']:
+                if not widget_cfg.get('active', True):
+                    continue
+                sheet = wb[widget_cfg['sheet']]
+                months, totals, targets = [], [], []
+                for row in sheet.iter_rows(min_row=2, values_only=True):
+                    if row[1] is not None and row[2] is not None:
+                        months.append(row[0])
+                        totals.append(row[1])
+                        targets.append(row[2])
+                if len(totals) >= 2:
+                    value = totals[-1]
+                    target = targets[-1]
+                    prev = totals[-2]
+                    curr = totals[-1]
+                    if prev is not None and curr is not None and prev != 0:
+                        percent_change = ((curr - prev) / prev) * 100
+                        if percent_change > 0:
+                            trend = '▲'
+                            trend_color = 'green'
+                        elif percent_change < 0:
+                            trend = '▼'
+                            trend_color = 'red'
+                        else:
+                            trend = '→'
+                            trend_color = 'gray'
+                    else:
+                        percent_change = 0
+                        trend = ''
+                        trend_color = 'gray'
+                else:
+                    value = totals[-1] if totals else 0
+                    target = targets[-1] if targets else 0
+                    percent_change = 0
+                    trend = ''
+                    trend_color = 'gray'
+                value_color = "#0bda5b" if value >= target else "#fa6238"
+                page_widgets.append({
+                    "id": widget_cfg['id'],
+                    "name": widget_cfg['name'],
+                    "value": value,
+                    "target": target,
+                    "percent_change": round(percent_change, 1),
+                    "trend": trend,
+                    "trend_color": trend_color,
+                    "labels": months,
+                    "chart_data": totals,
+                    "value_color": value_color
+                })
+        return jsonify({"id": page['id'], "widgets": page_widgets})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-def get_production_data():
-    """Get production data"""
+@app.route('/api/data/<page_id>/<widget_id>')
+def get_widget_data(page_id, widget_id):
+    """API endpoint to get data for a specific widget"""
     try:
-        # Try to read from Excel file first
-        if os.path.exists('data/producao.xlsx'):
-            df = pd.read_excel('data/producao.xlsx', sheet_name='producao')
-            families = []
-            for _, row in df.iterrows():
-                percentage = float((row['produzido'] / row['meta']) * 100)
-                status = 'success' if percentage >= 100 else 'warning' if percentage >= 95 else 'danger'
-                families.append({
-                    'name': str(row['familia']),
-                    'produced': int(row['produzido']),
-                    'target': int(row['meta']),
-                    'percentage': round(percentage, 1),
-                    'status': status,
-                    'trend': [120, 130, 140, int(row['produzido'])]  # Sample trend data
-                })
-            return {
-                'families': families,
-                'total_produced': sum(f['produced'] for f in families),
-                'total_target': sum(f['target'] for f in families),
-                'overall_percentage': round((sum(f['produced'] for f in families) / sum(f['target'] for f in families)) * 100, 1)
-            }
+        page = None
+        for p in get_active_pages():
+            if p['id'] == page_id:
+                page = p
+                break
+        if not page:
+            return abort(404)
+        if page['type'] == '3x2':
+            xlsx_path = os.path.join('data', page['xlsx_file'])
+            if not os.path.exists(xlsx_path):
+                return abort(404)
+            wb = openpyxl.load_workbook(xlsx_path, data_only=True)
+            for widget_cfg in page['widgets']:
+                if widget_cfg['id'] != widget_id or not widget_cfg.get('active', True):
+                    continue
+                sheet = wb[widget_cfg['sheet']]
+                months, totals, targets = [], [], []
+                for row in sheet.iter_rows(min_row=2, values_only=True):
+                    if row[1] is not None and row[2] is not None:
+                        months.append(row[0])
+                        totals.append(row[1])
+                        targets.append(row[2])
+                if len(totals) >= 2:
+                    value = totals[-1]
+                    target = targets[-1]
+                    prev = totals[-2]
+                    curr = totals[-1]
+                    if prev is not None and curr is not None and prev != 0:
+                        percent_change = ((curr - prev) / prev) * 100
+                        if percent_change > 0:
+                            trend = '▲'
+                            trend_color = 'green'
+                        elif percent_change < 0:
+                            trend = '▼'
+                            trend_color = 'red'
+                        else:
+                            trend = '→'
+                            trend_color = 'gray'
+                    else:
+                        percent_change = 0
+                        trend = ''
+                        trend_color = 'gray'
+                else:
+                    value = totals[-1] if totals else 0
+                    target = targets[-1] if targets else 0
+                    percent_change = 0
+                    trend = ''
+                    trend_color = 'gray'
+                value_color = "#0bda5b" if value >= target else "#fa6238"
+                widget_data = {
+                    "id": widget_cfg['id'],
+                    "name": widget_cfg['name'],
+                    "value": value,
+                    "target": target,
+                    "percent_change": round(percent_change, 1),
+                    "trend": trend,
+                    "trend_color": trend_color,
+                    "labels": months,
+                    "chart_data": totals,
+                    "value_color": value_color
+                }
+                return jsonify(widget_data)
+        return abort(404)
     except Exception as e:
-        print(f"Error reading production data: {e}")
-    
-    # Fallback to sample data
-    return {
-        'families': [
-            {
-                'name': 'Família A',
-                'produced': 150,
-                'target': 140,
-                'percentage': 107,
-                'status': 'success',
-                'trend': [120, 130, 140, 150]
-            },
-            {
-                'name': 'Família B',
-                'produced': 95,
-                'target': 100,
-                'percentage': 95,
-                'status': 'warning',
-                'trend': [110, 105, 100, 95]
-            },
-            {
-                'name': 'Família C',
-                'produced': 85,
-                'target': 90,
-                'percentage': 94,
-                'status': 'danger',
-                'trend': [95, 92, 88, 85]
-            }
-        ],
-        'total_produced': 330,
-        'total_target': 330,
-        'overall_percentage': 100
-    }
-
-def get_forecast_data():
-    """Get forecast data"""
-    try:
-        if os.path.exists('data/previsoes.xlsx'):
-            df = pd.read_excel('data/previsoes.xlsx', sheet_name='previsoes')
-            families = []
-            months = ['Janeiro', 'Fevereiro', 'Março']
-            
-            for family_name in df['familia'].unique():
-                family_data = df[df['familia'] == family_name]
-                values = [int(row['previsao']) for _, row in family_data.iterrows()]
-                families.append({
-                    'name': family_name,
-                    'values': values
-                })
-            
-            return {
-                'months': months,
-                'families': families
-            }
-    except Exception as e:
-        print(f"Error reading forecast data: {e}")
-    
-    # Fallback to sample data
-    return {
-        'months': ['Janeiro', 'Fevereiro', 'Março'],
-        'families': [
-            {
-                'name': 'Família A',
-                'values': [160, 170, 180]
-            },
-            {
-                'name': 'Família B',
-                'values': [110, 115, 120]
-            }
-        ]
-    }
-
-def get_financial_data():
-    """Get financial data"""
-    try:
-        if os.path.exists('data/valores.xlsx'):
-            df = pd.read_excel('data/valores.xlsx', sheet_name='valores')
-            trend = [int(row['valor']) for _, row in df.iterrows()]
-            months = [row['mes'] for _, row in df.iterrows()]
-            
-            return {
-                'current_month': trend[-1] if trend else 0,
-                'previous_month': trend[-2] if len(trend) > 1 else 0,
-                'trend': trend,
-                'months': months
-            }
-    except Exception as e:
-        print(f"Error reading financial data: {e}")
-    
-    # Fallback to sample data
-    return {
-        'current_month': 1250,
-        'previous_month': 1180,
-        'trend': [1000, 1050, 1100, 1150, 1180, 1250],
-        'months': ['Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-    }
-
-def get_performance_data():
-    """Get performance data"""
-    try:
-        if os.path.exists('data/performance.xlsx'):
-            df = pd.read_excel('data/performance.xlsx', sheet_name='performance')
-            indicators = []
-            for _, row in df.iterrows():
-                status = 'success' if row['valor'] >= row['target'] else 'warning' if row['valor'] >= row['target'] * 0.95 else 'danger'
-                indicators.append({
-                    'name': row['indicador'],
-                    'value': int(row['valor']),
-                    'target': int(row['target']),
-                    'status': status
-                })
-            return {'indicators': indicators}
-    except Exception as e:
-        print(f"Error reading performance data: {e}")
-    
-    # Fallback to sample data
-    return {
-        'indicators': [
-            {
-                'name': 'Eficiência',
-                'value': 87,
-                'target': 90,
-                'status': 'warning'
-            },
-            {
-                'name': 'Qualidade',
-                'value': 98,
-                'target': 95,
-                'status': 'success'
-            },
-            {
-                'name': 'Disponibilidade',
-                'value': 92,
-                'target': 95,
-                'status': 'warning'
-            }
-        ]
-    }
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/pages/<page_id>/<template>')
 def serve_page_template(page_id, template):
@@ -517,6 +544,98 @@ def get_config():
             'info_color': '#2196F3'
         }
     })
+
+swagger_template = {
+    "swagger": "2.0",
+    "info": {
+        "title": "PDashboard Modular API",
+        "description": "API para dashboards modulares industriais (v1)",
+        "version": "1.0.0"
+    },
+    "basePath": "/api/v1"
+}
+
+swagger = Swagger(app, template=swagger_template)
+api_v1 = Blueprint('api_v1', __name__, url_prefix='/api/v1')
+
+# --- API v1 endpoints ---
+
+@api_v1.route('/pages')
+@swag_from({
+    'summary': 'Lista todas as páginas modulares',
+    'responses': {200: {'description': 'Lista de páginas', 'examples': {'application/json': {'pages': [{'id': 'producao3', 'active': True}]}}}}
+})
+def api_v1_pages():
+    pages = get_pages()
+    return jsonify({'pages': pages})
+
+@api_v1.route('/data')
+@swag_from({
+    'summary': 'Dados de todas as páginas e widgets',
+    'responses': {200: {'description': 'Dados do dashboard', 'examples': {'application/json': {'pages': [{'id': 'producao3', 'widgets': []}]}}}}
+})
+def api_v1_data():
+    return get_all_data()
+
+@api_v1.route('/data/<page_id>')
+@swag_from({
+    'summary': 'Dados de uma página específica',
+    'parameters': [{'name': 'page_id', 'in': 'path', 'type': 'string', 'required': True}],
+    'responses': {200: {'description': 'Dados da página', 'examples': {'application/json': {'id': 'producao3', 'widgets': []}}}, 404: {'description': 'Página não encontrada'}}
+})
+def api_v1_page_data(page_id):
+    return get_page_data(page_id)
+
+@api_v1.route('/data/<page_id>/<widget_id>')
+@swag_from({
+    'summary': 'Dados de um widget específico',
+    'parameters': [
+        {'name': 'page_id', 'in': 'path', 'type': 'string', 'required': True},
+        {'name': 'widget_id', 'in': 'path', 'type': 'string', 'required': True}
+    ],
+    'responses': {200: {'description': 'Dados do widget', 'examples': {'application/json': {'id': 'widget1', 'name': 'Linha 3 - Equipamento A'}}}, 404: {'description': 'Widget não encontrado'}}
+})
+def api_v1_widget_data(page_id, widget_id):
+    return get_widget_data(page_id, widget_id)
+
+@api_v1.route('/pages/<int:page_id>/toggle', methods=['POST'])
+@swag_from({
+    'summary': 'Ativa/desativa uma página',
+    'parameters': [{'name': 'page_id', 'in': 'path', 'type': 'integer', 'required': True}],
+    'responses': {200: {'description': 'Status da página'}}
+})
+def api_v1_toggle_page(page_id):
+    return toggle_page(page_id)
+
+@api_v1.route('/pages/reorder', methods=['POST'])
+@swag_from({
+    'summary': 'Reordena as páginas',
+    'parameters': [{'name': 'order', 'in': 'body', 'type': 'array', 'required': True}],
+    'responses': {200: {'description': 'Ordem atualizada'}}
+})
+def api_v1_reorder_pages():
+    return reorder_pages()
+
+@api_v1.route('/config')
+@swag_from({
+    'summary': 'Configuração global do sistema',
+    'responses': {200: {'description': 'Configuração', 'examples': {'application/json': {'carousel_interval': 10000}}}}
+})
+def api_v1_config():
+    return get_config()
+
+@api_v1.route('/health')
+@swag_from({
+    'summary': 'Health check',
+    'responses': {200: {'description': 'Status do sistema'}}
+})
+def api_v1_health():
+    return health_check()
+
+# Register blueprint
+app.register_blueprint(api_v1)
+
+# Swagger UI will be available at /api/v1/docs
 
 if __name__ == '__main__':
     init_db()

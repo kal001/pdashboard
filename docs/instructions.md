@@ -14,6 +14,18 @@ O PDashboard é um sistema de dashboards modular para monitorização de perform
 - **Dados Dinâmicos**: Suporte para Excel com configuração por widget
 - **Layout 3x2**: Grid de widgets otimizado para TV
 - **Dockerização Completa**: Deploy simples e portável
+- **API REST Completa**: Endpoints para gestão programática e integração
+
+### 🔌 API e Integração
+- **Documentação Interativa**: Swagger UI em `/api/v1/docs/`
+- **Endpoints REST**: Gestão de páginas, widgets e dados via API
+- **Automação**: Integração com sistemas externos
+- **Teste Direto**: Execute endpoints diretamente no navegador
+
+### ⚙️ Configuração de Ambiente
+- **`.env.development`**: Configurações para desenvolvimento (debug, hot reload)
+- **`.env.production`**: Configurações para produção (otimizações, segurança)
+- **Automático**: Docker Compose usa o arquivo correto baseado no comando
 
 ### 🎨 Design Implementado
 - **Tailwind CSS v4**: Framework CSS moderno e responsivo
@@ -114,6 +126,9 @@ pdashboard/
 
 5. **Aceda ao sistema**
    - Dashboard: http://localhost:8000
+   - API Docs: http://localhost:8000/api/v1/docs/
+
+> **Nota:** O sistema usa `.env.development` automaticamente para desenvolvimento.
 
 ## Sistema Modular
 

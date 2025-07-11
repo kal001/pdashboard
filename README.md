@@ -8,6 +8,7 @@ Sistema modular para dashboards industriais, otimizado para TV, com configuraç�
 - Widgets configuráveis por página
 - Painel de administração para ativar/desativar/reordenar páginas
 - Deploy fácil em Docker (dev e produção)
+- **API REST completa** com documentação interativa
 
 ## Instalação Rápida
 
@@ -21,16 +22,20 @@ cd pdashboard
 ```bash
 make up
 # Acesse http://localhost:8000
+# API Docs: http://localhost:8000/api/v1/docs/
 ```
+> **Nota:** Usa `.env.development` automaticamente (debug ativado, hot reload)
 
 ### 3. Ambiente de Produção
 ```bash
 make build-prod
 make up-prod
 # Acesse http://<ip_do_servidor>:8000
+# API Docs: http://<ip_do_servidor>:8000/api/v1/docs/
 ```
+> **Nota:** Usa `.env.production` automaticamente (debug desativado, otimizações)
 
-> Edite `.env.development` ou `.env.production` conforme o ambiente.
+> **Dica:** Edite `.env.development` ou `.env.production` conforme o ambiente.
 
 ## Documentação
 - [Manual do Administrador](docs/ADMIN.md)

@@ -4,13 +4,20 @@
 - Acesse: `http://<ip_do_servidor>:8000/admin`
 - O painel mostra todas as páginas configuradas
 
+## API e Documentação
+- **Documentação Interativa:** `http://<ip_do_servidor>:8000/api/v1/docs/`
+- **API REST:** Todos os endpoints para gestão programática
+- **Swagger UI:** Teste endpoints diretamente no navegador
+
 ## Ativar/Desativar Páginas
 - Use o botão "Ativo/Inativo" em cada cartão de página
 - Páginas inativas não aparecem no dashboard
+- **Via API:** POST `/api/v1/pages/{page_id}/toggle`
 
 ## Reordenar Páginas
 - Arraste e solte os cartões para mudar a ordem
 - A ordem define a sequência no carrossel
+- **Via API:** POST `/api/v1/pages/reorder`
 
 ## Editando Páginas (config.json)
 - Cada página tem um arquivo `config.json` em `pages/<nome>/`
@@ -44,6 +51,7 @@
 - Sempre faça backup de `pages/` e `data/` antes de grandes alterações
 - Use nomes claros para páginas e widgets
 - Teste alterações em ambiente de desenvolvimento antes de aplicar em produção
+- Use a API para automação e integração com outros sistemas
 
 ## Extensibilidade
 - O sistema aceita novos tipos de página no futuro (ex: "2x2", "full", etc). Consulte a documentação para padrões de novos tipos. 
