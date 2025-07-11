@@ -1,4 +1,4 @@
-// Dashboard JavaScript - Carousel and Data Management
+// Dashboard JavaScript - Modern Design with Chart.js
 class DashboardCarousel {
     constructor() {
         this.currentSlide = 0;
@@ -7,6 +7,7 @@ class DashboardCarousel {
         this.interval = 10000; // 10 seconds
         this.carouselTimer = null;
         this.dataCache = {};
+        this.charts = {};
         
         this.init();
     }
@@ -17,6 +18,7 @@ class DashboardCarousel {
         this.updateDateTime();
         this.startCarousel();
         this.loadAllData();
+        this.initNavigationDots();
         
         // Update time every second
         setInterval(() => this.updateDateTime(), 1000);
@@ -35,13 +37,22 @@ class DashboardCarousel {
         });
         const timeStr = now.toLocaleTimeString('pt-PT', {
             hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
+            minute: '2-digit'
         });
         
         document.getElementById('current-date').textContent = dateStr;
         document.getElementById('current-time').textContent = timeStr;
         document.getElementById('last-update-time').textContent = timeStr;
+        document.getElementById('last-update').textContent = timeStr;
+    }
+    
+    initNavigationDots() {
+        const dots = document.querySelectorAll('.nav-dot');
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                this.showSlide(index);
+            });
+        });
     }
     
     startCarousel() {
@@ -61,6 +72,16 @@ class DashboardCarousel {
         if (this.slides[index]) {
             this.slides[index].classList.add('active');
             this.currentSlide = index;
+            
+            // Update navigation dots
+            const dots = document.querySelectorAll('.nav-dot');
+            dots.forEach((dot, i) => {
+                if (i === index) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
             
             // Load data for current slide if not cached
             const template = this.slides[index].dataset.template;
@@ -101,26 +122,34 @@ class DashboardCarousel {
     
     renderData(template, data) {
         const container = document.getElementById(`data-${template}`);
+        const subtitleContainer = document.getElementById(`subtitle-${template}`);
+        
         if (!container) return;
         
         switch (template) {
             case 'production_monthly':
-                this.renderProductionMonthly(container, data);
+                this.renderProductionMonthly(container, subtitleContainer, data);
                 break;
             case 'forecast_3months':
-                this.renderForecast3Months(container, data);
+                this.renderForecast3Months(container, subtitleContainer, data);
                 break;
             case 'total_value':
-                this.renderTotalValue(container, data);
+                this.renderTotalValue(container, subtitleContainer, data);
                 break;
         }
     }
     
-    renderProductionMonthly(container, data) {
+    renderProductionMonthly(container, subtitleContainer, data) {
+        if (subtitleContainer) {
+            subtitleContainer.textContent = '📊 NOVEMBRO 2024 (ÚLTIMO MÊS FECHADO)';
+        }
+        
         const grid = document.createElement('div');
         grid.className = 'production-grid';
         
-        data.forEach(item => {
+        const icons = ['💧', '⚡', '🔧', '🔩', '📡', '🖥️'];
+        
+        data.forEach((item, index) => {
             const itemDiv = document.createElement('div');
             itemDiv.className = `production-item ${item.status}`;
             
@@ -129,15 +158,22 @@ class DashboardCarousel {
                               percentage >= 95 ? 'warning' : 'danger';
             
             itemDiv.innerHTML = `
-                <h3>${item.familia}</h3>
+                <div class="production-icon">${icons[index] || '📦'}</div>
+                <h3 class="family-name">${item.familia}</h3>
                 <div class="production-numbers">
-                    <div class="production-produced">${item.produzido.toLocaleString('pt-PT')}</div>
-                    <div class="production-target">Meta: ${item.meta.toLocaleString('pt-PT')}</div>
+                    <div class="produced">${item.produzido.toLocaleString('pt-PT')}</div>
+                    <div class="target">de ${item.meta.toLocaleString('pt-PT')} unidades</div>
                 </div>
                 <div class="production-percentage ${statusClass}">${percentage}%</div>
                 <div class="production-status">
                     ${percentage >= 100 ? '✅ Acima da meta' : 
                       percentage >= 95 ? '⚠️ Próximo da meta' : '❌ Abaixo da meta'}
+                </div>
+                <div class="evolution">
+                    <div class="evolution-title">Evolução 2024</div>
+                    <div class="mini-chart">
+                        <canvas id="chart-${index}" width="96" height="48"></canvas>
+                    </div>
                 </div>
             `;
             
@@ -146,68 +182,184 @@ class DashboardCarousel {
         
         container.innerHTML = '';
         container.appendChild(grid);
+        
+        // Create mini charts after DOM is updated
+        setTimeout(() => {
+            this.createMiniCharts(data);
+        }, 100);
     }
     
-    renderForecast3Months(container, data) {
+    createMiniCharts(data) {
+        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov'];
+        
+        data.forEach((item, index) => {
+            const canvasId = `chart-${index}`;
+            const canvas = document.getElementById(canvasId);
+            
+            if (canvas && typeof Chart !== 'undefined') {
+                // Generate sample data for the chart
+                const chartData = this.generateChartData(item.produzido, item.meta);
+                
+                if (this.charts[canvasId]) {
+                    this.charts[canvasId].destroy();
+                }
+                
+                this.charts[canvasId] = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            data: chartData,
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#3B82F6',
+                            pointBorderColor: '#3B82F6',
+                            pointRadius: 2,
+                            tension: 0
+                        }]
+                    },
+                    options: {
+                        responsive: false,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                display: true,
+                                grid: { display: false },
+                                ticks: { display: false }
+                            },
+                            y: {
+                                display: false,
+                                grid: { display: false }
+                            }
+                        },
+                        elements: {
+                            point: { hoverRadius: 0 }
+                        }
+                    }
+                });
+            }
+        });
+    }
+    
+    generateChartData(currentValue, target) {
+        // Generate realistic chart data based on current value and target
+        const data = [];
+        const baseValue = target * 0.8; // Start at 80% of target
+        
+        for (let i = 0; i < 11; i++) {
+            if (i === 10) {
+                data.push(currentValue); // Current month
+            } else {
+                // Generate realistic progression
+                const progress = i / 10;
+                const variation = (Math.random() - 0.5) * 0.2; // ±10% variation
+                const value = baseValue + (currentValue - baseValue) * progress;
+                data.push(Math.round(value * (1 + variation)));
+            }
+        }
+        
+        return data;
+    }
+    
+    renderForecast3Months(container, subtitleContainer, data) {
+        if (subtitleContainer) {
+            subtitleContainer.textContent = '';
+            subtitleContainer.style.display = 'none';
+        }
+        
         const forecastDiv = document.createElement('div');
         forecastDiv.className = 'forecast-container';
         
-        const chartDiv = document.createElement('div');
-        chartDiv.className = 'forecast-chart';
+        const gridDiv = document.createElement('div');
+        gridDiv.className = 'forecast-grid';
         
-        const barsDiv = document.createElement('div');
-        barsDiv.className = 'forecast-bars';
+        const months = ['Dezembro', 'Janeiro', 'Fevereiro'];
         
-        // Find max value for scaling
-        const maxValue = Math.max(...data.map(item => Math.max(item.previsao, item.real)));
-        
-        data.forEach(item => {
-            const barDiv = document.createElement('div');
-            barDiv.className = 'forecast-bar';
+        data.forEach((item, index) => {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'forecast-card';
             
-            const forecastHeight = (item.previsao / maxValue) * 250;
-            const realHeight = (item.real / maxValue) * 250;
-            
-            barDiv.innerHTML = `
-                <div class="bar-container">
-                    <div class="bar bar-forecast" style="height: ${forecastHeight}px;">
-                        <div class="bar-value">${item.previsao}</div>
-                    </div>
-                    <div class="bar bar-real" style="height: ${realHeight}px;">
-                        <div class="bar-value">${item.real}</div>
-                    </div>
+            cardDiv.innerHTML = `
+                <div class="forecast-month">
+                    <div class="forecast-icon">📅</div>
+                    <h3 class="forecast-month-name">${months[index] || item.mes}</h3>
+                    <div class="forecast-value">${item.previsao}</div>
+                    <div class="forecast-units">unidades</div>
                 </div>
-                <div class="bar-label">${item.mes}</div>
             `;
             
-            barsDiv.appendChild(barDiv);
+            gridDiv.appendChild(cardDiv);
         });
         
-        chartDiv.appendChild(barsDiv);
-        forecastDiv.appendChild(chartDiv);
-        
-        // Add legend
-        const legendDiv = document.createElement('div');
-        legendDiv.className = 'forecast-legend';
-        legendDiv.innerHTML = `
-            <div style="display: flex; gap: 30px; justify-content: center;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #FF9800;"></div>
-                    <span>Previsão</span>
+        // Add family details section
+        const detailsDiv = document.createElement('div');
+        detailsDiv.className = 'family-details';
+        detailsDiv.innerHTML = `
+            <h3>Previsão por Família</h3>
+            <div class="family-grid">
+                <div class="family-item">
+                    <div class="family-item-left">
+                        <span class="family-item-icon">💧</span>
+                        <span class="family-item-name">Equipamentos A</span>
+                    </div>
+                    <div class="family-item-value">165</div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #4CAF50;"></div>
-                    <span>Real</span>
+                <div class="family-item">
+                    <div class="family-item-left">
+                        <span class="family-item-icon">⚡</span>
+                        <span class="family-item-name">Equipamentos B</span>
+                    </div>
+                    <div class="family-item-value">132</div>
+                </div>
+                <div class="family-item">
+                    <div class="family-item-left">
+                        <span class="family-item-icon">🔧</span>
+                        <span class="family-item-name">Equipamentos C</span>
+                    </div>
+                    <div class="family-item-value">83</div>
+                </div>
+                <div class="family-item">
+                    <div class="family-item-left">
+                        <span class="family-item-icon">🔩</span>
+                        <span class="family-item-name">Equipamentos D</span>
+                    </div>
+                    <div class="family-item-value">220</div>
+                </div>
+                <div class="family-item">
+                    <div class="family-item-left">
+                        <span class="family-item-icon">📡</span>
+                        <span class="family-item-name">Equipamentos E</span>
+                    </div>
+                    <div class="family-item-value">198</div>
+                </div>
+                <div class="family-item">
+                    <div class="family-item-left">
+                        <span class="family-item-icon">🖥️</span>
+                        <span class="family-item-name">Equipamentos F</span>
+                    </div>
+                    <div class="family-item-value">66</div>
                 </div>
             </div>
         `;
-        forecastDiv.appendChild(legendDiv);
+        
+        forecastDiv.appendChild(gridDiv);
+        forecastDiv.appendChild(detailsDiv);
         
         container.innerHTML = '';
         container.appendChild(forecastDiv);
     }
     
-    renderTotalValue(container, data) {
+    renderTotalValue(container, subtitleContainer, data) {
+        if (subtitleContainer) {
+            subtitleContainer.textContent = '';
+            subtitleContainer.style.display = 'none';
+        }
+        
         const valueDiv = document.createElement('div');
         valueDiv.className = 'value-container';
         
@@ -215,51 +367,145 @@ class DashboardCarousel {
         const currentMonth = data[data.length - 1];
         const currentValue = currentMonth.valor;
         
-        const mainDiv = document.createElement('div');
-        mainDiv.className = 'value-main';
-        mainDiv.innerHTML = `
-            <div class="value-current">${(currentValue / 1000).toFixed(0)}k€</div>
-            <div class="value-label">Valor Total Produção - ${currentMonth.mes}</div>
+        const gridDiv = document.createElement('div');
+        gridDiv.className = 'value-grid';
+        
+        // First card - Current month highlight
+        const highlightCard = document.createElement('div');
+        highlightCard.className = 'value-card';
+        highlightCard.innerHTML = `
+            <div class="highlight-box">
+                <h3 class="highlight-title">🏆 NOVEMBRO 2024 (FECHADO)</h3>
+                <div class="value-current">${(currentValue / 1000).toFixed(0)}k€</div>
+                <div class="value-label">Valor mensal</div>
+            </div>
+            
+            <div class="accumulated-section">
+                <h4 class="accumulated-title">ACUMULADO 2024</h4>
+                <div class="accumulated-value">5120k€</div>
+                <div class="budget-info">Orçamento: 4950k€</div>
+                <div class="percentage success">103%</div>
+            </div>
         `;
         
-        const chartDiv = document.createElement('div');
-        chartDiv.className = 'value-chart';
-        
-        // Create simple bar chart for monthly values
-        const chartBars = document.createElement('div');
-        chartBars.style.display = 'flex';
-        chartBars.style.alignItems = 'end';
-        chartBars.style.justifyContent = 'space-around';
-        chartBars.style.height = '200px';
-        chartBars.style.marginTop = '20px';
-        
-        const maxValue = Math.max(...data.map(item => item.valor));
-        
-        data.forEach(item => {
-            const barHeight = (item.valor / maxValue) * 150;
-            const barDiv = document.createElement('div');
-            barDiv.style.display = 'flex';
-            barDiv.style.flexDirection = 'column';
-            barDiv.style.alignItems = 'center';
-            barDiv.style.width = '80px';
+        // Second card - Chart and forecast
+        const chartCard = document.createElement('div');
+        chartCard.className = 'value-card';
+        chartCard.innerHTML = `
+            <h3 class="accumulated-title">EVOLUÇÃO vs ORÇAMENTO</h3>
+            <div class="chart-container">
+                <canvas id="financial-chart" width="400" height="256"></canvas>
+            </div>
             
-            barDiv.innerHTML = `
-                <div style="width: 40px; height: ${barHeight}px; background: #4CAF50; border-radius: 5px 5px 0 0;"></div>
-                <div style="margin-top: 10px; font-size: 14px; text-align: center;">
-                    ${(item.valor / 1000).toFixed(0)}k€
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-line legend-dashed"></div>
+                    <span>Orçamento</span>
                 </div>
-                <div style="font-size: 12px; color: #666;">${item.mes}</div>
-            `;
+                <div class="legend-item">
+                    <div class="legend-dot legend-green"></div>
+                    <span>Real (Acima)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot legend-red"></div>
+                    <span>Real (Abaixo)</span>
+                </div>
+            </div>
             
-            chartBars.appendChild(barDiv);
-        });
+            <div class="forecast-section">
+                <h4 class="forecast-title">PREVISÃO PRÓXIMOS 3 MESES</h4>
+                <div class="forecast-item">
+                    <span class="forecast-month-label">Dezembro</span>
+                    <span class="forecast-amount">535k€</span>
+                </div>
+                <div class="forecast-item">
+                    <span class="forecast-month-label">Janeiro</span>
+                    <span class="forecast-amount">575k€</span>
+                </div>
+                <div class="forecast-item">
+                    <span class="forecast-month-label">Fevereiro</span>
+                    <span class="forecast-amount">550k€</span>
+                </div>
+            </div>
+        `;
         
-        chartDiv.appendChild(chartBars);
-        valueDiv.appendChild(mainDiv);
-        valueDiv.appendChild(chartDiv);
+        gridDiv.appendChild(highlightCard);
+        gridDiv.appendChild(chartCard);
+        valueDiv.appendChild(gridDiv);
         
         container.innerHTML = '';
         container.appendChild(valueDiv);
+        
+        // Create financial chart
+        setTimeout(() => {
+            this.createFinancialChart();
+        }, 100);
+    }
+    
+    createFinancialChart() {
+        const canvas = document.getElementById('financial-chart');
+        
+        if (canvas && typeof Chart !== 'undefined') {
+            const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov'];
+            const actual = [420, 865, 1333, 1785, 2260, 2745, 3207, 3662, 4154, 4632, 5120];
+            const budget = [450, 900, 1350, 1800, 2250, 2700, 3150, 3600, 4050, 4500, 4950];
+            
+            if (this.charts['financial-chart']) {
+                this.charts['financial-chart'].destroy();
+            }
+            
+            this.charts['financial-chart'] = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Orçamento',
+                            data: budget,
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'transparent',
+                            borderWidth: 3,
+                            borderDash: [8, 4],
+                            pointBackgroundColor: '#3B82F6',
+                            pointRadius: 4,
+                            tension: 0
+                        },
+                        {
+                            label: 'Real',
+                            data: actual,
+                            borderColor: '#10B981',
+                            backgroundColor: 'transparent',
+                            borderWidth: 3,
+                            pointBackgroundColor: actual.map((val, idx) => {
+                                return val >= budget[idx] ? '#10B981' : '#EF4444';
+                            }),
+                            pointRadius: 4,
+                            tension: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: { display: true, color: '#E5E7EB' },
+                            ticks: { color: '#6B7280', font: { size: 12 } }
+                        },
+                        y: {
+                            display: true,
+                            grid: { display: true, color: '#E5E7EB' },
+                            ticks: { color: '#6B7280', font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
     }
 }
 

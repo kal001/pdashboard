@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Jayme da Costa</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -32,11 +33,21 @@
             <div class="carousel-slide" data-template="{{ page[2] }}" data-page-id="{{ page[0] }}">
                 <div class="slide-content">
                     <h2 class="slide-title">{{ page[1] }}</h2>
+                    <div class="slide-subtitle" id="subtitle-{{ page[2] }}">
+                        <!-- Subtitle will be set by JavaScript -->
+                    </div>
                     <div class="slide-data" id="data-{{ page[2] }}">
                         <!-- Data will be loaded here via JavaScript -->
                     </div>
                 </div>
             </div>
+            {% endfor %}
+        </div>
+
+        <!-- Navigation Dots -->
+        <div class="nav-dots">
+            {% for page in pages %}
+            <div class="nav-dot {% if loop.first %}active{% endif %}" data-view="{{ loop.index0 }}"></div>
             {% endfor %}
         </div>
 
@@ -56,9 +67,13 @@
                     <span>Abaixo da meta</span>
                 </div>
                 <div class="legend-item">
-                    <span class="legend-color info"></span>
-                    <span>Informação neutra</span>
+                    <span>📁</span>
+                    <span>Dados: dashboard_data.xlsx</span>
                 </div>
+            </div>
+            <div class="update-info">
+                <span>🕐</span>
+                <span>Última atualização: <span id="last-update"></span></span>
             </div>
         </footer>
     </div>

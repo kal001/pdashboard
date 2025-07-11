@@ -1,4 +1,4 @@
-/* Dashboard CSS - Optimized for TV Display */
+/* Dashboard CSS - Modern Design for TV Display */
 * {
     margin: 0;
     padding: 0;
@@ -7,28 +7,27 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%);
     color: #ffffff;
-    overflow: hidden;
-    height: 100vh;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
 .dashboard-container {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    position: relative;
 }
 
 /* Header Styles */
 .dashboard-header {
-    background: rgba(0, 0, 0, 0.8);
-    padding: 20px 40px;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    padding: 24px;
+    border-bottom: 2px solid #60a5fa;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    border-bottom: 3px solid #4CAF50;
-    min-height: 120px;
+    align-items: center;
 }
 
 .logo-container {
@@ -38,12 +37,12 @@ body {
 }
 
 .main-logo {
-    height: 80px;
+    height: 60px;
     width: auto;
 }
 
 .secondary-logo {
-    height: 60px;
+    height: 45px;
     width: auto;
 }
 
@@ -52,24 +51,24 @@ body {
 }
 
 .company-name {
-    font-size: 48px;
+    font-size: 2.5rem;
     font-weight: bold;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 8px;
 }
 
 .datetime-info {
-    font-size: 32px;
-    margin-bottom: 10px;
+    font-size: 1.25rem;
+    color: #bfdbfe;
+    margin-bottom: 8px;
 }
 
 .datetime-info span {
-    margin-left: 20px;
+    margin-left: 16px;
 }
 
 .last-update {
-    font-size: 24px;
-    opacity: 0.8;
+    font-size: 1rem;
+    color: #bfdbfe;
 }
 
 /* Carousel Styles */
@@ -87,7 +86,7 @@ body {
     height: 100%;
     opacity: 0;
     transition: opacity 1s ease-in-out;
-    padding: 40px;
+    padding: 32px;
     display: flex;
     flex-direction: column;
 }
@@ -103,12 +102,19 @@ body {
 }
 
 .slide-title {
-    font-size: 56px;
+    font-size: 3rem;
     font-weight: bold;
     text-align: center;
-    margin-bottom: 40px;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+    margin-bottom: 8px;
     color: #ffffff;
+}
+
+.slide-subtitle {
+    font-size: 1.5rem;
+    color: #fde047;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 32px;
 }
 
 .slide-data {
@@ -122,72 +128,102 @@ body {
 .production-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
+    gap: 32px;
     height: 100%;
 }
 
 .production-item {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    padding: 30px;
+    background: white;
+    color: #1f2937;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    padding: 24px;
     text-align: center;
-    border: 3px solid transparent;
+    border: 4px solid #e5e7eb;
     transition: all 0.3s ease;
 }
 
 .production-item.success {
-    border-color: #4CAF50;
-    background: rgba(76, 175, 80, 0.2);
+    border-color: #10b981;
 }
 
 .production-item.warning {
-    border-color: #FF9800;
-    background: rgba(255, 152, 0, 0.2);
+    border-color: #f59e0b;
 }
 
 .production-item.danger {
-    border-color: #F44336;
-    background: rgba(244, 67, 54, 0.2);
+    border-color: #ef4444;
+}
+
+.production-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
 }
 
 .production-item h3 {
-    font-size: 36px;
-    margin-bottom: 20px;
-    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: #1f2937;
 }
 
 .production-numbers {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .production-produced {
-    font-size: 72px;
+    font-size: 3rem;
     font-weight: bold;
-    color: #ffffff;
-    margin-bottom: 10px;
+    color: #1f2937;
+    margin-bottom: 8px;
 }
 
 .production-target {
-    font-size: 32px;
-    opacity: 0.8;
+    font-size: 1.25rem;
+    color: #6b7280;
 }
 
 .production-percentage {
-    font-size: 48px;
+    padding: 12px 24px;
+    border-radius: 9999px;
+    font-size: 1.5rem;
     font-weight: bold;
-    margin-bottom: 15px;
+    margin-bottom: 16px;
+    color: white;
 }
 
 .production-percentage.success {
-    color: #4CAF50;
+    background-color: #10b981;
 }
 
 .production-percentage.warning {
-    color: #FF9800;
+    background-color: #f59e0b;
 }
 
 .production-percentage.danger {
-    color: #F44336;
+    background-color: #ef4444;
+}
+
+.production-status {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+.evolution {
+    text-align: center;
+}
+
+.evolution-title {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.mini-chart {
+    height: 48px;
+    width: 96px;
+    margin: 0 auto;
 }
 
 /* Forecast Template */
@@ -199,63 +235,102 @@ body {
     height: 100%;
 }
 
-.forecast-chart {
-    width: 80%;
-    max-width: 800px;
-    height: 400px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    padding: 40px;
-    margin-bottom: 40px;
-}
-
-.forecast-bars {
-    display: flex;
-    align-items: end;
-    justify-content: space-around;
-    height: 300px;
-    margin-bottom: 20px;
-}
-
-.forecast-bar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 120px;
-}
-
-.bar-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-bottom: 32px;
     width: 100%;
 }
 
-.bar {
-    width: 60px;
-    background: #2196F3;
-    border-radius: 5px 5px 0 0;
-    margin-bottom: 10px;
-    position: relative;
+.forecast-card {
+    background: white;
+    color: #1f2937;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    padding: 32px;
 }
 
-.bar-forecast {
-    background: #FF9800;
-}
-
-.bar-real {
-    background: #4CAF50;
-}
-
-.bar-label {
-    font-size: 24px;
-    font-weight: bold;
+.forecast-month {
+    background: #dbeafe;
+    border-radius: 12px;
+    padding: 24px;
     text-align: center;
 }
 
-.bar-value {
-    font-size: 20px;
-    margin-top: 5px;
+.forecast-icon {
+    color: #2563eb;
+    font-size: 3rem;
+    margin: 0 auto 16px;
+}
+
+.forecast-month-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #1f2937;
+}
+
+.forecast-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.forecast-units {
+    font-size: 1.125rem;
+    color: #6b7280;
+}
+
+.family-details {
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 24px;
+    width: 100%;
+}
+
+.family-details h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: #1f2937;
+}
+
+.family-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.family-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.family-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.family-item-icon {
+    font-size: 1.5rem;
+}
+
+.family-item-name {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.family-item-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #2563eb;
 }
 
 /* Total Value Template */
@@ -267,74 +342,226 @@ body {
     height: 100%;
 }
 
-.value-main {
+.value-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    width: 100%;
+}
+
+.value-card {
+    background: white;
+    color: #1f2937;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    padding: 32px;
+}
+
+.highlight-box {
+    border: 4px solid #fbbf24;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    background: #fefce8;
+}
+
+.highlight-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 8px;
     text-align: center;
-    margin-bottom: 60px;
+    color: #1f2937;
 }
 
 .value-current {
-    font-size: 120px;
+    font-size: 4rem;
     font-weight: bold;
-    color: #4CAF50;
-    margin-bottom: 20px;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+    color: #059669;
+    text-align: center;
+    margin-bottom: 8px;
 }
 
 .value-label {
-    font-size: 48px;
-    opacity: 0.8;
+    font-size: 1.125rem;
+    color: #6b7280;
+    text-align: center;
 }
 
-.value-chart {
-    width: 80%;
-    max-width: 1000px;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    padding: 30px;
+.accumulated-section {
+    text-align: center;
 }
 
-/* Footer Styles */
-.dashboard-footer {
-    background: rgba(0, 0, 0, 0.8);
-    padding: 20px 40px;
-    border-top: 3px solid #4CAF50;
+.accumulated-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: #1f2937;
 }
 
-.legend {
+.accumulated-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2563eb;
+    margin-bottom: 8px;
+}
+
+.budget-info {
+    font-size: 1.125rem;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+.chart-container {
+    height: 256px;
+    margin-bottom: 16px;
+}
+
+.chart-legend {
     display: flex;
     justify-content: center;
-    gap: 40px;
+    gap: 24px;
+    margin-bottom: 16px;
+    font-size: 0.875rem;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 24px;
+    gap: 8px;
+}
+
+.legend-line {
+    width: 16px;
+    height: 3px;
+}
+
+.legend-dashed {
+    border-top: 3px dashed #3b82f6;
+}
+
+.legend-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
+.legend-green {
+    background-color: #10b981;
+}
+
+.legend-red {
+    background-color: #ef4444;
+}
+
+.forecast-section {
+    border-top: 2px solid #e5e7eb;
+    padding-top: 16px;
+}
+
+.forecast-title {
+    font-size: 1.125rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: #1f2937;
+}
+
+.forecast-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #dbeafe;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+}
+
+.forecast-month-label {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.forecast-amount {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+/* Footer Styles */
+.dashboard-footer {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    padding: 16px 24px;
+    border-top: 2px solid #60a5fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.legend {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
 }
 
 .legend-color {
-    width: 30px;
-    height: 30px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    border: 2px solid #ffffff;
 }
 
 .legend-color.success {
-    background: #4CAF50;
+    background: #10b981;
 }
 
 .legend-color.warning {
-    background: #FF9800;
+    background: #f59e0b;
 }
 
 .legend-color.danger {
-    background: #F44336;
+    background: #ef4444;
 }
 
 .legend-color.info {
-    background: #2196F3;
+    background: #3b82f6;
+}
+
+.update-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.875rem;
+}
+
+/* Navigation Dots */
+.nav-dots {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+}
+
+.nav-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.nav-dot.active {
+    background: white;
 }
 
 /* Responsive Design */
@@ -344,11 +571,15 @@ body {
     }
     
     .slide-title {
-        font-size: 48px;
+        font-size: 2.5rem;
     }
     
     .production-produced {
-        font-size: 60px;
+        font-size: 2.5rem;
+    }
+    
+    .company-name {
+        font-size: 2rem;
     }
 }
 
@@ -359,15 +590,23 @@ body {
     }
     
     .slide-title {
-        font-size: 40px;
+        font-size: 2rem;
     }
     
     .production-produced {
-        font-size: 48px;
+        font-size: 2rem;
     }
     
     .company-name {
-        font-size: 36px;
+        font-size: 1.5rem;
+    }
+    
+    .forecast-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .value-grid {
+        grid-template-columns: 1fr;
     }
 }
 
