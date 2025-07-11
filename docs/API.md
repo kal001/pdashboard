@@ -31,51 +31,21 @@ Retorna a lista de todas as páginas modulares com sua configuração.
 {
   "pages": [
     {
-      "id": "producao",
+      "id": "producao3",
       "active": true,
-      "type": "carousel",
-      "duration": 10,
+      "type": "3x2",
       "template": "carousel.html",
       "css_file": "producao.css",
       "widgets": [
-        {
-          "id": "widget1",
-          "title": "Produção Total",
-          "type": "metric",
-          "data_source": "producao.xlsx",
-          "sheet": "Total",
-          "value_column": "B",
-          "target_column": "C"
-        }
+        { "id": "widget1", "active": true, "name": "Linha 3 - Equipamento A" },
+        { "id": "widget2", "active": true, "name": "Linha 3 - Equipamento B" }
       ]
-    },
-    {
-      "id": "previsoes",
-      "active": true,
-      "type": "carousel",
-      "duration": 8,
-      "template": "carousel.html",
-      "css_file": "producao.css"
-    },
-    {
-      "id": "valores",
-      "active": false,
-      "type": "carousel",
-      "duration": 12,
-      "template": "carousel.html",
-      "css_file": "producao.css"
-    },
-    {
-      "id": "performance",
-      "active": true,
-      "type": "carousel",
-      "duration": 10,
-      "template": "carousel.html",
-      "css_file": "producao.css"
     }
   ]
 }
 ```
+
+O painel de administração consome este endpoint para mostrar, para cada página, o template, css_file e widgets ativos.
 
 #### GET /api/pages/{page_id}
 Retorna a configuração de uma página específica.

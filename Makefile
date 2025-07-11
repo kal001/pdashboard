@@ -34,3 +34,18 @@ lint:
 
 shell:
 	docker-compose exec dashboard /bin/sh 
+
+build-prod:
+	docker-compose -f docker-compose.prod.yml build
+
+up-prod:
+	docker-compose -f docker-compose.prod.yml up -d
+
+down-prod:
+	docker-compose -f docker-compose.prod.yml down
+
+logs-prod:
+	docker-compose -f docker-compose.prod.yml logs -f dashboard
+
+shell-prod:
+	docker-compose -f docker-compose.prod.yml exec dashboard /bin/sh 

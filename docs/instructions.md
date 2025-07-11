@@ -320,3 +320,31 @@ docker-compose logs -f dashboard
 docker volume ls
 ```
 
+## Painel de Administração
+
+O painel de administração exibe todas as páginas modulares e permite:
+- Ativar/desativar páginas
+- Alterar ordem de exibição
+- Visualizar, para cada página:
+  - Template utilizado
+  - CSS associado
+  - Nomes dos widgets ativos
+
+A informação é lida do `config.json` de cada página. Edite o `config.json` e o admin refletirá as mudanças automaticamente.
+
+### Exemplo de config.json
+```json
+{
+  "id": "producao3",
+  "title": "Produção Linha 3",
+  "active": true,
+  "type": "3x2",
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "widgets": [
+    { "id": "widget1", "active": true, "name": "Linha 3 - Equipamento A" },
+    { "id": "widget2", "active": true, "name": "Linha 3 - Equipamento B" }
+  ]
+}
+```
+

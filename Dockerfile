@@ -26,9 +26,8 @@ RUN mkdir -p static/assets
 # Expose port
 EXPOSE 5000
 
-# Set environment variables
+# Set environment variables (do not hardcode FLASK_ENV)
 ENV FLASK_APP=app.py
-ENV FLASK_ENV=development
 
-# Run the application
-CMD ["python", "app.py"] 
+# Entrypoint logic: use Gunicorn in production, Flask dev server otherwise
+CMD ["/bin/sh", "-c", "if [ \"$FLASK_ENV\" = 'production' ]; then exec gunicorn -b 0.0.0.0:5000 app:app; else exec python app.py; fi"] 

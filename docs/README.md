@@ -337,3 +337,33 @@ Para questões técnicas ou problemas, consulte:
 - Instruções do projeto em `docs/instructions.md`
 - Documentação da API em `docs/API.md`
 - Guia de deploy em `docs/DEPLOYMENT.md` 
+
+## Painel de Administração
+
+O painel de administração permite:
+- Visualizar todas as páginas modulares do dashboard
+- Ativar/desativar páginas e alterar a ordem de exibição
+- Ver, para cada página:
+  - Nome do template utilizado
+  - Nome do ficheiro CSS associado
+  - Lista dos widgets ativos (nomes)
+
+A informação é lida diretamente do ficheiro `config.json` de cada página. Sempre que editar o `config.json` de uma página (template, css_file, widgets), o painel reflete automaticamente as alterações.
+
+### Exemplo de config.json completo
+```json
+{
+  "id": "producao3",
+  "title": "Produção Linha 3",
+  "description": "Dashboard de produção linha 3",
+  "active": true,
+  "type": "3x2",
+  "duration": 12,
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "widgets": [
+    { "id": "widget1", "active": true, "name": "Linha 3 - Equipamento A", "sheet": "ModeloA" },
+    { "id": "widget2", "active": true, "name": "Linha 3 - Equipamento B", "sheet": "ModeloB" }
+  ]
+}
+``` 
