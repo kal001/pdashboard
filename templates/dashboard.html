@@ -47,7 +47,7 @@
                 {% elif page_type == '2x2' %}
                 <div class="grid grid-cols-2 grid-rows-2 gap-8 w-full h-full min-h-0 min-w-0">
                     {% for widget in widgets %}
-                    <div class="bg-white/10 rounded-xl shadow-lg p-8 flex flex-col h-full w-full min-h-0 min-w-0">
+                    <div class="rounded-xl shadow-lg p-8 flex flex-col h-full w-full min-h-0 min-w-0" style="background: rgba(20,26,31,0.95);">
                         <div class="flex flex-col gap-2 flex-1">
                             <span class="text-white text-5xl font-bold leading-tight">{{ widget.title }}</span>
                             <div class="flex items-end gap-4 mt-2">
@@ -73,7 +73,7 @@
                 {% else %}
                 <div class="grid grid-cols-3 grid-rows-2 gap-8 w-full h-full min-h-0 min-w-0">
                     {% for widget in widgets %}
-                    <div class="bg-white/10 rounded-xl shadow-lg p-8 flex flex-col h-full w-full min-h-0 min-w-0">
+                    <div class="rounded-xl shadow-lg p-8 flex flex-col h-full w-full min-h-0 min-w-0" style="background: rgba(20,26,31,0.95);">
                         <div class="flex flex-col gap-2 flex-1">
                             <span class="text-white text-5xl font-bold leading-tight">{{ widget.title }}</span>
                             <div class="flex items-end gap-4 mt-2">

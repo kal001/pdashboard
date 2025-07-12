@@ -59,7 +59,7 @@ body {
 }
 
 .company-name {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: bold;
     margin-bottom: 8px;
     color: #ffffff;
@@ -78,6 +78,29 @@ body {
 .last-update {
     font-size: 1rem;
     color: #bfdbfe;
+}
+
+/* Center month styling - reduced for balance */
+.header-info .company-name {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.company-name {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #ffffff;
+}
+
+.header-subtitle {
+    font-size: 1.1rem;
+    color: #bfdbfe;
+    margin-top: 0.25rem;
+    text-align: right;
 }
 
 .datetime-info {

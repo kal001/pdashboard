@@ -54,7 +54,7 @@
                 <div class="w-full h-full flex-1 min-h-0 min-w-0">
                     <div class="grid ${page.type === '2x2' ? 'grid-cols-2 grid-rows-2' : 'grid-cols-3 grid-rows-2'} gap-8 w-full h-full min-h-0 min-w-0">
                         ${page.widgets.map((widget, i) => `
-                        <div class="widget-card p-8 flex flex-col h-full w-full min-h-0 min-w-0">
+                        <div class="widget-card p-8 flex flex-col h-full w-full min-h-0 min-w-0" style="background: rgba(20,26,31,0.95); border-radius: 1rem;">
                             <div class="flex flex-col gap-2 flex-1">
                                 <span class="widget-title">${widget.title}</span>
                                 <div class="flex items-end gap-4 mt-2">
