@@ -75,5 +75,8 @@
   "connection_error_short": "Connection error.",
   "files_selected": "files selected",
   "markdown_file": "Markdown file:",
-  "image_file": "Image file:"
+  "image_file": "Image file:",
+  "font_size": "Font size:",
+  "common_fields": "Common Fields",
+  "type_specific_fields": "Type-Specific Fields"
 } 

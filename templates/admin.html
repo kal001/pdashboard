@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - {{ company_name }} Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <script src="{{ url_for('static', filename='js/dynamic-form.js') }}"></script>
 </head>
 <body>
     <div class="admin-container">
@@ -65,24 +66,35 @@
                 <div id="add-page-form-container" style="display:none; margin-bottom:30px;">
                     <form id="add-page-form" style="background:#f8f9fa; border-radius:8px; padding:20px; border:2px solid #e9ecef; max-width:600px;">
                         <h3 style="margin-bottom:15px; color:#1e3c72;"></h3>
-                        <div style="margin-bottom:12px;">
-                            <label></label>
-                            <input type="text" name="folder_name" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;">
+                        
+                        <!-- Common Fields Section -->
+                        <div style="margin-bottom:20px;">
+                            <h4 style="color:#1e3c72; margin-bottom:10px; font-size:16px;"></h4>
+                            <div style="margin-bottom:12px;">
+                                <label></label>
+                                <input type="text" name="folder_name" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;">
+                            </div>
+                            <div style="margin-bottom:12px;"><label></label><input type="text" name="id" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                            <div style="margin-bottom:12px;"><label></label><input type="text" name="title" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                            <div style="margin-bottom:12px;"><label></label><input type="text" name="description" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                            <div style="margin-bottom:12px;"><label></label><select name="active" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"><option value="true"></option><option value="false"></option></select></div>
+                            <div style="margin-bottom:12px;">
+                                <label></label>
+                                <select name="type" id="add-page-type-select" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></select>
+                            </div>
+                            <div style="margin-bottom:12px;"><label></label><input type="number" name="duration" value="10" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                            <div style="margin-bottom:12px;"><label></label><input type="text" name="template" value="carousel.html" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                            <div style="margin-bottom:12px;"><label></label><input type="text" name="css_file" value="producao.css" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
                         </div>
-                        <div style="margin-bottom:12px;"><label></label><input type="text" name="id" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                        <div style="margin-bottom:12px;"><label></label><input type="text" name="title" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                        <div style="margin-bottom:12px;"><label></label><input type="text" name="description" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                        <div style="margin-bottom:12px;"><label></label><select name="active" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"><option value="true"></option><option value="false"></option></select></div>
-                        <div style="margin-bottom:12px;">
-                            <label></label>
-                            <select name="type" id="add-page-type-select" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></select>
+                        
+                        <!-- Type-Specific Fields Section -->
+                        <div id="type-specific-fields" style="margin-bottom:20px; display:none;">
+                            <h4 style="color:#1e3c72; margin-bottom:10px; font-size:16px;"></h4>
+                            <div id="type-fields-container">
+                                <!-- Dynamic fields will be inserted here -->
+                            </div>
                         </div>
-                        <div style="margin-bottom:12px;"><label></label><input type="number" name="duration" value="10" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                        <div style="margin-bottom:12px;"><label></label><input type="text" name="template" value="carousel.html" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                        <div style="margin-bottom:12px;"><label></label><input type="text" name="css_file" value="producao.css" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                        <div style="margin-bottom:12px;"><label></label><input type="text" name="xlsx_file" value="producao.xlsx" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                        <div style="margin-bottom:12px;"><label></label><input type="text" name="md_file" value="sample.md" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                        <div style="margin-bottom:12px;"><label></label><input type="text" name="image_file" value="sample.jpg" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                        
                         <div style="display:flex;gap:12px;align-items:center;">
                             <button type="submit" class="toggle-btn active"></button>
                             <button type="button" id="cancel-add-page" class="toggle-btn inactive"></button>
@@ -184,19 +196,32 @@
             // Update add page form
             if (addPageForm) {
                 addPageForm.querySelector('h3').textContent = t('new_page');
+                
+                // Update section headers
+                const commonFieldsHeader = addPageForm.querySelector('h4');
+                if (commonFieldsHeader) {
+                    commonFieldsHeader.textContent = t('common_fields');
+                }
+                
+                const typeSpecificHeader = document.getElementById('type-specific-fields').querySelector('h4');
+                if (typeSpecificHeader) {
+                    typeSpecificHeader.textContent = t('type_specific_fields');
+                }
+                
+                // Update common fields labels
                 const labels = addPageForm.querySelectorAll('label');
-                labels[0].textContent = t('folder_name');
-                labels[1].textContent = t('id');
-                labels[2].textContent = t('title');
-                labels[3].textContent = t('description');
-                labels[4].textContent = t('active');
-                labels[5].textContent = t('type');
-                labels[6].textContent = t('duration');
-                labels[7].textContent = t('template');
-                labels[8].textContent = t('css_file');
-                labels[9].textContent = t('xlsx_file');
-                labels[10].textContent = t('md_file');
-                labels[11].textContent = t('image_file');
+                if (labels.length >= 9) {
+                    labels[0].textContent = t('folder_name');
+                    labels[1].textContent = t('id');
+                    labels[2].textContent = t('title');
+                    labels[3].textContent = t('description');
+                    labels[4].textContent = t('active');
+                    labels[5].textContent = t('type');
+                    labels[6].textContent = t('duration');
+                    labels[7].textContent = t('template');
+                    labels[8].textContent = t('css_file');
+                }
+                
                 addPageForm.querySelector('button[type="submit"]').textContent = t('create_page');
                 cancelAddPage.textContent = t('cancel');
             }
@@ -334,11 +359,30 @@
                     addPageBtn.style.display = 'inline-block';
                     addPageMsg.textContent = '';
                     addPageForm.reset();
+                    
+                    // Reset dynamic form
+                    if (window.dynamicFormHandler) {
+                        window.dynamicFormHandler.hideTypeSpecificFields();
+                        if (window.dynamicFormHandler.typeSelect) {
+                            window.dynamicFormHandler.typeSelect.value = '';
+                        }
+                    }
                 };
                 addPageForm.onsubmit = function(e) {
                     e.preventDefault();
+                    
+                    // Validate form using dynamic form handler
+                    if (window.dynamicFormHandler && !window.dynamicFormHandler.validateForm()) {
+                        return;
+                    }
+                    
                     addPageMsg.textContent = t('creating_page');
-                    const formData = new FormData(addPageForm);
+                    
+                    // Get form data using dynamic form handler
+                    const formData = window.dynamicFormHandler ? 
+                        window.dynamicFormHandler.getFormData() : 
+                        new FormData(addPageForm);
+                    
                     const config = {
                         id: formData.get('id'),
                         title: formData.get('title'),
@@ -348,11 +392,18 @@
                         duration: parseInt(formData.get('duration'), 10),
                         template: formData.get('template'),
                         css_file: formData.get('css_file'),
-                        xlsx_file: formData.get('xlsx_file'),
-                        md_file: formData.get('md_file'),
-                        image_file: formData.get('image_file'),
                         widgets: []
                     };
+                    
+                    // Add type-specific fields to config
+                    const selectedType = formData.get('type');
+                    if (selectedType) {
+                        if (formData.get('xlsx_file')) config.xlsx_file = formData.get('xlsx_file');
+                        if (formData.get('md_file')) config.md_file = formData.get('md_file');
+                        if (formData.get('image_file')) config.image_file = formData.get('image_file');
+                        if (formData.get('font_size')) config.font_size = parseInt(formData.get('font_size'), 10);
+                    }
+                    
                     fetch('/api/pages/create', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
