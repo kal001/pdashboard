@@ -1,88 +1,88 @@
-# Dashboard Fabril Modular
+# Modular Industrial Dashboard
 
-## Visão Geral
+## Overview
 
-Dashboard modular para TV, desenvolvido em Flask + Tailwind CSS, com dados dinâmicos de Excel e configuração por página. Ideal para ambientes industriais/fábricas.
+Modular dashboard for TV, developed with Flask + Tailwind CSS, with dynamic Excel data and per-page configuration. Ideal for industrial/factory environments.
 
 - **Backend:** Flask (Python)
 - **Frontend:** HTML5, Tailwind CSS v4, JavaScript
-- **Dados:** Excel (pandas/openpyxl)
-- **Containerização:** Docker & Docker Compose
+- **Data:** Excel (pandas/openpyxl)
+- **Containerization:** Docker & Docker Compose
 
-## Funcionalidades Principais
-- Carrossel de dashboards modulares (cada página é independente)
-- Layout 3x2 otimizado para TV
-- Widgets configuráveis por página
-- Painel de administração para ativar/desativar/reordenar páginas
-- Deploy fácil em Docker (dev e produção)
-- **API REST completa** com documentação interativa (Swagger UI)
-- **Auto-reload automático** dos clientes quando há alterações
+## Key Features
+- Modular dashboard carousel (each page is independent)
+- 3x2 layout optimized for TV
+- Configurable widgets per page
+- Admin panel to activate/deactivate/reorder pages
+- Easy Docker deployment (dev and production)
+- **Complete REST API** with interactive documentation (Swagger UI)
+- **Automatic client auto-reload** when changes occur
 
-## API e Documentação
-- **Documentação Interativa:** http://localhost:8000/api/v1/docs/
-- **API REST:** Endpoints para gestão de páginas, widgets e dados
-- **Swagger UI:** Teste e explore todos os endpoints diretamente no navegador
+## API and Documentation
+- **Interactive Documentation:** http://localhost:8000/api/v1/docs/
+- **REST API:** Endpoints for page, widget, and data management
+- **Swagger UI:** Test and explore all endpoints directly in the browser
 
-## Atualizações em Tempo Real
-- **Auto-Reload:** Todos os dashboards conectados atualizam automaticamente
-- **Detecção Inteligente:** Verifica mudanças na configuração a cada 30 segundos
-- **Sincronização Multi-Client:** Múltiplos displays mantêm-se sincronizados
-- **Zero Intervenção:** Não é necessário refrescar manualmente os browsers
+## Real-Time Updates
+- **Auto-Reload:** All connected dashboards update automatically
+- **Smart Detection:** Checks for configuration changes every 30 seconds
+- **Multi-Client Synchronization:** Multiple displays stay synchronized
+- **Zero Intervention:** No need to manually refresh browsers
 
-### O que Dispara Atualizações Automáticas
-- ✅ Ativar/desativar páginas no painel admin
-- ✅ Reordenar páginas via drag & drop
-- ✅ Alterações nos ficheiros de configuração
-- ✅ Modificações via API REST
+### What Triggers Automatic Updates
+- ✅ Activate/deactivate pages in admin panel
+- ✅ Reorder pages via drag & drop
+- ✅ Changes to configuration files
+- ✅ Modifications via REST API
 
-## Configuração de Ambiente
+## Environment Configuration
 
-O projeto usa arquivos de configuração específicos para cada ambiente:
+The project uses specific configuration files for each environment:
 
-- **`.env.development`**: Configurações para desenvolvimento (debug ativado, hot reload)
-- **`.env.production`**: Configurações para produção (debug desativado, otimizações)
+- **`.env.development`**: Configurations for development (debug enabled, hot reload)
+- **`.env.production`**: Configurations for production (debug disabled, optimizations)
 
-### Desenvolvimento
-- Usa `.env.development` automaticamente com `make up`
-- Debug mode ativado para desenvolvimento
-- Hot reload para alterações em tempo real
+### Development
+- Uses `.env.development` automatically with `make up`
+- Debug mode enabled for development
+- Hot reload for real-time changes
 
-### Produção  
-- Usa `.env.production` automaticamente com `make up-prod`
-- Debug mode desativado para segurança
-- Otimizações de performance ativadas
+### Production  
+- Uses `.env.production` automatically with `make up-prod`
+- Debug mode disabled for security
+- Performance optimizations enabled
 
-## Instalação Rápida
+## Quick Installation
 
-### 1. Clone o projeto
+### 1. Clone the project
 ```bash
 git clone <repo-url>
 cd pdashboard
 ```
 
-### 2. Ambiente de Desenvolvimento
+### 2. Development Environment
 ```bash
 make up
-# Acesse http://localhost:8000
+# Access http://localhost:8000
 # API Docs: http://localhost:8000/api/v1/docs/
 ```
 
-### 3. Ambiente de Produção
+### 3. Production Environment
 ```bash
 make build-prod
 make up-prod
-# Acesse http://<ip_do_servidor>:8000
-# API Docs: http://<ip_do_servidor>:8000/api/v1/docs/
+# Access http://<server-ip>:8000
+# API Docs: http://<server-ip>:8000/api/v1/docs/
 ```
 
-> **Dica:** Edite `.env.development` ou `.env.production` conforme o ambiente.
+> **Tip:** Edit `.env.development` or `.env.production` according to your environment.
 
-## Documentação Detalhada
-- [Manual do Administrador](docs/ADMIN.md)
-- [Guia de Deploy](docs/DEPLOYMENT.md)
-- [Instruções Técnicas](docs/instructions.md)
+## Detailed Documentation
+- [Administrator Manual](docs/ADMIN.md)
+- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Technical Instructions](docs/instructions.md)
 - [API](docs/API.md)
 
 ---
 
-Para detalhes sobre configuração de páginas, widgets, dados, troubleshooting e personalização, consulte os documentos acima. 
+For details on page configuration, widgets, data, troubleshooting and customization, see the documents above. 

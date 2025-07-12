@@ -325,6 +325,29 @@ The **Global Configuration** section (at the top of the admin panel) controls sy
 - **Content Files**: `.md`, `.txt`
 - **Image Files**: `.jpg`, `.png`, `.jpeg`
 
+## Customization
+
+### Logo Customization
+The dashboard displays two logos in the header that can be customized:
+
+#### Logo Files Location
+- **Main Logo**: `static/assets/logo.png`
+- **Secondary Logo**: `static/assets/getsitelogo.jpeg`
+
+#### Customization Steps
+1. **Replace Placeholder Files**: The system includes placeholder files with instructions
+2. **Upload Your Logos**: Replace the placeholder files with your actual logo images
+3. **Recommended Specifications**:
+   - **Format**: PNG with transparency (main logo), JPEG or PNG (secondary logo)
+   - **Size**: 200x80 pixels or similar aspect ratio
+   - **Background**: Transparent for main logo, white or transparent for secondary
+4. **Automatic Display**: Logos will appear in dashboard header and admin panel
+
+#### Logo Usage
+- **Dashboard Header**: Both logos are displayed in the top-left corner
+- **Admin Panel**: Main logo appears in the admin interface header
+- **Responsive Design**: Logos scale appropriately for different screen sizes
+
 ---
 
 *For technical support and advanced configuration, refer to the administrator documentation or contact your system administrator.* 

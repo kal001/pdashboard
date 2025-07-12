@@ -1,199 +1,222 @@
-# Instruções de Implementação - PDashboard
+# Implementation Instructions - PDashboard
 
-## Visão Geral
+## Overview
 
-O PDashboard é um sistema de dashboards modular para monitorização de performance operacional em ambiente fabril, otimizado para exibição em ecrãs de TV. O sistema foi desenvolvido para a empresa **Jayme da Costa** e implementa todas as regras de design definidas no documento `dashboard_rules.md`.
+PDashboard is a modular dashboard system for operational performance monitoring in industrial environments, optimized for TV display. The system was developed for **Jayme da Costa** company and implements all design rules defined in the `dashboard_rules.md` document.
 
-## Características Implementadas
+## Implemented Features
 
-### ✅ Funcionalidades Principais
-- **Sistema Modular**: Cada página é um módulo independente com configuração própria
-- **Carrossel Automático**: Rotação de páginas com duração configurável por página
-- **Interface Moderna**: Design responsivo com Tailwind CSS v4
-- **Navegação Manual**: Pontos de navegação para controlo manual
-- **Dados Dinâmicos**: Suporte para Excel com configuração por widget
-- **Layout 3x2**: Grid de widgets otimizado para TV
-- **Dockerização Completa**: Deploy simples e portável
-- **API REST Completa**: Endpoints para gestão programática e integração
+### ✅ Core Features
+- **Modular System**: Each page is an independent module with its own configuration
+- **Automatic Carousel**: Page rotation with configurable duration per page
+- **Modern Interface**: Responsive design with Tailwind CSS v4
+- **Manual Navigation**: Navigation points for manual control
+- **Dynamic Data**: Excel support with per-widget configuration
+- **3x2 Layout**: Widget grid optimized for TV
+- **Complete Dockerization**: Simple and portable deployment
+- **Complete REST API**: Endpoints for programmatic management and integration
 
-### 🔌 API e Integração
-- **Documentação Interativa**: Swagger UI em `/api/v1/docs/`
-- **Endpoints REST**: Gestão de páginas, widgets e dados via API
-- **Automação**: Integração com sistemas externos
-- **Teste Direto**: Execute endpoints diretamente no navegador
+### 🔌 API and Integration
+- **Interactive Documentation**: Swagger UI at `/api/v1/docs/`
+- **REST Endpoints**: Page, widget, and data management via API
+- **Automation**: Integration with external systems
+- **Direct Testing**: Execute endpoints directly in the browser
 
-### ⚡ Atualizações em Tempo Real
-- **Auto-Reload**: Todos os dashboards conectados atualizam automaticamente
-- **Detecção Inteligente**: Verifica mudanças na configuração a cada 30 segundos
-- **Sincronização Multi-Client**: Múltiplos displays mantêm-se sincronizados
-- **Zero Intervenção**: Não é necessário refrescar manualmente os browsers
+### ⚡ Real-Time Updates
+- **Auto-Reload**: All connected dashboards update automatically
+- **Smart Detection**: Checks for configuration changes every 30 seconds
+- **Multi-Client Synchronization**: Multiple displays stay synchronized
+- **Zero Intervention**: No need to manually refresh browsers
 
-### ⚙️ Configuração de Ambiente
-- **`.env.development`**: Configurações para desenvolvimento (debug, hot reload)
-- **`.env.production`**: Configurações para produção (otimizações, segurança)
-- **Automático**: Docker Compose usa o arquivo correto baseado no comando
+### ⚙️ Environment Configuration
+- **`.env.development`**: Configurations for development (debug, hot reload)
+- **`.env.production`**: Configurations for production (optimizations, security)
+- **Automatic**: Docker Compose uses the correct file based on command
 
-### 🎨 Design Implementado
-- **Tailwind CSS v4**: Framework CSS moderno e responsivo
-- **Layout 3x2**: Grid de widgets para máxima utilização do ecrã
-- **Tipografia Clara**: Fontes grandes para legibilidade em TV
-- **Cores Consistentes**: Verde (sucesso), amarelo (aviso), vermelho (perigo), azul (info)
-- **Responsivo**: Adaptado para ecrãs de TV widescreen
-- **CSS Modular**: Estilos específicos por página
+### 🎨 Implemented Design
+- **Tailwind CSS v4**: Modern and responsive CSS framework
+- **3x2 Layout**: Widget grid for maximum screen utilization
+- **Clear Typography**: Large fonts for TV readability
+- **Consistent Colors**: Green (success), yellow (warning), red (danger), blue (info)
+- **Responsive**: Adapted for widescreen TV displays
+- **Modular CSS**: Page-specific styles
 
-## Stack Tecnológico
+## Technology Stack
 
 ### Backend
-- **Flask**: Framework web Python
-- **Pandas**: Processamento de dados Excel
-- **OpenPyXL**: Leitura de ficheiros Excel
+- **Flask**: Python web framework
+- **Pandas**: Excel data processing
+- **OpenPyXL**: Excel file reading
 
 ### Frontend
-- **HTML5**: Estrutura semântica
-- **Tailwind CSS v4**: Framework CSS moderno
-- **JavaScript (Vanilla)**: Interatividade sem dependências
+- **HTML5**: Semantic structure
+- **Tailwind CSS v4**: Modern CSS framework
+- **JavaScript (Vanilla)**: Interactivity without dependencies
 
-### Infraestrutura
-- **Docker**: Containerização da aplicação
-- **Docker Compose**: Orquestração de serviços
-- **Volumes**: Persistência de dados
+### Infrastructure
+- **Docker**: Application containerization
+- **Docker Compose**: Service orchestration
+- **Volumes**: Data persistence
 
 ### Build Tools
-- **Node.js**: Para build do Tailwind CSS
-- **Tailwind CLI**: Compilação de CSS otimizado
+- **Node.js**: For Tailwind CSS build
+- **Tailwind CLI**: Optimized CSS compilation
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 pdashboard/
-├── app.py                 # Aplicação Flask principal
-├── requirements.txt      # Dependências Python
-├── templates/            # Templates HTML
-│   └── carousel.html     # Template único para todas as páginas
-├── static/               # Ficheiros estáticos
+├── app.py                 # Main Flask application
+├── requirements.txt      # Python dependencies
+├── templates/            # HTML templates
+│   └── carousel.html     # Single template for all pages
+├── static/               # Static files
 │   ├── css/
-│   │   ├── tailwind.css  # CSS compilado do Tailwind
-│   │   └── producao.css  # CSS específico para páginas
+│   │   ├── tailwind.css  # Compiled Tailwind CSS
+│   │   └── producao.css  # Page-specific CSS
 │   └── js/
-│       └── carousel.js   # JavaScript do carrossel
-├── pages/                # Páginas modulares
-│   ├── producao/         # Página de produção
-│   │   ├── config.json   # Configuração da página
-│   │   └── widgets.json  # Configuração dos widgets
-│   ├── previsoes/        # Página de previsões
+│       └── carousel.js   # Carousel JavaScript
+├── pages/                # Modular pages
+│   ├── producao/         # Production page
+│   │   ├── config.json   # Page configuration
+│   │   └── widgets.json  # Widget configuration
+│   ├── previsoes/        # Forecasts page
 │   │   └── config.json
-│   ├── valores/          # Página de valores
+│   ├── valores/          # Values page
 │   │   └── config.json
-│   └── performance/      # Página de performance
+│   └── performance/      # Performance page
 │       └── config.json
-├── data/                 # Dados Excel (volume Docker)
-│   └── producao.xlsx     # Ficheiro Excel com dados
-├── src/                  # Ficheiros fonte
-│   └── input.css         # CSS fonte do Tailwind
-├── docs/                 # Documentação
-│   ├── dashboard_rules.md # Regras de design
-│   └── instructions.md   # Este ficheiro
-├── package.json          # Configuração Node.js e scripts
-├── tailwind.config.js    # Configuração Tailwind CSS
-├── Dockerfile           # Configuração Docker
-├── docker-compose.yml   # Orquestração de containers
-└── README.md            # Documentação principal
+├── data/                 # Excel data (Docker volume)
+│   └── producao.xlsx     # Excel file with data
+├── src/                  # Source files
+│   └── input.css         # Tailwind source CSS
+├── docs/                 # Documentation
+│   ├── dashboard_rules.md # Design rules
+│   └── instructions.md   # This file
+├── package.json          # Node.js configuration and scripts
+├── tailwind.config.js    # Tailwind CSS configuration
+├── Dockerfile           # Docker configuration
+├── docker-compose.yml   # Container orchestration
+└── README.md            # Main documentation
 ```
 
-## Instalação e Configuração
+## Installation and Configuration
 
-### Pré-requisitos
+### Prerequisites
 - Docker
 - Docker Compose
-- Node.js (para desenvolvimento local)
+- Node.js (for local development)
 
-### Passos de Instalação
+### Installation Steps
 
-1. **Clone o repositório**
+1. **Clone the repository**
    ```bash
    git clone <repository-url>
    cd pdashboard
    ```
 
-2. **Instale as dependências Node.js (para build do CSS)**
+2. **Install Node.js dependencies (for CSS build)**
    ```bash
    npm install
    ```
 
-3. **Build do CSS**
+3. **Build CSS**
    ```bash
    npm run build:css
    ```
 
-4. **Execute com Docker**
+4. **Run with Docker**
    ```bash
    docker-compose up -d
    ```
 
-5. **Aceda ao sistema**
+5. **Access the system**
    - Dashboard: http://localhost:8000
    - API Docs: http://localhost:8000/api/v1/docs/
 
-> **Nota:** O sistema usa `.env.development` automaticamente para desenvolvimento.
+> **Note:** The system uses `.env.development` automatically for development.
 
-## Implementação do Auto-Reload
+## Auto-Reload Implementation
 
-### Como Funciona
-O sistema implementa auto-reload através de:
+### How It Works
+The system implements auto-reload through:
 
-1. **Polling Inteligente**: Verifica mudanças na configuração a cada 30 segundos
-2. **Hash-based Detection**: Cria um hash da configuração para detectar alterações
-3. **Auto-refresh**: Recarrega automaticamente quando detecta mudanças
+1. **Smart Polling**: Checks for configuration changes every 30 seconds
+2. **Hash-based Detection**: Creates a hash of the configuration to detect changes
+3. **Auto-refresh**: Automatically reloads when changes are detected
 
-### Ficheiros Envolvidos
-- `static/js/carousel.js`: Lógica de detecção de mudanças
-- `templates/carousel.html`: Inclui o script de auto-reload
-- `app.py`: Endpoints para verificação de configuração
+### Files Involved
+- `static/js/carousel.js`: Change detection logic
+- `templates/carousel.html`: Includes auto-reload script
+- `app.py`: Endpoints for configuration verification
 
-### Configuração
-- **Intervalo de verificação**: 30 segundos (configurável)
-- **Detecção**: Baseada em hash da configuração das páginas
-- **Trigger**: Qualquer mudança em `config.json` ou via API
+### Configuration
+- **Check interval**: 30 seconds (configurable)
+- **Detection**: Based on hash of page configuration
+- **Trigger**: Any change in `config.json` or via API
 
-### Benefícios Técnicos
-- **Leve**: Polling simples, sem WebSockets complexos
-- **Confiável**: Funciona mesmo com conexões instáveis
-- **Escalável**: Funciona com múltiplos clientes
-- **Configurável**: Intervalo ajustável conforme necessidades
+### Technical Benefits
+- **Lightweight**: Simple polling, no complex WebSockets
+- **Reliable**: Works even with unstable connections
+- **Scalable**: Works with multiple clients
+- **Configurable**: Adjustable interval according to needs
 
-### O que Dispara Atualizações
-- ✅ Ativar/desativar páginas no painel admin
-- ✅ Reordenar páginas via drag & drop
-- ✅ Alterações nos ficheiros `config.json`
-- ✅ Modificações via API REST
-- ✅ Qualquer mudança na configuração das páginas
+### What Triggers Updates
+- ✅ Activate/deactivate pages in admin panel
+- ✅ Reorder pages via drag & drop
+- ✅ Changes to `config.json` files
+- ✅ Modifications via REST API
+- ✅ Any change to page configuration
 
-## Sistema Modular
+## Modular System
 
-## Gerenciamento de Versão e Changelog
+## Version Management and Changelog
 
-### Como atualizar a versão do sistema
+### How to update the system version
 
-1. **Atualize a versão:**
+1. **Update version:**
    - Execute: `make version-update VERSION=X.Y.Z`
-   - Exemplo: `make version-update VERSION=1.1.0`
-   - Isso atualiza o arquivo `VERSION` e propaga a versão para o frontend, API, admin e Swagger.
+   - Example: `make version-update VERSION=1.1.0`
+   - This updates the `VERSION` file and propagates the version to frontend, API, admin, and Swagger.
 
-2. **Atualize o changelog:**
-   - Edite o arquivo `CHANGELOG.md` e adicione uma nova entrada para a versão.
-   - Siga o padrão [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/).
+2. **Update changelog:**
+   - Edit the `CHANGELOG.md` file and add a new entry for the version.
+   - Follow the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) pattern.
 
-3. **Rebuild e deploy:**
-   - Rode `docker-compose build --no-cache && docker-compose up -d` para aplicar a nova versão.
+3. **Rebuild and deploy:**
+   - Run `docker-compose build --no-cache && docker-compose up -d` to apply the new version.
 
-4. **Verifique:**
-   - Use `make version` ou acesse `/api/version` para conferir a versão ativa.
-   - A versão aparecerá no admin, dashboard, API e documentação.
+4. **Verify:**
+   - Use `make version` or access `/api/version` to check the active version.
+   - The version will appear in admin, dashboard, API, and documentation.
 
-### Comandos úteis
-- `make version` — Mostra a versão atual
-- `make version-info` — Mostra detalhes da versão
-- `make version-update VERSION=X.Y.Z` — Atualiza a versão
-- `make changelog` — Mostra o changelog estruturado
+### Useful commands
+- `make version` — Shows current version
+- `make version-info` — Shows version details
+- `make version-update VERSION=X.Y.Z` — Updates version
+- `make changelog` — Shows structured changelog
+
+## Customization
+
+### Logo Customization
+The system includes placeholder logo files that can be customized:
+
+#### Logo Files
+- **Main Logo**: `static/assets/logo.png`
+- **Secondary Logo**: `static/assets/getsitelogo.jpeg`
+
+#### Customization Instructions
+1. **Replace Placeholder Files**: The system includes text-based placeholder files with detailed instructions
+2. **Upload Custom Logos**: Replace placeholder files with actual logo images
+3. **Recommended Specifications**:
+   - **Format**: PNG with transparency (main), JPEG or PNG (secondary)
+   - **Size**: 200x80 pixels or similar aspect ratio
+   - **Background**: Transparent for main logo
+4. **Integration**: Logos automatically appear in dashboard and admin interfaces
+
+#### Technical Details
+- **Template Integration**: Logos are referenced in `templates/dashboard.html` and `templates/admin.html`
+- **Static Assets**: Logos are served from `static/assets/` directory
+- **Responsive Design**: Logos scale appropriately for different screen sizes
 
 ---
