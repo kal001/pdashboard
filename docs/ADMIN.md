@@ -1,5 +1,36 @@
 # Manual do Administrador - Dashboard Modular
 
+## Tipos de Dashboard Suportados
+
+### 3x2 (6 widgets)
+- Layout em grade 3x2 (3 colunas, 2 linhas), até 6 widgets.
+- Campos principais no config.json:
+  - `type`: "3x2"
+  - `widgets`: array de até 6 widgets
+  - `xlsx_file`: nome do ficheiro Excel em `/data/` com os dados
+  - `template`, `css_file`, etc.
+
+### 2x2 (4 widgets)
+- Layout em grade 2x2 (2 colunas, 2 linhas), até 4 widgets.
+- Campos principais no config.json:
+  - `type`: "2x2"
+  - `widgets`: array de até 4 widgets
+  - `xlsx_file`: nome do ficheiro Excel em `/data/` com os dados
+  - `template`, `css_file`, etc.
+
+### Text MD (Markdown)
+- Usa toda a área do dashboard para exibir texto formatado em Markdown.
+- Não possui widgets.
+- Campos principais no config.json:
+  - `type`: "text-md"
+  - `md_file`: nome do ficheiro Markdown em `/data/` (ex: `sample.md`)
+  - `font_size`: tamanho da fonte (ex: "2.2rem", "40px", etc.)
+  - `template`, `css_file`, etc.
+- Suporta todos os recursos padrão de Markdown (tabelas, listas, citações, links, etc.).
+- O ficheiro pode ser editado e reenviado via admin.
+
+---
+
 ## Novidades na versão 1.1.0
 
 ### Internacionalização (i18n)

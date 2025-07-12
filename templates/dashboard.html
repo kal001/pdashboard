@@ -30,9 +30,42 @@
                 </div>
             </div>
         </header>
-        <!-- Main Content: 3x2 Grid -->
+        <!-- Main Content: 3x2, 2x2, or Text MD -->
         <main class="flex-1 flex flex-col h-full min-h-0 min-w-0 p-4">
             <div class="w-full h-full flex-1 min-h-0 min-w-0">
+                {% if page_type == 'text-md' %}
+                <div class="w-full h-full flex items-center justify-center">
+                    <div class="prose prose-lg max-w-none w-full h-full" style="font-size: {{ font_size }}; color: #fff; background: rgba(20,26,31,0.95); padding: 2rem; border-radius: 1rem; overflow-y: auto;">
+                        {{ html_content|safe }}
+                    </div>
+                </div>
+                {% elif page_type == '2x2' %}
+                <div class="grid grid-cols-2 grid-rows-2 gap-8 w-full h-full min-h-0 min-w-0">
+                    {% for widget in widgets %}
+                    <div class="bg-white/10 rounded-xl shadow-lg p-8 flex flex-col h-full w-full min-h-0 min-w-0">
+                        <div class="flex flex-col gap-2 flex-1">
+                            <span class="text-white text-5xl font-bold leading-tight">{{ widget.title }}</span>
+                            <div class="flex items-end gap-4 mt-2">
+                                <span class="font-bold text-5xl" style="color: {{ widget.value_color }}">{{ widget.value }}</span>
+                                <span class="text-2xl text-[#9dadbe] font-semibold">/ {{ widget.target }}</span>
+                            </div>
+                            <div class="flex gap-2 items-center mb-2 mt-2">
+                                <span class="text-xl text-[#9dadbe]">Mês Anterior</span>
+                                <span class="text-xl font-bold" style="color: {{ widget.trend_color }}">{{ widget.trend }}</span>
+                            </div>
+                            <div class="flex-1 flex flex-col justify-end">
+                                <canvas id="chart-{{ loop.index0 }}" height="60"></canvas>
+                            </div>
+                            <div class="flex justify-around mt-2">
+                                {% for label in widget.labels %}
+                                <span class="text-[#9dadbe] text-lg font-bold">{{ label }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
                 <div class="grid grid-cols-3 grid-rows-2 gap-8 w-full h-full min-h-0 min-w-0">
                     {% for widget in widgets %}
                     <div class="bg-white/10 rounded-xl shadow-lg p-8 flex flex-col h-full w-full min-h-0 min-w-0">
@@ -58,6 +91,7 @@
                     </div>
                     {% endfor %}
                 </div>
+                {% endif %}
             </div>
         </main>
         <!-- Footer -->

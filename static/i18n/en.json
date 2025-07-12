@@ -73,5 +73,6 @@
   "inactive": "Inactive",
   "error_toggling_page": "Error changing page status.",
   "connection_error_short": "Connection error.",
-  "files_selected": "files selected"
+  "files_selected": "files selected",
+  "markdown_file": "Markdown file:"
 } 

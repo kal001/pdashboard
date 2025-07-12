@@ -1,12 +1,49 @@
 {
-  "id": "Teste",
-  "title": "Página de Teste",
-  "description": "Esta é uma página de teste",
+  "id": "Teste2x2",
+  "title": "Página de Teste 2x2",
+  "description": "Teste do layout 2x2 com 4 widgets",
   "active": true,
-  "type": "3x2",
+  "type": "2x2",
   "duration": 10,
   "template": "carousel.html",
   "css_file": "producao.css",
   "xlsx_file": "producao.xlsx",
-  "widgets": []
+  "widgets": [
+    {
+      "id": "widget1",
+      "active": true,
+      "name": "Widget 1",
+      "sheet": "ModeloA",
+      "column_total": "Total",
+      "column_target": "Meta",
+      "column_month": "Mês"
+    },
+    {
+      "id": "widget2",
+      "active": true,
+      "name": "Widget 2",
+      "sheet": "ModeloB",
+      "column_total": "Total",
+      "column_target": "Meta",
+      "column_month": "Mês"
+    },
+    {
+      "id": "widget3",
+      "active": true,
+      "name": "Widget 3",
+      "sheet": "ModeloC",
+      "column_total": "Total",
+      "column_target": "Meta",
+      "column_month": "Mês"
+    },
+    {
+      "id": "widget4",
+      "active": true,
+      "name": "Widget 4",
+      "sheet": "ModeloD",
+      "column_total": "Total",
+      "column_target": "Meta",
+      "column_month": "Mês"
+    }
+  ]
 }

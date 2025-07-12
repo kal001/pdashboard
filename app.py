@@ -12,6 +12,7 @@ from flask import Blueprint
 import time
 from werkzeug.utils import secure_filename
 import shutil
+import markdown2
 
 # Import version utilities
 def get_version():
@@ -222,7 +223,7 @@ def dashboard_carousel():
     pages = get_active_pages()
     rendered_pages = []
     for page in pages:
-        if page['type'] == '3x2':
+        if page['type'] in ('3x2', '2x2'):
             xlsx_path = os.path.join('data', page['xlsx_file'])
             wb = openpyxl.load_workbook(xlsx_path, data_only=True)
             widgets = []
@@ -232,12 +233,10 @@ def dashboard_carousel():
                 sheet = wb[widget_cfg['sheet']]
                 months, totals, targets = [], [], []
                 for row in sheet.iter_rows(min_row=2, values_only=True):
-                    # Only append if both total and target are valid numbers
                     if row[1] is not None and row[2] is not None:
                         months.append(row[0])
                         totals.append(row[1])
                         targets.append(row[2])
-                # Only calculate if we have at least 2 valid totals
                 if len(totals) >= 2:
                     value = totals[-1]
                     target = targets[-1]
@@ -277,12 +276,26 @@ def dashboard_carousel():
                     "value_color": value_color
                 })
             rendered_pages.append({**page, "widgets": widgets})
+        elif page['type'] == 'text-md':
+            md_file = page.get('md_file', '')
+            font_size = page.get('font_size', '2rem')
+            md_path = os.path.join('data', md_file)
+            if os.path.exists(md_path):
+                with open(md_path, 'r', encoding='utf-8') as f:
+                    md_content = f.read()
+                html_content = markdown2.markdown(md_content, extras=["fenced-code-blocks", "tables", "strike", "cuddled-lists", "footnotes", "header-ids"])
+            else:
+                html_content = '<p><em>Arquivo markdown não encontrado.</em></p>'
+            rendered_pages.append({**page, "html_content": html_content, "font_size": font_size})
         # Add more types as needed
     # Use the template and css_file from the first page (all pages use the same template in carousel)
     template_name = rendered_pages[0].get('template', 'carousel.html') if rendered_pages else 'carousel.html'
     css_link = ''
     if rendered_pages and rendered_pages[0].get('css_file'):
         css_link = Markup(f'<link rel="stylesheet" href="/static/css/{rendered_pages[0]["css_file"]}">')
+    # In the template render, if type is 'text-md', pass html_content and font_size
+    if rendered_pages and rendered_pages[0]['type'] == 'text-md':
+        return render_template(template_name, html_content=rendered_pages[0]['html_content'], font_size=rendered_pages[0]['font_size'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='text-md')
     return render_template(template_name, pages=rendered_pages, css_link=css_link, last_update_month=last_update_month, company_name=company_name, version=get_version(), translations=translations, language=language)
 
 @app.route('/dashboard')
@@ -415,7 +428,7 @@ def get_all_data():
         pages_data = []
         for page in get_active_pages():
             page_widgets = []
-            if page['type'] == '3x2':
+            if page['type'] in ('3x2', '2x2'):
                 xlsx_path = os.path.join('data', page['xlsx_file'])
                 if not os.path.exists(xlsx_path):
                     continue
@@ -498,7 +511,7 @@ def get_page_data(page_id):
         if not page:
             return abort(404)
         page_widgets = []
-        if page['type'] == '3x2':
+        if page['type'] in ('3x2', '2x2'):
             xlsx_path = os.path.join('data', page['xlsx_file'])
             if not os.path.exists(xlsx_path):
                 return abort(404)
@@ -567,7 +580,7 @@ def get_widget_data(page_id, widget_id):
                 break
         if not page:
             return abort(404)
-        if page['type'] == '3x2':
+        if page['type'] in ('3x2', '2x2'):
             xlsx_path = os.path.join('data', page['xlsx_file'])
             if not os.path.exists(xlsx_path):
                 return abort(404)

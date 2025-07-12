@@ -40,7 +40,18 @@ class AdminPanel {
             pageItem.className = 'page-item';
             pageItem.dataset.pageId = page.id;
             pageItem.setAttribute('draggable', true);
-            
+
+            // Determine data file label and value
+            let dataFileLabel = '';
+            let dataFileValue = '';
+            if (page.type === '3x2' || page.type === '2x2') {
+                dataFileLabel = window.t('xlsx_file');
+                dataFileValue = page.config && page.config.xlsx_file ? page.config.xlsx_file : '-';
+            } else if (page.type === 'text-md') {
+                dataFileLabel = window.t('markdown_file');
+                dataFileValue = page.config && page.config.md_file ? page.config.md_file : '-';
+            }
+
             pageItem.innerHTML = `
                 <div class="page-info">
                     <div class="page-header">
@@ -53,7 +64,12 @@ class AdminPanel {
                     <div class="page-extra-info" style="margin-top: 10px;">
                         <p><strong>${window.t('template_label')}</strong> ${page.config && page.config.template ? page.config.template : '-'}</p>
                         <p><strong>${window.t('css_label')}</strong> ${page.config && page.config.css_file ? page.config.css_file : '-'}</p>
-                        <p><strong>${window.t('active_widgets')}</strong> ${page.config && page.config.widgets ? page.config.widgets.filter(w => w.active !== false).map(w => w.name).join(', ') : '-'}</p>
+                        <p><strong>${dataFileLabel}</strong> ${dataFileValue}</p>
+                        ${
+                            (page.type === '3x2' || page.type === '2x2')
+                            ? `<p><strong>${window.t('active_widgets')}</strong> ${page.config && page.config.widgets ? page.config.widgets.filter(w => w.active !== false).map(w => w.name).join(', ') : '-'}</p>`
+                            : ''
+                        }
                     </div>
                 </div>
                 <div class="page-actions">

@@ -2,7 +2,9 @@
   "company_name": "Jayme da Costa",
   "last_update_month": "Julho 2025",
   "dashboard_types": [
-    "3x2"
+    "3x2",
+    "2x2",
+    "text-md"
   ],
   "language": "en"
 }

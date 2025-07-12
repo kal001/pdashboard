@@ -1,0 +1,12 @@
+{
+  "id": "testemd",
+  "title": "Página Markdown",
+  "description": "Exemplo de dashboard em Markdown ocupando toda a tela",
+  "active": true,
+  "type": "text-md",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "md_file": "sample.md",
+  "font_size": "3rem"
+} 
