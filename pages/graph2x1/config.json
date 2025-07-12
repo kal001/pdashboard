@@ -2,7 +2,7 @@
   "id": "graph2x1",
   "title": "2x1 Graph Sample",
   "description": "Sample dashboard with two graph widgets side by side",
-  "active": true,
+  "active": false,
   "type": "2x1-graph",
   "duration": 10,
   "template": "carousel.html",

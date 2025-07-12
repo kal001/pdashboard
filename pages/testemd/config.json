@@ -8,5 +8,6 @@
   "template": "carousel.html",
   "css_file": "producao.css",
   "md_file": "sample.md",
-  "font_size": "3rem"
-} 
+  "font_size": "3rem",
+  "order": 7
+}

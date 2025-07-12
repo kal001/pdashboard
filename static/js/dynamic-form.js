@@ -46,6 +46,11 @@ class DynamicFormHandler {
         if (this.typeSelect) {
             this.populateTypeOptions();
             this.typeSelect.addEventListener('change', () => this.handleTypeChange());
+            
+            // Check if there's already a selected value and show fields
+            if (this.typeSelect.value) {
+                this.handleTypeChange();
+            }
         }
     }
     

@@ -353,6 +353,13 @@
                 addPageBtn.onclick = function() {
                     addPageFormContainer.style.display = 'block';
                     addPageBtn.style.display = 'none';
+                    
+                    // Ensure dynamic form shows fields for default selection
+                    setTimeout(() => {
+                        if (window.dynamicFormHandler && window.dynamicFormHandler.typeSelect.value) {
+                            window.dynamicFormHandler.handleTypeChange();
+                        }
+                    }, 100);
                 };
                 cancelAddPage.onclick = function() {
                     addPageFormContainer.style.display = 'none';
