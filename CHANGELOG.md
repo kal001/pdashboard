@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Text MD dashboards: display Markdown content as a dashboard page.
 - Image dashboards: display a full-page image as a dashboard.
+- Card type (2x2) dashboards.
 - Graph dashboards: new 2x1-graph dashboard type supporting both bar and line widgets, with advanced visual features (value labels, vertical lines, area fill, label collision avoidance, edge detection, etc.).
 - 2x2 dashboards: new grid layout for compact metric display.
 - Multi-lingual site: full internationalization (i18n) for all UI, admin, and dashboard labels.

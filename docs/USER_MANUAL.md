@@ -3,6 +3,7 @@
 ## What's New in 1.2.0
 - Text MD dashboards: display Markdown content as a dashboard page
 - Image dashboards: display a full-page image as a dashboard
+- Card type (2x2) dashboards
 - Graph dashboards: new 2x1-graph dashboard type (bar and line)
 - 2x2 dashboards: new grid layout for compact metric display
 - Multi-lingual site: full i18n for all UI, admin, and dashboard labels
