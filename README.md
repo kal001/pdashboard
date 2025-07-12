@@ -1,5 +1,7 @@
 # PDashboard - Dashboard Fabril Modular
 
+![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)
+
 Sistema modular para dashboards industriais, otimizado para TV, com configuração por página e dados dinâmicos de Excel.
 
 ## Principais Funcionalidades

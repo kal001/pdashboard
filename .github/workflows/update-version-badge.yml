@@ -1,0 +1,41 @@
+name: Update Version Badge
+
+on:
+  push:
+    paths:
+      - 'VERSION'
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  update-badge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read version
+        id: version
+        run: echo "version=$(cat VERSION)" >> $GITHUB_OUTPUT
+
+      - name: Update README with version badge
+        run: |
+          # Create the badge URL
+          BADGE_URL="https://img.shields.io/badge/version-${{ steps.version.outputs.version }}-blue.svg"
+          
+          # Update README.md - add badge after the title
+          sed -i "2i\\
+          ![Version](https://img.shields.io/badge/version-${{ steps.version.outputs.version }}-blue.svg)\\
+          " README.md
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update version badge to ${{ steps.version.outputs.version }}"
+          git push 

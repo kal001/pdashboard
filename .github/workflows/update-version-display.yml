@@ -1,0 +1,36 @@
+name: Update Version Display
+
+on:
+  push:
+    paths:
+      - 'VERSION'
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read version
+        id: version
+        run: echo "version=$(cat VERSION)" >> $GITHUB_OUTPUT
+
+      - name: Update README with version
+        run: |
+          # Replace version line in README
+          sed -i "s/Current Version: .*/Current Version: ${{ steps.version.outputs.version }}/" README.md
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update version to ${{ steps.version.outputs.version }}"
+          git push 
