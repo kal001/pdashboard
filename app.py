@@ -521,28 +521,25 @@ def dashboard_carousel():
                         # For 3x2 and 2x2, use the chart_data structure and restore color/percent/trend logic
                         value = real[-1] if real else 0
                         target = bgt[-1] if bgt else 0
+                        abs_change = None
+                        trend = ''
+                        trend_color = 'gray'
                         if len(real) >= 2:
                             prev = real[-2]
                             curr = real[-1]
-                            if prev is not None and curr is not None and prev != 0:
-                                percent_change = ((curr - prev) / prev) * 100
-                                if percent_change > 0:
+                            prev_num = safe_float(prev)
+                            curr_num = safe_float(curr)
+                            if prev_num is not None and curr_num is not None:
+                                abs_change = curr_num - prev_num
+                                if abs_change > 0:
                                     trend = '▲'
                                     trend_color = 'green'
-                                elif percent_change < 0:
+                                elif abs_change < 0:
                                     trend = '▼'
                                     trend_color = 'red'
                                 else:
                                     trend = '→'
                                     trend_color = 'gray'
-                            else:
-                                percent_change = 0
-                                trend = ''
-                                trend_color = 'gray'
-                        else:
-                            percent_change = 0
-                            trend = ''
-                            trend_color = 'gray'
                         value_num = safe_float(value)
                         target_num = safe_float(target)
                         value_color = "#fff" if target_num is None else "#fa6238"
@@ -558,8 +555,9 @@ def dashboard_carousel():
                             "value_color": value_color,
                             "trend": trend,
                             "trend_color": trend_color,
-                            "percent_change": round(percent_change, 1)
                         }
+                        if abs_change is not None:
+                            widget_dict["abs_change"] = abs_change
                         if target_num is not None:
                             widget_dict["target"] = target
                         widgets.append(widget_dict)

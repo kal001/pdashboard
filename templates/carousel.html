@@ -139,10 +139,12 @@
                                     </div>
                                     <div class="flex gap-2 items-center mb-2 mt-2">
                                         <span class="widget-label">Mês Anterior</span>
-                                        <span class="percent-change">
-                                            ${widget.trend === '▲' ? `<i class='fa-regular fa-circle-up cards2x2-arrow' style='color: #0bda5b;'></i>` : ''}
-                                            ${widget.trend === '▼' ? `<i class='fa-regular fa-circle-down cards2x2-arrow' style='color: #fa6238;'></i>` : ''}
-                                            <span style='font-size:1.5rem;color:${widget.trend_color};margin-left:0.3rem;'>${widget.percent_change > 0 ? '+' : ''}${widget.percent_change}%</span>
+                                        <span class="abs-change">
+                                            ${widget.abs_change !== undefined && widget.abs_change !== null ? `
+                                                ${widget.trend === '▲' ? `<i class='fa-regular fa-circle-up cards2x2-arrow' style='color: #0bda5b;'></i>` : ''}
+                                                ${widget.trend === '▼' ? `<i class='fa-regular fa-circle-down cards2x2-arrow' style='color: #fa6238;'></i>` : ''}
+                                                <span style='font-size:1.5rem;color:${widget.trend_color};margin-left:0.3rem;'>${widget.abs_change > 0 ? '+' : ''}${formatNumber(widget.abs_change)}</span>
+                                            ` : ''}
                                         </span>
                                     </div>
                                     <div class="flex-1 flex flex-col justify-end">
