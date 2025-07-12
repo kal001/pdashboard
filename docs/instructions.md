@@ -16,7 +16,7 @@
 
 ## Overview
 
-PDashboard is a modular dashboard system for operational performance monitoring in industrial environments, optimized for TV display. The system was developed for **Jayme da Costa** company and implements all design rules defined in the `dashboard_rules.md` document.
+PDashboard is a modular dashboard system for operational performance monitoring in industrial environments, optimized for TV display.
 
 ## Implemented Features
 

@@ -32,7 +32,7 @@ class DashboardCarousel {
             if (response.ok) {
                 // Create a simple hash of the configuration
                 const configString = JSON.stringify(data.pages.map(p => ({
-                    id: p.page_id,
+                    id: p.id,
                     active: p.active,
                     order: p.order
                 })));

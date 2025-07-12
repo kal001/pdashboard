@@ -191,7 +191,7 @@ Returns all data needed for the dashboard based on the configuration of pages an
   ],
   "metadata": {
     "last_update": "2024-07-11T22:57:35Z",
-    "company": "Jayme da Costa",
+    "company": "Company Name",
     "version": "1.0.0"
   }
 }
@@ -239,7 +239,7 @@ Returns the general system configuration.
 ```json
 {
   "carousel_interval": 10000,
-  "company_name": "Jayme da Costa",
+  "company_name": "Company Name",
   "logo_primary": "/static/assets/logo.png",
   "logo_secondary": "/static/assets/getsitelogo.jpeg",
   "theme": {

@@ -3,6 +3,8 @@ from markupsafe import Markup
 import sqlite3
 import os
 import json
+import logging
+from logging.handlers import RotatingFileHandler
 from datetime import datetime
 import pandas as pd
 import glob
@@ -31,7 +33,7 @@ def get_global_config():
             with open(config_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except Exception as e:
-            print(f"Error reading config: {e}")
+            app.logger.error(f"Error reading config: {e}")
     return {}
 
 def load_translations(language='pt'):
@@ -48,7 +50,7 @@ def load_translations(language='pt'):
                 with open(fallback_path, 'r', encoding='utf-8') as f:
                     return json.load(f)
     except Exception as e:
-        print(f"Error loading translations for {language}: {e}")
+        app.logger.error(f"Error loading translations for {language}: {e}")
     
     # Return empty dict if no translations found
     return {}
@@ -73,11 +75,11 @@ def get_version_info():
         'build_date': datetime.now().isoformat(),
         'app_name': 'PDashboard',
         'description': 'Dashboard Fabril Modular',
-        'company': global_config.get('company_name', 'Jayme da Costa')
+        'company': global_config.get('company_name', 'Company Name')
     }
 
 app = Flask(__name__)
-app.secret_key = 'jayme_da_costa_dashboard_2024'
+app.secret_key = os.environ.get('SECRET_KEY', 'change_this_secret_key')
 
 # Configure Flask to handle trailing slashes properly
 app.url_map.strict_slashes = False
@@ -87,6 +89,55 @@ app.config['SWAGGER'] = {
     'swagger_ui': True,
     'specs_route': '/api/v1/docs/'
 }
+
+def setup_logging():
+    """Setup logging configuration for the application"""
+    # Create logs directory if it doesn't exist
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
+    
+    # Determine log level based on environment
+    log_level = logging.INFO
+    if os.environ.get('FLASK_ENV') == 'development':
+        log_level = logging.DEBUG
+    
+    # Allow custom log level override via environment variable
+    log_level_env = os.environ.get('LOG_LEVEL', '').upper()
+    if log_level_env == 'DEBUG':
+        log_level = logging.DEBUG
+    elif log_level_env == 'INFO':
+        log_level = logging.INFO
+    elif log_level_env == 'WARNING':
+        log_level = logging.WARNING
+    elif log_level_env == 'ERROR':
+        log_level = logging.ERROR
+    
+    # Configure root logger
+    logging.basicConfig(level=log_level)
+    
+    # Create file handler with rotation
+    file_handler = RotatingFileHandler(
+        'logs/pdashboard.log', 
+        maxBytes=10*1024*1024,  # 10MB
+        backupCount=5
+    )
+    
+    # Create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    file_handler.setFormatter(formatter)
+    
+    # Add handler to Flask app logger
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(log_level)
+    
+    # Also configure werkzeug logger for request logging
+    werkzeug_logger = logging.getLogger('werkzeug')
+    werkzeug_logger.addHandler(file_handler)
+    werkzeug_logger.setLevel(log_level)
+    
+    return app.logger
 
 # Database initialization
 def init_db():
@@ -115,10 +166,15 @@ def init_db():
         )
     ''')
     
-    # Discover and register pages from pages folder
-    discover_pages(cursor)
-    
     conn.commit()
+    
+    # Discover and register pages from pages folder
+    try:
+        discover_pages(cursor)
+        conn.commit()
+    except Exception as e:
+        app.logger.warning(f"Error during page discovery: {e}")
+    
     conn.close()
 
 def discover_pages(cursor):
@@ -154,9 +210,9 @@ def discover_pages(cursor):
                         config.get('default_active', True),
                         config.get('order', 999)
                     ))
-                    print(f"Registered page: {config['title']}")
+                    app.logger.info(f"Registered page: {config['title']}")
             except Exception as e:
-                print(f"Error loading page config {config_file}: {e}")
+                app.logger.error(f"Error loading page config {config_file}: {e}")
 
 def get_pages():
     """Get all pages with their configuration from config.json files"""
@@ -181,7 +237,7 @@ def get_pages():
                 config['_dir'] = page_dir  # Store directory name
                 page_configs.append(config)
             except Exception as e:
-                print(f"Error loading page config {config_file}: {e}")
+                app.logger.error(f"Error loading page config {config_file}: {e}")
     
     # Sort by order field if present, otherwise alphabetically
     page_configs.sort(key=lambda x: (x.get('order', 999), x.get('title', '')))
@@ -209,6 +265,8 @@ def get_active_pages():
             with open(config_path, encoding='utf-8') as f:
                 config = json.load(f)
             if config.get('active', False):
+                # Add page_id field for consistency with get_pages()
+                config['page_id'] = config['id']
                 pages.append(config)
     return pages
 
@@ -224,7 +282,7 @@ def dashboard_carousel():
     # Load global config
     global_config = get_global_config()
     last_update_month = global_config.get('last_update_month', '')
-    company_name = global_config.get('company_name', 'Jayme da Costa')
+    company_name = global_config.get('company_name', 'Company Name')
     language = global_config.get('language', 'pt')
     number_format = global_config.get('number_format', ' # ###')
     
@@ -383,7 +441,7 @@ def dashboard():
     # Load global config
     global_config = get_global_config()
     last_update_month = global_config.get('last_update_month', '')
-    company_name = global_config.get('company_name', 'Jayme da Costa')
+    company_name = global_config.get('company_name', 'Company Name')
     language = global_config.get('language', 'pt')
     translations = load_translations(language)
     
@@ -398,7 +456,7 @@ def dashboard():
 def admin():
     """Admin backoffice for managing dashboard pages"""
     global_config = get_global_config()
-    company_name = global_config.get('company_name', 'Jayme da Costa')
+    company_name = global_config.get('company_name', 'Company Name')
     last_update_month = global_config.get('last_update_month', '')
     language = global_config.get('language', 'pt')
     
@@ -455,14 +513,14 @@ def toggle_page(page_id):
         # Broadcast update to all connected clients
         # Note: In a production environment, you might want to use Redis or a message queue
         # for broadcasting to multiple server instances
-        print(f"Configuration changed for page {target_page['page_id']}, clients should refresh")
+        app.logger.info(f"Configuration changed for page {target_page['id']}, clients should refresh")
         
         return jsonify({
             'success': True,
             'message': 'Página ativada/desativada com sucesso',
             'page': {
                 'id': page_id,
-                'page_id': target_page['page_id'],
+                'page_id': target_page['id'],
                 'active': config['active']
             }
         })
@@ -502,7 +560,7 @@ def reorder_pages():
                         json.dump(config, f, indent=2, ensure_ascii=False)
                         
                 except Exception as e:
-                    print(f"Error updating order for {page_dir}: {e}")
+                    app.logger.error(f"Error updating order for {page_dir}: {e}")
         
         return jsonify({'success': True, 'message': 'Páginas reordenadas com sucesso'})
     except Exception as e:
@@ -592,7 +650,7 @@ def get_all_data():
             "pages": pages_data,
             "metadata": {
                 "last_update": datetime.now().isoformat(),
-                "company": global_config.get('company_name', 'Jayme da Costa'),
+                "company": global_config.get('company_name', 'Company Name'),
                 "version": get_version()
             }
         }
@@ -801,7 +859,7 @@ def get_config():
     global_config = get_global_config()
     return jsonify({
         'carousel_interval': 10000,
-        'company_name': global_config.get('company_name', 'Jayme da Costa'),
+        'company_name': global_config.get('company_name', 'Company Name'),
         'logo_primary': '/static/assets/logo.png',
         'logo_secondary': '/static/assets/getsitelogo.jpeg',
         'theme': {
@@ -1027,5 +1085,17 @@ app.register_blueprint(api_v1)
 # Swagger UI will be available at /api/v1/docs
 
 if __name__ == '__main__':
+    # Setup logging
+    logger = setup_logging()
+    logger.info("Starting PDashboard application")
+    
+    # Initialize database
     init_db()
-    app.run(host='0.0.0.0', port=5000, debug=True) 
+    
+    # Get configuration
+    debug = bool(int(os.environ.get('FLASK_DEBUG', '0')))
+    host = os.environ.get('FLASK_RUN_HOST', '0.0.0.0')
+    port = int(os.environ.get('FLASK_RUN_PORT', '5000'))
+    
+    logger.info(f"Starting server on {host}:{port} (debug={debug})")
+    app.run(host=host, port=port, debug=debug) 

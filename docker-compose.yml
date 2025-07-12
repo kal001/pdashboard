@@ -11,6 +11,8 @@ services:
       - ./templates:/app/templates
       - ./VERSION:/app/VERSION
       - ./CHANGELOG.md:/app/CHANGELOG.md
+      - ./dashboard.db:/app/dashboard.db
+      - ./logs:/app/logs
     env_file:
       - .env.development
     restart: unless-stopped

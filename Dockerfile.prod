@@ -1,0 +1,51 @@
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies including logrotate
+RUN apt-get update && apt-get install -y \
+    gcc \
+    logrotate \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+# Ensure versioning files are present
+COPY VERSION ./
+COPY CHANGELOG.md ./
+
+# Create necessary directories
+RUN mkdir -p data logs static/assets
+
+# Copy logrotate configuration
+COPY logrotate.conf /etc/logrotate.d/pdashboard
+
+# Create a startup script that handles log rotation
+RUN echo '#!/bin/bash\n\
+# Start logrotate daemon\n\
+logrotate /etc/logrotate.d/pdashboard\n\
+\n\
+# Start the application\n\
+if [ "$FLASK_ENV" = "production" ]; then\n\
+    exec gunicorn -b 0.0.0.0:5000 --workers 4 --timeout 120 app:app\n\
+else\n\
+    exec python app.py\n\
+fi' > /app/start.sh && chmod +x /app/start.sh
+
+# Expose port
+EXPOSE 5000
+
+# Set environment variables
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=production
+
+# Use the startup script
+CMD ["/app/start.sh"] 

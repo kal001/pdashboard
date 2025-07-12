@@ -57,12 +57,12 @@ class DashboardCarousel {
         this.pages.forEach((page, index) => {
             const slide = document.createElement('div');
             slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
-            slide.dataset.pageId = page.page_id;
+            slide.dataset.pageId = page.id;
             slide.dataset.pageType = page.type;
             
             slide.innerHTML = `
                 <div class="slide-content">
-                    <div class="page-content" id="page-content-${page.page_id}">
+                    <div class="page-content" id="page-content-${page.id}">
                         <!-- Page content will be loaded here -->
                     </div>
                 </div>
@@ -160,12 +160,12 @@ class DashboardCarousel {
     }
     
     async loadPageContent(page) {
-        const contentContainer = document.getElementById(`page-content-${page.page_id}`);
+        const contentContainer = document.getElementById(`page-content-${page.id}`);
         if (!contentContainer) return;
         
         // Load page template
         try {
-            const response = await fetch(`/pages/${page.page_id}/${page.config.template}`);
+            const response = await fetch(`/pages/${page.id}/${page.config.template}`);
             if (response.ok) {
                 const html = await response.text();
                 contentContainer.innerHTML = html;
@@ -186,7 +186,7 @@ class DashboardCarousel {
                 contentContainer.innerHTML = `<div class="error-message">Erro ao carregar página: ${page.title}</div>`;
             }
         } catch (error) {
-            console.error(`Error loading page ${page.page_id}:`, error);
+            console.error(`Error loading page ${page.id}:`, error);
             contentContainer.innerHTML = `<div class="error-message">Erro ao carregar página: ${page.title}</div>`;
         }
     }

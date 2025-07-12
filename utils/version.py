@@ -19,7 +19,7 @@ def get_global_config():
     """Read global configuration from pages/config.json"""
     global_config_path = os.path.join('pages', 'config.json')
     config = {
-        'company_name': 'Jayme da Costa',  # Default fallback
+        'company_name': 'Company Name',  # Default fallback
         'last_update_month': ''
     }
     
@@ -43,7 +43,7 @@ def get_version_info():
         'build_date': datetime.now().isoformat(),
         'app_name': 'PDashboard',
         'description': 'Dashboard Fabril Modular',
-        'company': global_config.get('company_name', 'Jayme da Costa')
+        'company': global_config.get('company_name', 'Company Name')
     }
 
 def update_version(new_version):

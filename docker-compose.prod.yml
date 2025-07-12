@@ -1,6 +1,8 @@
 services:
   dashboard:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
     ports:
       - "8000:5000"
     volumes:
@@ -10,6 +12,8 @@ services:
       - ./templates:/app/templates
       - ./VERSION:/app/VERSION
       - ./CHANGELOG.md:/app/CHANGELOG.md
+      - ./dashboard.db:/app/dashboard.db
+      - ./logs:/app/logs
     env_file:
       - .env.production
     restart: unless-stopped
