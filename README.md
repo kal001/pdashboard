@@ -57,6 +57,7 @@ make up-prod
 > **Dica:** Edite `.env.development` ou `.env.production` conforme o ambiente.
 
 ## Documentação
+- [Manual do Utilizador](docs/USER_MANUAL.md) - Guia completo para utilizadores
 - [Manual do Administrador](docs/ADMIN.md)
 - [Guia de Deploy](docs/DEPLOYMENT.md)
 - [Instruções Técnicas](docs/instructions.md)
