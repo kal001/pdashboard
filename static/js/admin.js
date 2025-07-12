@@ -38,7 +38,7 @@ class AdminPanel {
         this.pages.forEach(page => {
             const pageItem = document.createElement('div');
             pageItem.className = 'page-item';
-            pageItem.dataset.pageId = page.id;
+            pageItem.dataset.pageId = page.page_id; // Use actual page ID, not sequential ID
             pageItem.setAttribute('draggable', true);
 
             // Determine data file label and value
@@ -96,10 +96,17 @@ class AdminPanel {
         const pageItems = this.pagesList.querySelectorAll('.page-item');
         
         pageItems.forEach(item => {
+            // Make the entire item draggable, not just the handle
             item.addEventListener('dragstart', (e) => {
-                this.draggedItem = item;
-                item.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
+                // Only allow dragging from the handle or the item itself
+                if (e.target.classList.contains('drag-handle') || e.target.classList.contains('page-item')) {
+                    this.draggedItem = item;
+                    item.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', item.dataset.pageId);
+                } else {
+                    e.preventDefault();
+                }
             });
             
             item.addEventListener('dragend', () => {
@@ -110,10 +117,22 @@ class AdminPanel {
             item.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
+                
+                // Add visual feedback
+                if (this.draggedItem && this.draggedItem !== item) {
+                    item.classList.add('drag-over');
+                }
+            });
+            
+            item.addEventListener('dragleave', (e) => {
+                // Remove visual feedback when leaving
+                item.classList.remove('drag-over');
             });
             
             item.addEventListener('drop', (e) => {
                 e.preventDefault();
+                item.classList.remove('drag-over');
+                
                 if (this.draggedItem && this.draggedItem !== item) {
                     this.reorderItems(this.draggedItem, item);
                 }
@@ -137,7 +156,7 @@ class AdminPanel {
     
     updateOrder() {
         const items = Array.from(this.pagesList.querySelectorAll('.page-item'));
-        const orderData = items.map((item, index) => parseInt(item.dataset.pageId));
+        const orderData = items.map((item, index) => item.dataset.pageId); // Use string IDs, not integers
         
         // Update visual order numbers
         items.forEach((item, index) => {

@@ -140,7 +140,15 @@ body {
 
 .page-item.dragging {
     opacity: 0.5;
-    transform: rotate(5deg);
+    transform: rotate(2deg);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    position: relative;
+}
+
+.page-item.drag-over {
+    border-top: 3px solid #4CAF50;
+    margin-top: 10px;
 }
 
 .page-info {

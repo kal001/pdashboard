@@ -596,7 +596,7 @@ def reorder_pages():
         id_to_dir = {}
         
         for page in pages:
-            id_to_dir[page['id']] = page['config'].get('_dir')
+            id_to_dir[page['page_id']] = page['config'].get('_dir')  # Use page_id instead of sequential id
         
         # Update order in each config file
         for i, page_id in enumerate(order):
