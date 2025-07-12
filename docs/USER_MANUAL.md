@@ -87,8 +87,8 @@ The system supports four types of dashboards, each with different layouts and co
 }
 ```
 
-![3x2 Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
-*Example of a 3x2 dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
+![3x2 Dashboard Example](https://drive.google.com/uc?id=1wn1eqqLj8fEIWG2yk_9fBfolm7rIHJP9)  
+*Example of a 3x2 dashboard ([view/download](https://drive.google.com/file/d/1wn1eqqLj8fEIWG2yk_9fBfolm7rIHJP9/view))*
 
 **Configuration Fields**:
 - `id`: Unique page identifier
