@@ -294,7 +294,7 @@ The specified sheet should contain 4 rows (one for each card) with these columns
 }
 ```
 
-![Image Dashboard Example](https://drive.google.com/file/d/1RGJYVxXMbRe6j7R_GS_U47wEiJ9jmmQo)  
+![Image Dashboard Example](https://drive.google.com/uc?id=1RGJYVxXMbRe6j7R_GS_U47wEiJ9jmmQo)  
 *Example of an image dashboard ([view/download](https://drive.google.com/file/d/1RGJYVxXMbRe6j7R_GS_U47wEiJ9jmmQo/view))*
 
 **Configuration Fields**:
