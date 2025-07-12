@@ -44,7 +44,7 @@ class AdminPanel {
             // Determine data file label and value
             let dataFileLabel = '';
             let dataFileValue = '';
-            if (page.type === '3x2' || page.type === '2x2') {
+            if (page.type === '3x2' || page.type === '2x2' || page.type === '2x1-graph') {
                 dataFileLabel = window.t('xlsx_file');
                 dataFileValue = page.config && page.config.xlsx_file ? page.config.xlsx_file : '-';
             } else if (page.type === 'text-md') {
@@ -69,7 +69,7 @@ class AdminPanel {
                         <p><strong>${window.t('css_label')}</strong> ${page.config && page.config.css_file ? page.config.css_file : '-'}</p>
                         <p><strong>${dataFileLabel}</strong> ${dataFileValue}</p>
                         ${
-                            (page.type === '3x2' || page.type === '2x2')
+                            (page.type === '3x2' || page.type === '2x2' || page.type === '2x1-graph')
                             ? `<p><strong>${window.t('active_widgets')}</strong> ${page.config && page.config.widgets ? page.config.widgets.filter(w => w.active !== false).map(w => w.name).join(', ') : '-'}</p>`
                             : ''
                         }
