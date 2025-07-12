@@ -41,6 +41,7 @@ O sistema inclui funcionalidade de auto-reload que atualiza automaticamente todo
 
 ## Editando Páginas (config.json)
 - Cada página tem um arquivo `config.json` em `pages/<nome>/`
+- **💡 Lembrete:** Para ver a estrutura atual dos ficheiros, consulte `/pages/config.json` no painel admin
 - Edite os campos:
   - `id`: identificador único
   - `title`: nome exibido
