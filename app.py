@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory, abort
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory, abort, Response
 from markupsafe import Markup
 import sqlite3
 import os
@@ -9,6 +9,28 @@ import glob
 import openpyxl
 from flasgger import Swagger, swag_from
 from flask import Blueprint
+import time
+
+# Import version utilities
+def get_version():
+    """Read version from VERSION file"""
+    try:
+        with open('VERSION', 'r') as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return "0.0.0"
+
+def get_version_info():
+    """Get comprehensive version information"""
+    version = get_version()
+    
+    return {
+        'version': version,
+        'build_date': datetime.now().isoformat(),
+        'app_name': 'PDashboard',
+        'description': 'Dashboard Fabril Modular',
+        'company': 'Jayme da Costa'
+    }
 
 app = Flask(__name__)
 app.secret_key = 'jayme_da_costa_dashboard_2024'
@@ -93,36 +115,45 @@ def discover_pages(cursor):
                 print(f"Error loading page config {config_file}: {e}")
 
 def get_pages():
-    """Get all pages with their configuration"""
-    conn = sqlite3.connect('dashboard.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM pages ORDER BY order_num")
-    db_pages = cursor.fetchall()
-    conn.close()
-    
+    """Get all pages with their configuration from config.json files"""
     pages = []
-    for db_page in db_pages:
-        page_id = db_page[1]  # page_id column
-        config_file = os.path.join('pages', page_id, 'config.json')
-        
+    pages_dir = 'pages'
+    
+    if not os.path.exists(pages_dir):
+        return pages
+    
+    # Get all subdirectories in pages/
+    page_dirs = [d for d in os.listdir(pages_dir) 
+                 if os.path.isdir(os.path.join(pages_dir, d))]
+    
+    # Sort by order if specified in config, otherwise alphabetically
+    page_configs = []
+    for page_dir in page_dirs:
+        config_file = os.path.join(pages_dir, page_dir, 'config.json')
         if os.path.exists(config_file):
             try:
                 with open(config_file, 'r', encoding='utf-8') as f:
                     config = json.load(f)
-                
-                pages.append({
-                    'id': db_page[0],  # database id
-                    'page_id': page_id,
-                    'title': config['title'],
-                    'description': config.get('description', ''),
-                    'icon': config.get('icon', '📄'),
-                    'type': config.get('type', 'default'),
-                    'active': bool(db_page[5]),  # active column
-                    'order': db_page[6],  # order_num column
-                    'config': config
-                })
+                config['_dir'] = page_dir  # Store directory name
+                page_configs.append(config)
             except Exception as e:
                 print(f"Error loading page config {config_file}: {e}")
+    
+    # Sort by order field if present, otherwise alphabetically
+    page_configs.sort(key=lambda x: (x.get('order', 999), x.get('title', '')))
+    
+    for i, config in enumerate(page_configs):
+        pages.append({
+            'id': i + 1,  # Sequential ID for compatibility
+            'page_id': config['id'],
+            'title': config['title'],
+            'description': config.get('description', ''),
+            'icon': config.get('icon', '📄'),
+            'type': config.get('type', 'default'),
+            'active': config.get('active', True),
+            'order': config.get('order', i + 1),
+            'config': config
+        })
     
     return pages
 
@@ -217,7 +248,7 @@ def dashboard_carousel():
     css_link = ''
     if rendered_pages and rendered_pages[0].get('css_file'):
         css_link = Markup(f'<link rel="stylesheet" href="/static/css/{rendered_pages[0]["css_file"]}">')
-    return render_template(template_name, pages=rendered_pages, css_link=css_link, last_update_month=last_update_month)
+    return render_template(template_name, pages=rendered_pages, css_link=css_link, last_update_month=last_update_month, version=get_version())
 
 @app.route('/dashboard')
 def dashboard():
@@ -236,7 +267,7 @@ def dashboard():
 def admin():
     """Admin backoffice for managing dashboard pages"""
     pages = get_pages()
-    return render_template('admin.html', pages=pages)
+    return render_template('admin.html', pages=pages, version=get_version())
 
 @app.route('/api/pages')
 def api_pages():
@@ -246,49 +277,94 @@ def api_pages():
 
 @app.route('/api/pages/<int:page_id>/toggle', methods=['POST'])
 def toggle_page(page_id):
-    """Toggle page active/inactive status"""
-    conn = sqlite3.connect('dashboard.db')
-    cursor = conn.cursor()
-    cursor.execute("UPDATE pages SET active = NOT active WHERE id = ?", (page_id,))
-    conn.commit()
+    """Toggle page active/inactive status in config.json file"""
+    # Find the page by ID
+    pages = get_pages()
+    target_page = None
     
-    # Get updated page info
-    cursor.execute("SELECT active FROM pages WHERE id = ?", (page_id,))
-    result = cursor.fetchone()
-    conn.close()
+    for page in pages:
+        if page['id'] == page_id:
+            target_page = page
+            break
     
-    if result:
+    if not target_page:
+        return jsonify({'success': False, 'message': 'Página não encontrada'}), 404
+    
+    # Get the page directory from the config
+    page_dir = target_page['config'].get('_dir')
+    if not page_dir:
+        return jsonify({'success': False, 'message': 'Erro: diretório da página não encontrado'}), 500
+    
+    config_file = os.path.join('pages', page_dir, 'config.json')
+    
+    try:
+        # Read current config
+        with open(config_file, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        
+        # Toggle active status
+        current_active = config.get('active', True)
+        config['active'] = not current_active
+        
+        # Write back to file
+        with open(config_file, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        
+        # Broadcast update to all connected clients
+        # Note: In a production environment, you might want to use Redis or a message queue
+        # for broadcasting to multiple server instances
+        print(f"Configuration changed for page {target_page['page_id']}, clients should refresh")
+        
         return jsonify({
             'success': True,
             'message': 'Página ativada/desativada com sucesso',
             'page': {
                 'id': page_id,
-                'active': bool(result[0])
+                'page_id': target_page['page_id'],
+                'active': config['active']
             }
         })
-    else:
-        return jsonify({'success': False, 'message': 'Página não encontrada'}), 404
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Erro ao atualizar configuração: {str(e)}'}), 500
 
 @app.route('/api/pages/reorder', methods=['POST'])
 def reorder_pages():
-    """Reorder dashboard pages"""
-    data = request.get_json()
-    if not data or 'order' not in data:
-        return jsonify({'success': False, 'message': 'Dados inválidos'}), 400
-    
-    conn = sqlite3.connect('dashboard.db')
-    cursor = conn.cursor()
-    
+    """Reorder pages by updating order field in config.json files"""
     try:
-        for index, page_id in enumerate(data['order']):
-            cursor.execute("UPDATE pages SET order_num = ? WHERE id = ?", (index + 1, page_id))
+        data = request.get_json()
+        if not data or 'order' not in data:
+            return jsonify({'success': False, 'message': 'Dados inválidos'}), 400
         
-        conn.commit()
+        order = data['order']
+        
+        # Get current pages to map IDs to directories
+        pages = get_pages()
+        id_to_dir = {}
+        
+        for page in pages:
+            id_to_dir[page['id']] = page['config'].get('_dir')
+        
+        # Update order in each config file
+        for i, page_id in enumerate(order):
+            page_dir = id_to_dir.get(page_id)
+            if page_dir:
+                config_file = os.path.join('pages', page_dir, 'config.json')
+                
+                try:
+                    with open(config_file, 'r', encoding='utf-8') as f:
+                        config = json.load(f)
+                    
+                    config['order'] = i + 1
+                    
+                    with open(config_file, 'w', encoding='utf-8') as f:
+                        json.dump(config, f, indent=2, ensure_ascii=False)
+                        
+                except Exception as e:
+                    print(f"Error updating order for {page_dir}: {e}")
+        
         return jsonify({'success': True, 'message': 'Páginas reordenadas com sucesso'})
     except Exception as e:
         return jsonify({'success': False, 'message': f'Erro ao reordenar: {str(e)}'}), 500
-    finally:
-        conn.close()
 
 @app.route('/api/data')
 def get_all_data():
@@ -360,7 +436,7 @@ def get_all_data():
             "metadata": {
                 "last_update": datetime.now().isoformat(),
                 "company": "Jayme da Costa",
-                "version": "1.0.0"
+                "version": get_version()
             }
         }
         return jsonify(data)
@@ -524,7 +600,7 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
-        'version': '1.0.0',
+        'version': get_version(),
         'database': 'connected',
         'data_files': 'loaded'
     })
@@ -545,12 +621,36 @@ def get_config():
         }
     })
 
+# Server-Sent Events for real-time updates
+@app.route('/api/events')
+def sse_events():
+    """Server-Sent Events endpoint for real-time dashboard updates"""
+    def generate():
+        while True:
+            # Send a heartbeat every 30 seconds to keep connection alive
+            yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now().isoformat()})}\n\n"
+            time.sleep(30)
+    
+    return Response(generate(), mimetype='text/event-stream')
+
+@app.route('/api/broadcast-update')
+def broadcast_update():
+    """Endpoint to trigger update broadcast to all connected clients"""
+    # This would be called when config files change
+    # For now, we'll use a simple approach with SSE
+    return jsonify({'success': True, 'message': 'Update broadcast triggered'})
+
+@app.route('/api/version')
+def get_app_version():
+    """Get application version information"""
+    return jsonify(get_version_info())
+
 swagger_template = {
     "swagger": "2.0",
     "info": {
         "title": "PDashboard Modular API",
         "description": "API para dashboards modulares industriais (v1)",
-        "version": "1.0.0"
+        "version": get_version()
     },
     "basePath": "/api/v1"
 }

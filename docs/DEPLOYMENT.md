@@ -66,6 +66,21 @@ O projeto usa diferentes arquivos de configuração para desenvolvimento e produ
    - Substitua arquivos em `data/` ou `pages/`
    - Reinicie o container se necessário
 
+## Atualização de Versão
+
+O sistema agora suporta atualização de versão **sem reiniciar o container**:
+
+1. **Atualize a versão**
+   ```bash
+   make version-update VERSION=1.0.1
+   ```
+2. **A versão é atualizada automaticamente** em todos os endpoints:
+   - API: `/api/version`, `/api/health`, `/api/data`
+   - Admin panel: Mostra a nova versão automaticamente
+   - Dashboard: Versão atualizada no footer
+
+**Nota:** Os ficheiros `VERSION` e `CHANGELOG.md` são montados como volumes, permitindo atualizações em tempo real.
+
 ## Alternar entre Desenvolvimento e Produção
 - Use `make up` para dev (usa `.env.development`, hot reload, debug)
 - Use `make up-prod` para produção (usa `.env.production`, estável, sem debug)

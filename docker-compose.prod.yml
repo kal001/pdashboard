@@ -8,6 +8,8 @@ services:
       - ./static:/app/static
       - ./pages:/app/pages
       - ./templates:/app/templates
+      - ./VERSION:/app/VERSION
+      - ./CHANGELOG.md:/app/CHANGELOG.md
     env_file:
       - .env.production
     restart: unless-stopped

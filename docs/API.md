@@ -20,6 +20,26 @@ http://localhost:8000/api/v1/docs/
 
 Você pode explorar e testar todos os endpoints diretamente pelo navegador.
 
+## Auto-Reload dos Clientes
+
+O sistema inclui funcionalidade de auto-reload que atualiza automaticamente todos os dashboards conectados quando há alterações na configuração:
+
+### Como Funciona
+- **Detecção Automática**: O dashboard verifica mudanças na configuração a cada 30 segundos
+- **Atualização Instantânea**: Quando detecta alterações, recarrega automaticamente a página
+- **Sem Intervenção Manual**: Não é necessário refrescar manualmente os browsers dos clientes
+
+### O que Dispara o Auto-Reload
+- ✅ **Ativar/Desativar páginas** (via painel admin ou API)
+- ✅ **Reordenar páginas** (via drag & drop no admin)
+- ✅ **Alterações nos ficheiros config.json**
+- ✅ **Qualquer mudança na configuração das páginas**
+
+### Benefícios
+- **Sincronização Automática**: Todos os displays mostram sempre a configuração mais recente
+- **Zero Downtime**: Atualizações sem interrupção da visualização
+- **Multi-Client**: Funciona em múltiplos browsers/displays simultaneamente
+
 ## Endpoints
 
 ### Dashboard Principal

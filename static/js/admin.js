@@ -249,7 +249,7 @@ async function togglePage(pageId) {
             const isActive = result.page.active;
             button.textContent = isActive ? 'Ativo' : 'Inativo';
             button.className = `toggle-btn ${isActive ? 'active' : 'inactive'}`;
-            
+            button.disabled = false;
             // Show success message
             const adminPanel = window.adminPanel;
             if (adminPanel) {
@@ -276,9 +276,26 @@ async function togglePage(pageId) {
     }
 }
 
+// Fetch and update the header version dynamically
+async function updateHeaderVersion() {
+    try {
+        const response = await fetch('/api/version');
+        if (response.ok) {
+            const data = await response.json();
+            const versionSpan = document.getElementById('header-version');
+            if (versionSpan && data.version) {
+                versionSpan.textContent = `v${data.version}`;
+            }
+        }
+    } catch (e) {
+        // Optionally handle error
+    }
+}
+
 // Initialize admin panel when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.adminPanel = new AdminPanel();
+    updateHeaderVersion();
 });
 
 // Keyboard shortcuts
@@ -299,10 +316,11 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Auto-refresh data status every 30 seconds
+// Auto-refresh data status and header version every 30 seconds
 setInterval(() => {
     const adminPanel = window.adminPanel;
     if (adminPanel) {
         adminPanel.loadDataStatus();
     }
+    updateHeaderVersion();
 }, 30000); 

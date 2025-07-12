@@ -16,11 +16,24 @@ Dashboard modular para TV, desenvolvido em Flask + Tailwind CSS, com dados dinâ
 - Painel de administração para ativar/desativar/reordenar páginas
 - Deploy fácil em Docker (dev e produção)
 - **API REST completa** com documentação interativa (Swagger UI)
+- **Auto-reload automático** dos clientes quando há alterações
 
 ## API e Documentação
 - **Documentação Interativa:** http://localhost:8000/api/v1/docs/
 - **API REST:** Endpoints para gestão de páginas, widgets e dados
 - **Swagger UI:** Teste e explore todos os endpoints diretamente no navegador
+
+## Atualizações em Tempo Real
+- **Auto-Reload:** Todos os dashboards conectados atualizam automaticamente
+- **Detecção Inteligente:** Verifica mudanças na configuração a cada 30 segundos
+- **Sincronização Multi-Client:** Múltiplos displays mantêm-se sincronizados
+- **Zero Intervenção:** Não é necessário refrescar manualmente os browsers
+
+### O que Dispara Atualizações Automáticas
+- ✅ Ativar/desativar páginas no painel admin
+- ✅ Reordenar páginas via drag & drop
+- ✅ Alterações nos ficheiros de configuração
+- ✅ Modificações via API REST
 
 ## Configuração de Ambiente
 

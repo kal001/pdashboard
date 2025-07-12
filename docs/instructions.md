@@ -22,6 +22,12 @@ O PDashboard é um sistema de dashboards modular para monitorização de perform
 - **Automação**: Integração com sistemas externos
 - **Teste Direto**: Execute endpoints diretamente no navegador
 
+### ⚡ Atualizações em Tempo Real
+- **Auto-Reload**: Todos os dashboards conectados atualizam automaticamente
+- **Detecção Inteligente**: Verifica mudanças na configuração a cada 30 segundos
+- **Sincronização Multi-Client**: Múltiplos displays mantêm-se sincronizados
+- **Zero Intervenção**: Não é necessário refrescar manualmente os browsers
+
 ### ⚙️ Configuração de Ambiente
 - **`.env.development`**: Configurações para desenvolvimento (debug, hot reload)
 - **`.env.production`**: Configurações para produção (otimizações, segurança)
@@ -130,236 +136,64 @@ pdashboard/
 
 > **Nota:** O sistema usa `.env.development` automaticamente para desenvolvimento.
 
+## Implementação do Auto-Reload
+
+### Como Funciona
+O sistema implementa auto-reload através de:
+
+1. **Polling Inteligente**: Verifica mudanças na configuração a cada 30 segundos
+2. **Hash-based Detection**: Cria um hash da configuração para detectar alterações
+3. **Auto-refresh**: Recarrega automaticamente quando detecta mudanças
+
+### Ficheiros Envolvidos
+- `static/js/carousel.js`: Lógica de detecção de mudanças
+- `templates/carousel.html`: Inclui o script de auto-reload
+- `app.py`: Endpoints para verificação de configuração
+
+### Configuração
+- **Intervalo de verificação**: 30 segundos (configurável)
+- **Detecção**: Baseada em hash da configuração das páginas
+- **Trigger**: Qualquer mudança em `config.json` ou via API
+
+### Benefícios Técnicos
+- **Leve**: Polling simples, sem WebSockets complexos
+- **Confiável**: Funciona mesmo com conexões instáveis
+- **Escalável**: Funciona com múltiplos clientes
+- **Configurável**: Intervalo ajustável conforme necessidades
+
+### O que Dispara Atualizações
+- ✅ Ativar/desativar páginas no painel admin
+- ✅ Reordenar páginas via drag & drop
+- ✅ Alterações nos ficheiros `config.json`
+- ✅ Modificações via API REST
+- ✅ Qualquer mudança na configuração das páginas
+
 ## Sistema Modular
 
-### Estrutura de Páginas
+## Gerenciamento de Versão e Changelog
 
-Cada página é um módulo independente na pasta `pages/` com:
+### Como atualizar a versão do sistema
 
-#### config.json
-```json
-{
-  "id": "producao",
-  "active": true,
-  "type": "carousel",
-  "duration": 10,
-  "template": "carousel.html",
-  "css_file": "producao.css"
-}
-```
+1. **Atualize a versão:**
+   - Execute: `make version-update VERSION=X.Y.Z`
+   - Exemplo: `make version-update VERSION=1.1.0`
+   - Isso atualiza o arquivo `VERSION` e propaga a versão para o frontend, API, admin e Swagger.
 
-#### widgets.json (opcional)
-```json
-[
-  {
-    "id": "widget1",
-    "title": "Produção Total",
-    "type": "metric",
-    "data_source": "producao.xlsx",
-    "sheet": "Total",
-    "value_column": "B",
-    "target_column": "C"
-  }
-]
-```
+2. **Atualize o changelog:**
+   - Edite o arquivo `CHANGELOG.md` e adicione uma nova entrada para a versão.
+   - Siga o padrão [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/).
 
-### Configuração de Widgets
+3. **Rebuild e deploy:**
+   - Rode `docker-compose build --no-cache && docker-compose up -d` para aplicar a nova versão.
 
-Os widgets são configurados para ler dados do ficheiro Excel `data/producao.xlsx`:
+4. **Verifique:**
+   - Use `make version` ou acesse `/api/version` para conferir a versão ativa.
+   - A versão aparecerá no admin, dashboard, API e documentação.
 
-- **data_source**: Nome do ficheiro Excel
-- **sheet**: Nome da folha
-- **value_column**: Coluna com o valor atual
-- **target_column**: Coluna com o valor objetivo
-- **comparison**: Comparação automática (verde/amarelo/vermelho)
+### Comandos úteis
+- `make version` — Mostra a versão atual
+- `make version-info` — Mostra detalhes da versão
+- `make version-update VERSION=X.Y.Z` — Atualiza a versão
+- `make changelog` — Mostra o changelog estruturado
 
-## Configuração de Dados
-
-### Estrutura Excel
-
-O sistema usa um único ficheiro `data/producao.xlsx` com múltiplas folhas:
-
-```
-producao.xlsx
-├── Folha: "Total"
-│   ├── Coluna A: Mês
-│   ├── Coluna B: Valor Atual
-│   └── Coluna C: Meta
-├── Folha: "Familia1"
-│   ├── Coluna A: Mês
-│   ├── Coluna B: Valor Atual
-│   └── Coluna C: Meta
-└── ... (outras folhas)
-```
-
-### Dados de Exemplo
-
-O sistema inclui dados simulados que demonstram:
-- Produção mensal por família de equipamento
-- Comparação com metas
-- Indicadores de performance
-- Valores monetários
-
-## Funcionalidades do Dashboard
-
-### Carrossel Automático
-- **Duração Configurável**: Cada página pode ter duração diferente
-- **Transição Suave**: Efeito fade entre páginas
-- **Navegação Manual**: Pontos clicáveis na parte inferior
-
-### Layout 3x2
-- **Grid Responsivo**: 3 colunas x 2 linhas de widgets
-- **Utilização Total**: Aproveita todo o espaço do ecrã
-- **Widgets Flexíveis**: Adaptam-se ao conteúdo
-
-### Sistema de Cores
-- **Verde**: Valor >= 90% da meta
-- **Amarelo**: Valor entre 70-89% da meta
-- **Vermelho**: Valor < 70% da meta
-
-## Desenvolvimento
-
-### Scripts Disponíveis
-
-```bash
-# Build do CSS para produção
-npm run build:css
-
-# Watch para desenvolvimento
-npm run watch:css
-```
-
-### Adicionar Nova Página
-
-1. **Criar pasta** em `pages/nova-pagina/`
-2. **Criar config.json**:
-   ```json
-   {
-     "id": "nova-pagina",
-     "active": true,
-     "type": "carousel",
-     "duration": 10,
-     "template": "carousel.html",
-     "css_file": "producao.css"
-   }
-   ```
-3. **Adicionar dados** ao Excel se necessário
-4. **Reiniciar** a aplicação
-
-### Personalização de Estilos
-
-#### CSS Global
-Edite `src/input.css` para estilos globais.
-
-#### CSS por Página
-Crie ficheiros CSS específicos e referencie em `config.json`:
-```json
-{
-  "css_file": "minha-pagina.css"
-}
-```
-
-## Comandos Úteis
-
-### Docker
-```bash
-# Iniciar
-docker-compose up -d
-
-# Parar
-docker-compose down
-
-# Rebuild
-docker-compose build --no-cache
-
-# Logs
-docker-compose logs dashboard
-
-# Shell no container
-docker-compose exec dashboard bash
-```
-
-### Desenvolvimento
-```bash
-# Instalar dependências
-pip install -r requirements.txt
-npm install
-
-# Build CSS
-npm run build:css
-
-# Watch CSS (desenvolvimento)
-npm run watch:css
-
-# Executar Flask
-python app.py
-```
-
-## Troubleshooting
-
-### Problemas Comuns
-
-1. **CSS não atualiza**
-   ```bash
-   # Rebuild do CSS
-   npm run build:css
-   ```
-
-2. **Páginas não aparecem**
-   - Verifique se `active: true` em `config.json`
-   - Confirme a estrutura das pastas
-   - Verifique os logs: `docker-compose logs dashboard`
-
-3. **Dados não carregam**
-   - Verifique se `producao.xlsx` está em `data/`
-   - Confirme a estrutura das folhas
-   - Verifique os nomes das colunas
-
-4. **Erro de Tailwind**
-   ```bash
-   # Reinstalar dependências
-   rm -rf node_modules package-lock.json
-   npm install
-   npm run build:css
-   ```
-
-### Logs Úteis
-```bash
-# Logs da aplicação
-docker-compose logs dashboard
-
-# Logs em tempo real
-docker-compose logs -f dashboard
-
-# Verificar volumes
-docker volume ls
-```
-
-## Painel de Administração
-
-O painel de administração exibe todas as páginas modulares e permite:
-- Ativar/desativar páginas
-- Alterar ordem de exibição
-- Visualizar, para cada página:
-  - Template utilizado
-  - CSS associado
-  - Nomes dos widgets ativos
-
-A informação é lida do `config.json` de cada página. Edite o `config.json` e o admin refletirá as mudanças automaticamente.
-
-### Exemplo de config.json
-```json
-{
-  "id": "producao3",
-  "title": "Produção Linha 3",
-  "active": true,
-  "type": "3x2",
-  "template": "carousel.html",
-  "css_file": "producao.css",
-  "widgets": [
-    { "id": "widget1", "active": true, "name": "Linha 3 - Equipamento A" },
-    { "id": "widget2", "active": true, "name": "Linha 3 - Equipamento B" }
-  ]
-}
-```
-
+---

@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     {{ css_link|safe }}
+    <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
 </head>
 <body class="bg-[#141a1f] h-screen min-h-screen" style='font-family: Inter, "Noto Sans", sans-serif;'>
     <div id="carousel-root" class="flex flex-col min-h-screen h-screen"></div>
@@ -74,6 +75,10 @@
                     <span>🕐</span>
                     <span>Última atualização</span>
                 </div>
+                <div class="flex items-center gap-2">
+                    <span>📊</span>
+                    <span id="footer-version"></span>
+                </div>
             </footer>
             `;
         } else {
@@ -129,6 +134,7 @@
                 }
             });
         }
+        updateFooterVersion();
     }
     function jumpToPage(idx) {
         current = idx;
@@ -144,6 +150,65 @@
     // Start carousel
     renderPage(current);
     carouselTimeout = setTimeout(nextPage, (pages[current].duration || 10) * 1000);
+    
+    // Server-Sent Events for real-time updates
+    function initSSE() {
+        const eventSource = new EventSource('/api/events');
+        
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            
+            if (data.type === 'config_changed') {
+                console.log('Configuration changed, refreshing dashboard...');
+                // Reload the page to get updated configuration
+                window.location.reload();
+            } else if (data.type === 'heartbeat') {
+                // Keep connection alive
+                console.log('SSE heartbeat received');
+            }
+        };
+        
+        eventSource.onerror = function(error) {
+            console.error('SSE connection error:', error);
+            // Reconnect after 5 seconds
+            setTimeout(initSSE, 5000);
+        };
+        
+        // Store reference for cleanup
+        window.eventSource = eventSource;
+    }
+    
+    // Fetch and update the footer version dynamically
+    async function updateFooterVersion() {
+        try {
+            const response = await fetch('/api/version');
+            if (response.ok) {
+                const data = await response.json();
+                const versionSpan = document.getElementById('footer-version');
+                if (versionSpan && data.version) {
+                    versionSpan.textContent = `v${data.version}`;
+                }
+            }
+        } catch (e) {
+            // Optionally handle error
+        }
+    }
+    
+    // Initialize SSE connection
+    initSSE();
+    
+    // Update footer version every 30 seconds
+    setInterval(updateFooterVersion, 30000);
+    
+    // Initial version update
+    updateFooterVersion();
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+        if (window.eventSource) {
+            window.eventSource.close();
+        }
+    });
     </script>
 </body>
 </html> 
