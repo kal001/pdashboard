@@ -1,6 +1,6 @@
 # PDashboard - Modular Dashboard for Digital Signage
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)
 
 Modular system for industrial dashboards, optimized for TV displays, with per-page configuration and dynamic Excel data.
 
