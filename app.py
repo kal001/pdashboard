@@ -488,9 +488,9 @@ def dashboard_carousel():
         css_link = Markup(f'<link rel="stylesheet" href="/static/css/{rendered_pages[0]["css_file"]}">')
     # In the template render, if type is 'text-md', pass html_content and font_size
     if rendered_pages and rendered_pages[0]['type'] == 'text-md':
-        return render_template(template_name, html_content=rendered_pages[0]['html_content'], font_size=rendered_pages[0]['font_size'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='text-md', logo_info=logo_info, number_format=number_format)
+        return render_template(template_name, pages=rendered_pages, html_content=rendered_pages[0]['html_content'], font_size=rendered_pages[0]['font_size'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='text-md', logo_info=logo_info, number_format=number_format)
     if rendered_pages and rendered_pages[0]['type'] == 'image':
-        return render_template(template_name, image_file=rendered_pages[0]['image_file'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='image', logo_info=logo_info, number_format=number_format)
+        return render_template(template_name, pages=rendered_pages, image_file=rendered_pages[0]['image_file'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='image', logo_info=logo_info, number_format=number_format)
     return render_template(template_name, pages=rendered_pages, css_link=css_link, last_update_month=last_update_month, company_name=company_name, version=get_version(), translations=translations, language=language, logo_info=logo_info, number_format=number_format)
 
 @app.route('/dashboard')
