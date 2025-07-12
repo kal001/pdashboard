@@ -6,7 +6,6 @@
     <title>Dashboard Carrossel</title>
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     {{ css_link|safe }}
@@ -14,7 +13,6 @@
 </head>
 <body class="bg-[#141a1f] h-screen min-h-screen" style='font-family: Inter, "Noto Sans", sans-serif;'>
     <div id="carousel-root" class="flex flex-col min-h-screen h-screen"></div>
-    <div id="carousel-dots" class="fixed bottom-8 left-0 w-full flex justify-center items-center z-50"></div>
     <script>
     const pages = {{ pages|tojson }};
     const translations = {{ translations|tojson|safe }};
@@ -24,9 +22,10 @@
     let current = 0;
     function renderDots(currentIdx) {
         const dots = pages.map((_, i) =>
-            `<span class="inline-block w-4 h-4 mx-1 rounded-full transition-all duration-300 ${i === currentIdx ? 'bg-white' : 'bg-[#2b3640]'} cursor-pointer" onclick="jumpToPage(${i})"></span>`
+            `<span class="inline-block w-4 h-4 mx-1 rounded-full dot ${i === currentIdx ? 'bg-white' : 'bg-inactive-dot'} cursor-pointer" onclick="jumpToPage(${i})"></span>`
         ).join('');
-        document.getElementById('carousel-dots').innerHTML = dots;
+        const dotsEl = document.getElementById('carousel-dots');
+        if (dotsEl) dotsEl.innerHTML = dots;
     }
     let carouselTimeout;
     function renderPage(idx) {
@@ -77,12 +76,12 @@
                     </div>
                 </div>
             </main>
-            <footer class="flex items-center justify-between border-t border-[#2b3640] px-10 py-3 bg-[#102366] text-white text-sm">
-                <!-- Legend removed as x-axis labels are now visible -->
+            <footer class="flex items-center justify-between border-t border-[#2b3640] px-10 py-3 bg-[#102366] text-white text-sm" style="position: relative;">
                 <div class="flex items-center gap-2">
                     <span>🕐</span>
                     <span>${t('last_update', 'Última atualização')}</span>
                 </div>
+                <div id="carousel-dots" class="flex justify-center items-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></div>
                 <div class="flex items-center gap-2">
                     <span>📊</span>
                     <span id="footer-version"></span>
@@ -98,11 +97,12 @@
                     </div>
                 </div>
             </main>
-            <footer class="flex items-center justify-between border-t border-[#2b3640] px-10 py-3 bg-[#102366] text-white text-sm">
+            <footer class="flex items-center justify-between border-t border-[#2b3640] px-10 py-3 bg-[#102366] text-white text-sm" style="position: relative;">
                 <div class="flex items-center gap-2">
                     <span>🕐</span>
                     <span>${t('last_update', 'Última atualização')}</span>
                 </div>
+                <div id="carousel-dots" class="flex justify-center items-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></div>
                 <div class="flex items-center gap-2">
                     <span>📊</span>
                     <span id="footer-version"></span>

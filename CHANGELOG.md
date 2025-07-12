@@ -36,7 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API REST with Swagger documentation
 - Auto-reload functionality for real-time updates
 - Docker support for development and production
-- Tailwind CSS v4 integration
 - Excel data integration with pandas/openpyxl
 - Health check endpoints
 - Environment configuration (.env.development/.env.production)

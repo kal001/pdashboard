@@ -2,10 +2,10 @@
 
 ## Overview
 
-Modular dashboard for TV, developed with Flask + Tailwind CSS, with dynamic Excel data and per-page configuration. Ideal for industrial/factory environments.
+Modular dashboard for TV, developed with Flask, with dynamic Excel data and per-page configuration. Ideal for industrial/factory environments.
 
 - **Backend:** Flask (Python)
-- **Frontend:** HTML5, Tailwind CSS v4, JavaScript
+- **Frontend:** HTML5, JavaScript
 - **Data:** Excel (pandas/openpyxl)
 - **Containerization:** Docker & Docker Compose
 

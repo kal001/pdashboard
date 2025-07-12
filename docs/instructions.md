@@ -9,7 +9,6 @@ PDashboard is a modular dashboard system for operational performance monitoring 
 ### ✅ Core Features
 - **Modular System**: Each page is an independent module with its own configuration
 - **Automatic Carousel**: Page rotation with configurable duration per page
-- **Modern Interface**: Responsive design with Tailwind CSS v4
 - **Manual Navigation**: Navigation points for manual control
 - **Dynamic Data**: Excel support with per-widget configuration
 - **3x2 Layout**: Widget grid optimized for TV
@@ -34,7 +33,6 @@ PDashboard is a modular dashboard system for operational performance monitoring 
 - **Automatic**: Docker Compose uses the correct file based on command
 
 ### 🎨 Implemented Design
-- **Tailwind CSS v4**: Modern and responsive CSS framework
 - **3x2 Layout**: Widget grid for maximum screen utilization
 - **Clear Typography**: Large fonts for TV readability
 - **Consistent Colors**: Green (success), yellow (warning), red (danger), blue (info)
@@ -50,17 +48,12 @@ PDashboard is a modular dashboard system for operational performance monitoring 
 
 ### Frontend
 - **HTML5**: Semantic structure
-- **Tailwind CSS v4**: Modern CSS framework
 - **JavaScript (Vanilla)**: Interactivity without dependencies
 
 ### Infrastructure
 - **Docker**: Application containerization
 - **Docker Compose**: Service orchestration
 - **Volumes**: Data persistence
-
-### Build Tools
-- **Node.js**: For Tailwind CSS build
-- **Tailwind CLI**: Optimized CSS compilation
 
 ## Project Structure
 
@@ -72,7 +65,6 @@ pdashboard/
 │   └── carousel.html     # Single template for all pages
 ├── static/               # Static files
 │   ├── css/
-│   │   ├── tailwind.css  # Compiled Tailwind CSS
 │   │   └── producao.css  # Page-specific CSS
 │   └── js/
 │       └── carousel.js   # Carousel JavaScript
@@ -89,12 +81,10 @@ pdashboard/
 ├── data/                 # Excel data (Docker volume)
 │   └── producao.xlsx     # Excel file with data
 ├── src/                  # Source files
-│   └── input.css         # Tailwind source CSS
 ├── docs/                 # Documentation
 │   ├── dashboard_rules.md # Design rules
 │   └── instructions.md   # This file
 ├── package.json          # Node.js configuration and scripts
-├── tailwind.config.js    # Tailwind CSS configuration
 ├── Dockerfile           # Docker configuration
 ├── docker-compose.yml   # Container orchestration
 └── README.md            # Main documentation
@@ -120,17 +110,12 @@ pdashboard/
    npm install
    ```
 
-3. **Build CSS**
-   ```bash
-   npm run build:css
-   ```
-
-4. **Run with Docker**
+3. **Run with Docker**
    ```bash
    docker-compose up -d
    ```
 
-5. **Access the system**
+4. **Access the system**
    - Dashboard: http://localhost:8000
    - API Docs: http://localhost:8000/api/v1/docs/
 
@@ -218,5 +203,52 @@ The system includes placeholder logo files that can be customized:
 - **Template Integration**: Logos are referenced in `templates/dashboard.html` and `templates/admin.html`
 - **Static Assets**: Logos are served from `static/assets/` directory
 - **Responsive Design**: Logos scale appropriately for different screen sizes
+
+---
+
+## Adding New Languages and Making Translations
+
+PDashboard supports internationalization (i18n) and can be extended to support additional languages. Here’s how to add a new language and manage translations:
+
+### 1. Locate the Translation Files
+- Translations are typically stored in a Python dictionary or JSON file (e.g., `translations.py`, `translations.json`, or within `app.py`).
+- Each language has its own dictionary of key-value pairs (e.g., `en`, `pt`).
+
+### 2. Add a New Language
+- Copy an existing language dictionary (e.g., English or Portuguese) as a template.
+- Create a new entry for your target language (e.g., `es` for Spanish).
+- Translate all values in the new dictionary to the target language.
+
+**Example (Python):**
+```python
+translations = {
+    'en': { 'dashboard': 'Dashboard', ... },
+    'pt': { 'dashboard': 'Painel', ... },
+    'es': { 'dashboard': 'Tablero', ... },  # New language
+}
+```
+
+**Example (JSON):**
+```json
+{
+  "en": { "dashboard": "Dashboard", ... },
+  "pt": { "dashboard": "Painel", ... },
+  "es": { "dashboard": "Tablero", ... }
+}
+```
+
+### 3. Update the Language Selector
+- If your UI has a language dropdown, add the new language option (e.g., "Español").
+- Make sure the backend and frontend can recognize and load the new language code.
+
+### 4. Test the Translations
+- Switch to the new language in the UI and verify all texts are translated.
+- Check for missing keys or untranslated strings.
+
+### 5. Best Practices
+- Keep translation keys consistent across all languages.
+- Use clear, descriptive keys (e.g., `add_new_page`, `save`, `dashboard_title`).
+- Regularly review and update translations as new features are added.
+- Consider using translation management tools for larger projects.
 
 ---

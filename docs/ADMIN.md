@@ -149,3 +149,96 @@ The system displays two logos that can be customized:
 - **Dashboard**: Both logos shown in header top-left corner
 - **Admin Panel**: Main logo displayed in admin header
 - **Responsive**: Logos scale appropriately for different screen sizes 
+
+---
+
+## Customizing Colors and Text Sizes (Header, Footer, and Dashboards)
+
+The PDashboard system is highly customizable. You can change the colors and text sizes for the header, footer, and each dashboard type to match your branding or display needs.
+
+### 1. Customizing Header and Footer (Global)
+
+The main styles for the header and footer are defined in the following CSS files:
+- **Dashboard pages:** `static/css/dashboard.css`
+- **Admin panel:** `static/css/admin.css`
+- **Production dashboards:** `static/css/producao.css` (if used)
+
+#### Common Customizations
+- **Header background color:**
+  - In `dashboard.css`, look for `.dashboard-header` and change the `background` property.
+- **Footer background color:**
+  - In `dashboard.css`, look for `.dashboard-footer` or the relevant footer class.
+- **Header/footer text color:**
+  - Change the `color` property in the same classes.
+- **Header height and padding:**
+  - Adjust the CSS variables at the top of the file (e.g., `--header-height`, `--header-padding`).
+- **Logo size:**
+  - Change `--logo-height` and `--logo-margin` variables.
+- **Text sizes:**
+  - Header month: `.header-info .company-name` (font-size)
+  - Company name: `.company-name` (font-size)
+  - Subtitle: `.header-subtitle` (font-size)
+
+#### Example: Change Header Background and Month Size
+```css
+:root {
+    --header-height: 120px;
+    --header-padding: 30px 40px;
+    --logo-height: 60px;
+    --logo-margin: 20px;
+}
+.dashboard-header {
+    background: linear-gradient(135deg, #123456 0%, #234567 100%); /* Custom gradient */
+}
+.header-info .company-name {
+    font-size: 2.5rem; /* Change month size */
+}
+```
+
+### 2. Customizing Each Dashboard Type (Per Page or Per Type)
+
+Each dashboard page can use its own CSS file for full control over colors and text sizes. This is set in the page's `config.json`:
+
+```json
+{
+  "css_file": "producao.css"
+}
+```
+
+- Place your custom CSS file in `static/css/`.
+- Reference it in the `css_file` field of the page's `config.json`.
+- The system will load this CSS for that page only.
+
+#### What You Can Customize
+- **Widget backgrounds:** Change the background color for widget cards (e.g., `.widget-card` or inline style)
+- **Widget text color and size:** Adjust `.widget-title`, `.widget-value`, `.widget-label`, etc.
+- **Markdown/text dashboards:** Use the `font_size` field in `config.json` for text-md dashboards (e.g., `"font_size": "2.2rem"`).
+
+#### Example: Custom Widget Card Color and Font Size
+```css
+.widget-card {
+    background: #222a36;
+    border-radius: 1.25rem;
+}
+.widget-title {
+    font-size: 2.5rem;
+    color: #fff;
+}
+```
+
+#### Example: Customizing Text Size for Markdown Dashboard
+In `config.json`:
+```json
+{
+  "type": "text-md",
+  "font_size": "2.5rem"
+}
+```
+
+### 3. Tips
+- Use browser developer tools (F12) to inspect elements and test style changes live.
+- After editing CSS files, refresh the dashboard page to see changes.
+- For global changes, edit `dashboard.css`. For per-page changes, create and reference a custom CSS file.
+- You can copy and modify any of the provided CSS files as a starting point.
+
+--- 

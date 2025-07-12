@@ -7,10 +7,7 @@
     "doc": "docs",
     "example": "examples"
   },
-  "scripts": {
-    "build:css": "tailwindcss -i ./src/input.css -o ./static/css/tailwind.css --minify",
-    "watch:css": "tailwindcss -i ./src/input.css -o ./static/css/tailwind.css --watch"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kal001/pdashboard.git"
@@ -22,11 +19,5 @@
   "bugs": {
     "url": "https://github.com/kal001/pdashboard/issues"
   },
-  "homepage": "https://github.com/kal001/pdashboard#readme",
-  "devDependencies": {
-    "@tailwindcss/cli": "^4.1.11",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.11"
-  }
+  "homepage": "https://github.com/kal001/pdashboard#readme"
 }
