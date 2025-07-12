@@ -15,8 +15,8 @@
       "name": "TV Modelo A",
       "sheet": "ModeloA",
       "column_total": "Total",
-      "column_target": "Meta",
-      "column_month": "Mês"
+      "column_target": "Target",
+      "column_month": "Month"
     },
     {
       "id": "widget2",
@@ -24,8 +24,8 @@
       "name": "TV Modelo B",
       "sheet": "ModeloB",
       "column_total": "Total",
-      "column_target": "Meta",
-      "column_month": "Mês"
+      "column_target": "Target",
+      "column_month": "Minth"
     },
     {
       "id": "widget3",
@@ -33,8 +33,8 @@
       "name": "TV Modelo C",
       "sheet": "ModeloC",
       "column_total": "Total",
-      "column_target": "Meta",
-      "column_month": "Mês"
+      "column_target": "Target",
+      "column_month": "Month"
     },
     {
       "id": "widget4",
@@ -42,8 +42,8 @@
       "name": "TV Modelo D",
       "sheet": "ModeloD",
       "column_total": "Total",
-      "column_target": "Meta",
-      "column_month": "Mês"
+      "column_target": "Target",
+      "column_month": "Month"
     },
     {
       "id": "widget5",
@@ -51,8 +51,8 @@
       "name": "TV Modelo E",
       "sheet": "ModeloE",
       "column_total": "Total",
-      "column_target": "Meta",
-      "column_month": "Mês"
+      "column_target": "Target",
+      "column_month": "Month"
     },
     {
       "id": "widget6",
@@ -60,8 +60,8 @@
       "name": "TV Modelo F",
       "sheet": "ModeloF",
       "column_total": "Total",
-      "column_target": "Meta",
-      "column_month": "Mês"
+      "column_target": "Target",
+      "column_month": "Month"
     }
   ],
   "order": 1

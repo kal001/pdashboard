@@ -43,6 +43,19 @@
   - Each widget can specify custom column names: `column_month`, `column_bgt`, `column_real`, `column_fct`
   - `template`, `css_file`, etc.
 
+### 2x2-cards (4 cards)
+- 2x2 grid layout (2 columns, 2 rows), exactly 4 financial information cards.
+- Main fields in config.json:
+  - `type`: "2x2-cards"
+  - `sheet`: Excel sheet name containing card data
+  - `column_title`: Column name for card titles
+  - `column_value`: Column name for card values
+  - `column_icon`: Column name for Font Awesome icon names
+  - `column_target`: Column name for target values
+  - `xlsx_file`: Excel file name in `/data/` with the data
+  - `template`, `css_file`, etc.
+- The Excel file name (xlsx_file) is shown in the admin UI for all dashboards using Excel files (3x2, 2x2, 2x1-graph, 2x2-cards)
+
 ### Text MD (Markdown)
 - Uses the entire dashboard area to display formatted Markdown text.
 - No widgets.

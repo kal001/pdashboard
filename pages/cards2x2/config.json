@@ -1,0 +1,17 @@
+{
+  "id": "cards2x2",
+  "title": "Indicadores Financeiros",
+  "description": "Dashboard de cartões financeiros (2x2)",
+  "active": true,
+  "type": "2x2-cards",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "dashboard.css",
+  "xlsx_file": "producao.xlsx",
+  "sheet": "Cards",
+  "column_title": "Title",
+  "column_value": "Value",
+  "column_target": "Target",
+  "column_icon": "Icon",
+  "order": 1
+} 

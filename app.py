@@ -295,119 +295,173 @@ def dashboard_carousel():
     pages = get_active_pages()
     rendered_pages = []
     for page in pages:
-        if page['type'] in ('3x2', '2x2', '2x1-graph'):
+        if page['type'] in ('3x2', '2x2', '2x1-graph', '2x2-cards'):
             xlsx_path = os.path.join('data', page['xlsx_file'])
             wb = openpyxl.load_workbook(xlsx_path, data_only=True)
             widgets = []
-            for widget_cfg in page['widgets']:
-                if not widget_cfg.get('active', True):
-                    continue
-                sheet = wb[widget_cfg['sheet']]
-                months, real, fct, bgt, real_or_fct_type = [], [], [], [], []
+            if page['type'] == '2x2-cards':
+                # Read up to 4 cards from a single sheet, each row: Title, Value, Icon
+                sheet_name = page.get('sheet', 'Cards')
+                sheet = wb[sheet_name]
                 
                 # Get header row to find column indices
                 headers = list(next(sheet.iter_rows(min_row=1, max_row=1, values_only=True)))
                 
-                # Use different column logic based on dashboard type
-                if page['type'] == '2x1-graph':
-                    # 2x1-graph uses Real/FCT/BGT columns
-                    column_month = widget_cfg.get('column_month', 'Mês')
-                    column_real = widget_cfg.get('column_real', 'Real')
-                    column_fct = widget_cfg.get('column_fct', 'FCT')
-                    column_bgt = widget_cfg.get('column_bgt', 'BGT')
-                    
-                    # Find column indices
-                    idx_month = headers.index(column_month) if column_month in headers else 0
-                    idx_real = headers.index(column_real) if column_real in headers else None
-                    idx_fct = headers.index(column_fct) if column_fct in headers else None
-                    idx_bgt = headers.index(column_bgt) if column_bgt in headers else None
-                else:
-                    # 3x2 and 2x2 use Total/Target columns
-                    column_month = widget_cfg.get('column_month', 'Mês')
-                    column_total = widget_cfg.get('column_total', 'Total')
-                    column_target = widget_cfg.get('column_target', 'Meta')
-                    
-                    # Find column indices
-                    idx_month = headers.index(column_month) if column_month in headers else 0
-                    idx_total = headers.index(column_total) if column_total in headers else 1
-                    idx_target = headers.index(column_target) if column_target in headers else 2
+                # Get column names from config
+                column_title = page.get('column_title', 'Title')
+                column_value = page.get('column_value', 'Value')
+                column_icon = page.get('column_icon', 'Icon')
+                column_target = page.get('column_target', 'Target')
                 
+                # Find column indices
+                idx_title = headers.index(column_title) if column_title in headers else 0
+                idx_value = headers.index(column_value) if column_value in headers else 1
+                idx_icon = headers.index(column_icon) if column_icon in headers else 2
+                idx_target = headers.index(column_target) if column_target and column_target in headers else None
+                
+                count = 0
                 for row in sheet.iter_rows(min_row=2, values_only=True):
-                    # Now process data rows
-                    if row[idx_month] is not None:
-                        months.append(row[idx_month])
-                        if page['type'] == '2x1-graph':
-                            # 2x1-graph uses Real/FCT/BGT columns
-                            # Real or FCT
-                            if idx_real is not None and row[idx_real] is not None:
-                                real.append(row[idx_real])
+                    if count >= 4:
+                        break
+                    # Skip rows where all fields are empty/None
+                    if (not row or (all((cell is None or str(cell).strip() == '') for cell in [row[idx_title] if idx_title < len(row) else '', row[idx_value] if idx_value < len(row) else '', row[idx_icon] if idx_icon < len(row) else '']))):
+                        continue
+                    title = row[idx_title] if idx_title < len(row) else ''
+                    value = row[idx_value] if idx_value < len(row) else 0
+                    icon = row[idx_icon] if idx_icon < len(row) else 'fa-question'
+                    widget = {
+                        'title': title,
+                        'value': value,
+                        'icon': icon
+                    }
+                    # Target logic
+                    if idx_target is not None and idx_target < len(row):
+                        target = row[idx_target]
+                        try:
+                            value_num = float(value)
+                            target_num = float(target)
+                            widget['target'] = target
+                            if value_num >= target_num:
+                                widget['value_color'] = '#0bda5b'
+                                widget['arrow'] = '▲'
+                            else:
+                                widget['value_color'] = '#fa6238'
+                                widget['arrow'] = '▼'
+                        except (TypeError, ValueError):
+                            pass
+                    widgets.append(widget)
+                    count += 1
+            else:
+                for widget_cfg in page['widgets']:
+                    if not widget_cfg.get('active', True):
+                        continue
+                    sheet = wb[widget_cfg['sheet']]
+                    months, real, fct, bgt, real_or_fct_type = [], [], [], [], []
+                    
+                    # Get header row to find column indices
+                    headers = list(next(sheet.iter_rows(min_row=1, max_row=1, values_only=True)))
+                    
+                    # Use different column logic based on dashboard type
+                    if page['type'] == '2x1-graph':
+                        # 2x1-graph uses Real/FCT/BGT columns
+                        column_month = widget_cfg.get('column_month', 'Mês')
+                        column_real = widget_cfg.get('column_real', 'Real')
+                        column_fct = widget_cfg.get('column_fct', 'FCT')
+                        column_bgt = widget_cfg.get('column_bgt', 'BGT')
+                        
+                        # Find column indices
+                        idx_month = headers.index(column_month) if column_month in headers else 0
+                        idx_real = headers.index(column_real) if column_real in headers else None
+                        idx_fct = headers.index(column_fct) if column_fct in headers else None
+                        idx_bgt = headers.index(column_bgt) if column_bgt in headers else None
+                    else:
+                        # 3x2 and 2x2 use Total/Target columns
+                        column_month = widget_cfg.get('column_month', 'Mês')
+                        column_total = widget_cfg.get('column_total', 'Total')
+                        column_target = widget_cfg.get('column_target', 'Meta')
+                        
+                        # Find column indices
+                        idx_month = headers.index(column_month) if column_month in headers else 0
+                        idx_total = headers.index(column_total) if column_total in headers else 1
+                        idx_target = headers.index(column_target) if column_target in headers else 2
+                    
+                    for row in sheet.iter_rows(min_row=2, values_only=True):
+                        # Now process data rows
+                        if row[idx_month] is not None:
+                            months.append(row[idx_month])
+                            if page['type'] == '2x1-graph':
+                                # 2x1-graph uses Real/FCT/BGT columns
+                                # Real or FCT
+                                if idx_real is not None and row[idx_real] is not None:
+                                    real.append(row[idx_real])
+                                    fct.append(None)
+                                    real_or_fct_type.append('real')
+                                elif idx_fct is not None and row[idx_fct] is not None:
+                                    real.append(None)
+                                    fct.append(row[idx_fct])
+                                    real_or_fct_type.append('fct')
+                                else:
+                                    real.append(None)
+                                    fct.append(None)
+                                    real_or_fct_type.append(None)
+                                # BGT
+                                bgt.append(row[idx_bgt] if idx_bgt is not None else None)
+                            else:
+                                # 3x2 and 2x2 use Total/Target columns
+                                real.append(row[idx_total] if idx_total is not None else None)
                                 fct.append(None)
                                 real_or_fct_type.append('real')
-                            elif idx_fct is not None and row[idx_fct] is not None:
-                                real.append(None)
-                                fct.append(row[idx_fct])
-                                real_or_fct_type.append('fct')
+                                bgt.append(row[idx_target] if idx_target is not None else None)
+                    
+                    if page['type'] == '2x1-graph':
+                        widgets.append({
+                            "title": widget_cfg['name'],
+                            "type": widget_cfg.get('type', 'bar'),
+                            "labels": months,
+                            "real": real,
+                            "fct": fct,
+                            "bgt": bgt,
+                            "real_or_fct_type": real_or_fct_type
+                        })
+                    else:
+                        # For 3x2 and 2x2, use the chart_data structure and restore color/percent/trend logic
+                        value = real[-1] if real else 0
+                        target = bgt[-1] if bgt else 0
+                        if len(real) >= 2:
+                            prev = real[-2]
+                            curr = real[-1]
+                            if prev is not None and curr is not None and prev != 0:
+                                percent_change = ((curr - prev) / prev) * 100
+                                if percent_change > 0:
+                                    trend = '▲'
+                                    trend_color = 'green'
+                                elif percent_change < 0:
+                                    trend = '▼'
+                                    trend_color = 'red'
+                                else:
+                                    trend = '→'
+                                    trend_color = 'gray'
                             else:
-                                real.append(None)
-                                fct.append(None)
-                                real_or_fct_type.append(None)
-                            # BGT
-                            bgt.append(row[idx_bgt] if idx_bgt is not None else None)
-                        else:
-                            # 3x2 and 2x2 use Total/Target columns
-                            real.append(row[idx_total] if idx_total is not None else None)
-                            fct.append(None)
-                            real_or_fct_type.append('real')
-                            bgt.append(row[idx_target] if idx_target is not None else None)
-                if page['type'] == '2x1-graph':
-                    widgets.append({
-                        "title": widget_cfg['name'],
-                        "type": widget_cfg.get('type', 'bar'),
-                        "labels": months,
-                        "real": real,
-                        "fct": fct,
-                        "bgt": bgt,
-                        "real_or_fct_type": real_or_fct_type
-                    })
-                else:
-                    # For 3x2 and 2x2, use the chart_data structure and restore color/percent/trend logic
-                    value = real[-1] if real else 0
-                    target = bgt[-1] if bgt else 0
-                    if len(real) >= 2:
-                        prev = real[-2]
-                        curr = real[-1]
-                        if prev is not None and curr is not None and prev != 0:
-                            percent_change = ((curr - prev) / prev) * 100
-                            if percent_change > 0:
-                                trend = '▲'
-                                trend_color = 'green'
-                            elif percent_change < 0:
-                                trend = '▼'
-                                trend_color = 'red'
-                            else:
-                                trend = '→'
+                                percent_change = 0
+                                trend = ''
                                 trend_color = 'gray'
                         else:
                             percent_change = 0
                             trend = ''
                             trend_color = 'gray'
-                    else:
-                        percent_change = 0
-                        trend = ''
-                        trend_color = 'gray'
-                    value_color = "#0bda5b" if value >= target else "#fa6238"
-                    widgets.append({
-                        "title": widget_cfg['name'],
-                        "type": widget_cfg.get('type', 'line'),
-                        "labels": months,
-                        "chart_data": real,  # Use real data as chart_data
-                        "value": value,
-                        "target": target,
-                        "value_color": value_color,
-                        "trend": trend,
-                        "trend_color": trend_color,
-                        "percent_change": round(percent_change, 1)
-                    })
+                        value_color = "#0bda5b" if value >= target else "#fa6238"
+                        widgets.append({
+                            "title": widget_cfg['name'],
+                            "type": widget_cfg.get('type', 'line'),
+                            "labels": months,
+                            "chart_data": real,  # Use real data as chart_data
+                            "value": value,
+                            "target": target,
+                            "value_color": value_color,
+                            "trend": trend,
+                            "trend_color": trend_color,
+                            "percent_change": round(percent_change, 1)
+                        })
             rendered_pages.append({**page, "widgets": widgets})
         elif page['type'] == 'text-md':
             md_file = page.get('md_file', '')

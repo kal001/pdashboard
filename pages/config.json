@@ -6,7 +6,8 @@
     "2x2",
     "text-md",
     "image",
-    "2x1-graph"
+    "2x1-graph",
+    "2x2-cards"
   ],
   "language": "pt",
   "number_format": " # ###"

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/static/css/dashboard.css">
     <link rel="stylesheet" href="/static/css/producao.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     {{ css_link|safe }}
     <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
 </head>
@@ -83,7 +84,39 @@
             </div>
         </header>
         `;
-        if (page.type === '3x2' || page.type === '2x2' || page.type === '2x1-graph') {
+        if (page.type === '2x2-cards') {
+            html += `
+            <main class="flex-1 flex flex-col h-full min-h-0 min-w-0 p-4">
+                <div class="w-full h-full flex-1 min-h-0 min-w-0">
+                    <div class="grid grid-cols-2 grid-rows-2 gap-8 w-full h-full min-h-0 min-w-0">
+                        ${page.widgets.map((widget, i) => `
+                            <div class="cards2x2-card">
+                                <span class="cards2x2-title">${widget.title}</span>
+                                <div class="cards2x2-value-row">
+                                    <span class="cards2x2-value" style="color: ${widget.value_color || '#fff'}">${formatNumber(widget.value)}</span>
+                                    ${widget.arrow === '▲' ? `<i class="fa-regular fa-circle-up cards2x2card-arrow" style="color: #0bda5b;"></i>` : ''}
+                                    ${widget.arrow === '▼' ? `<i class="fa-regular fa-circle-down cards2x2card-arrow" style="color: #fa6238;"></i>` : ''}
+                                    ${widget.target !== undefined ? `<span class="cards2x2-target">/ ${formatNumber(widget.target)}</span>` : ''}
+                                </div>
+                                <i class="fa-solid ${widget.icon} cards2x2-icon"></i>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </main>
+            <footer class="flex items-center justify-between border-t border-[#2b3640] px-10 py-3 bg-[#102366] text-white text-sm" style="position: relative;">
+                <div class="flex items-center gap-2">
+                    <span>🕐</span>
+                    <span>${t('last_update', 'Última atualização')}</span>
+                </div>
+                <div id="carousel-dots" class="flex justify-center items-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                <div class="flex items-center gap-2">
+                    <span>📊</span>
+                    <span id="footer-version"></span>
+                </div>
+            </footer>
+            `;
+        } else if (page.type === '3x2' || page.type === '2x2' || page.type === '2x1-graph') {
             html += `
             <main class="flex-1 flex flex-col h-full min-h-0 min-w-0 p-4">
                 <div class="w-full h-full flex-1 min-h-0 min-w-0">
@@ -106,9 +139,10 @@
                                     </div>
                                     <div class="flex gap-2 items-center mb-2 mt-2">
                                         <span class="widget-label">Mês Anterior</span>
-                                        <span class="percent-change" style="color: ${widget.trend_color}">
-                                            ${widget.trend}
-                                            ${widget.percent_change > 0 ? '+' : ''}${widget.percent_change}%
+                                        <span class="percent-change">
+                                            ${widget.trend === '▲' ? `<i class='fa-regular fa-circle-up cards2x2-arrow' style='color: #0bda5b;'></i>` : ''}
+                                            ${widget.trend === '▼' ? `<i class='fa-regular fa-circle-down cards2x2-arrow' style='color: #fa6238;'></i>` : ''}
+                                            <span style='font-size:1.5rem;color:${widget.trend_color};margin-left:0.3rem;'>${widget.percent_change > 0 ? '+' : ''}${widget.percent_change}%</span>
                                         </span>
                                     </div>
                                     <div class="flex-1 flex flex-col justify-end">

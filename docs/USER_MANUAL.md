@@ -87,6 +87,9 @@ The system supports four types of dashboards, each with different layouts and co
 }
 ```
 
+![3x2 Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
+*Example of a 3x2 dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
+
 **Configuration Fields**:
 - `id`: Unique page identifier
 - `title`: Display name
@@ -131,7 +134,66 @@ The system supports four types of dashboards, each with different layouts and co
 }
 ```
 
+![2x2 Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
+*Example of a 2x2 dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
+
 **Configuration Fields**: Same as 3x2, but `type` is "2x2" and up to 4 widgets
+
+### 2x2-cards Dashboard (4 cards)
+**Layout**: 2 columns × 2 rows grid, displays 4 financial information cards
+
+**config.json Example**:
+```json
+{
+  "id": "cards2x2",
+  "title": "Indicadores Financeiros",
+  "description": "Dashboard de cartões financeiros (2x2)",
+  "active": true,
+  "type": "2x2-cards",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "dashboard.css",
+  "xlsx_file": "producao.xlsx",
+  "sheet": "Cards",
+  "column_title": "Title",
+  "column_value": "Value",
+  "column_icon": "Icon"
+}
+```
+
+![2x2 Cards Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
+*Example of a 2x2-cards dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
+
+**Configuration Fields**:
+- `id`: Unique page identifier
+- `title`: Display name
+- `description`: Optional description
+- `active`: Whether the page is visible
+- `type`: Must be "2x2-cards"
+- `duration`: Seconds in carousel rotation
+- `template`: HTML template (usually "carousel.html")
+- `css_file`: Custom CSS file (optional)
+- `xlsx_file`: Excel data file in `/data/` folder
+- `sheet`: Sheet name containing the card data
+- `column_title`: Column name for card titles
+- `column_value`: Column name for card values
+- `column_icon`: Column name for Font Awesome icon names
+
+**Excel Format**:
+The specified sheet should contain 4 rows (one for each card) with these columns:
+| Title | Value | Icon |
+|-------|-------|------|
+| Receita | 123456 | fa-coins |
+| Lucro | 23456 | fa-chart-line |
+| Despesa | 34567 | fa-arrow-down |
+| EBITDA | 4567 | fa-sack-dollar |
+
+**Card Features**:
+- Each card displays a Font Awesome icon, title, and value
+- Icons use Font Awesome class names (e.g., "fa-coins", "fa-chart-line")
+- Values are formatted according to the global number format setting
+- Cards are arranged in a 2×2 grid with consistent styling
+- The Excel file name (xlsx_file) is shown in the admin UI for all dashboards using Excel files (3x2, 2x2, 2x1-graph, 2x2-cards)
 
 ### 2x1-graph Dashboard (2 widgets)
 **Layout**: 2 columns × 1 row grid, optimized for side-by-side graph widgets
@@ -175,6 +237,9 @@ The system supports four types of dashboards, each with different layouts and co
 }
 ```
 
+![2x1 Graph Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
+*Example of a 2x1-graph dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
+
 **Configuration Fields**: Same as 3x2, but `type` is "2x1-graph" and exactly 2 widgets. Each widget can specify custom column names for month, BGT, Real, and FCT data.
 
 ### Text MD Dashboard (Markdown)
@@ -195,6 +260,9 @@ The system supports four types of dashboards, each with different layouts and co
   "font_size": "2.2rem"
 }
 ```
+
+![Text MD Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
+*Example of a text-md dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
 
 **Configuration Fields**:
 - `id`, `title`, `description`, `active`, `duration`, `template`, `css_file`: Same as above
@@ -225,6 +293,9 @@ The system supports four types of dashboards, each with different layouts and co
   "image_file": "sample.jpg"
 }
 ```
+
+![Image Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
+*Example of an image dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
 
 **Configuration Fields**:
 - `id`, `title`, `description`, `active`, `duration`, `template`, `css_file`: Same as above
@@ -504,6 +575,7 @@ The **Global Configuration** section (at the top of the admin panel) controls sy
 |------|--------|---------|-------------|----------|
 | 3x2 | 3×2 grid | Up to 6 | Excel file | Production monitoring |
 | 2x2 | 2×2 grid | Up to 4 | Excel file | Compact dashboards |
+| 2x2-cards | 2×2 grid | 4 cards | Excel file | Financial indicators |
 | text-md | Full screen | None | Markdown file | Information display |
 | image | Full screen | None | Image file | Image display |
 
@@ -512,12 +584,16 @@ The **Global Configuration** section (at the top of the admin panel) controls sy
 |-------|----------|-------------|---------|
 | `id` | Yes | Unique identifier | "producao3" |
 | `title` | Yes | Display name | "Produção Linha 3" |
-| `type` | Yes | Dashboard type | "3x2", "2x2", "2x1-graph", "text-md", "image" |
+| `type` | Yes | Dashboard type | "3x2", "2x2", "2x1-graph", "2x2-cards", "text-md", "image" |
 | `active` | No | Visibility status | true/false |
 | `duration` | No | Carousel time (seconds) | 10 |
 | `template` | No | HTML template | "carousel.html" |
 | `css_file` | No | Custom CSS | "producao.css" |
 | `xlsx_file` | No* | Excel data file | "producao.xlsx" |
+| `sheet` | No* | Excel sheet name | "Cards", "ModeloA" |
+| `column_title` | No* | Title column name | "Title" |
+| `column_value` | No* | Value column name | "Value" |
+| `column_icon` | No* | Icon column name | "Icon" |
 | `md_file` | No* | Markdown file | "sample.md" |
 | `image_file` | No* | Image file | "sample.jpg" |
 
