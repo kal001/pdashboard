@@ -91,9 +91,9 @@ make up-prod
 
 For comprehensive information about specific aspects of the system:
 
-- [User Manual](docs/USER_MANUAL.md) - Complete user guide with screenshots and examples
-- [Administrator Manual](docs/ADMIN.md) - System administration and configuration
-- [Logging Guide](docs/LOGGING.md) - Logging configuration and troubleshooting
-- [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment instructions
-- [Technical Instructions](docs/instructions.md) - Technical implementation details
-- [API Reference](docs/API.md) - Complete REST API documentation 
+- [User Manual](USER_MANUAL.md) - Complete user guide with screenshots and examples
+- [Administrator Manual](ADMIN.md) - System administration and configuration
+- [Logging Guide](LOGGING.md) - Logging configuration and troubleshooting
+- [Deployment Guide](DEPLOYMENT.md) - Production deployment instructions
+- [Technical Instructions](instructions.md) - Technical implementation details
+- [API Reference](API.md) - Complete REST API documentation 
