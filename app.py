@@ -268,6 +268,9 @@ def get_active_pages():
                 # Add page_id field for consistency with get_pages()
                 config['page_id'] = config['id']
                 pages.append(config)
+    
+    # Sort pages by order field
+    pages.sort(key=lambda x: x.get('order', 999))
     return pages
 
 def render_page_with_template(page, widgets):
