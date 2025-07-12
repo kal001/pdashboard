@@ -10,7 +10,12 @@
     <div class="admin-container">
         <header class="admin-header">
             <div class="logo-container">
-                <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="{{ company_name }}" class="main-logo">
+                {% if logo_info.main_logo_exists %}
+                <img src="{{ url_for('static', filename='assets/main_logo.png') }}" alt="{{ company_name }}" class="main-logo">
+                {% endif %}
+                {% if logo_info.secondary_logo_exists %}
+                <img src="{{ url_for('static', filename='assets/secondary_logo.png') }}" alt="Secondary Logo" class="main-logo">
+                {% endif %}
             </div>
             <h1 id="admin-title"></h1>
             <div class="header-actions">

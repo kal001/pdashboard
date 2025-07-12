@@ -1,5 +1,13 @@
 /* Produção Dashboard Custom Styles */
 
+/* CSS Variables for consistent header styling */
+:root {
+    --header-height: 120px;
+    --header-padding: 30px 40px;
+    --logo-height: 60px;
+    --logo-margin: 20px;
+}
+
 /* Widget Title (equipment name) */
 .widget-title {
   color: #fff;

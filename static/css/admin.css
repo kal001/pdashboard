@@ -1,4 +1,11 @@
 /* Admin Panel CSS */
+:root {
+    --header-height: 120px;
+    --header-padding: 30px 40px;
+    --logo-height: 60px;
+    --logo-margin: 20px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -22,7 +29,8 @@ body {
 .admin-header {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     color: white;
-    padding: 30px 40px;
+    padding: var(--header-padding);
+    min-height: var(--header-height);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -35,9 +43,9 @@ body {
 }
 
 .main-logo {
-    height: 60px;
+    height: var(--logo-height);
     width: auto;
-    margin-right: 20px;
+    margin-right: var(--logo-margin);
 }
 
 .admin-header h1 {

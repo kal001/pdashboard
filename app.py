@@ -53,6 +53,16 @@ def load_translations(language='pt'):
     # Return empty dict if no translations found
     return {}
 
+def check_logo_files():
+    """Check which logo files exist and return their availability"""
+    main_logo_path = os.path.join('static', 'assets', 'main_logo.png')
+    secondary_logo_path = os.path.join('static', 'assets', 'secondary_logo.png')
+    
+    return {
+        'main_logo_exists': os.path.exists(main_logo_path),
+        'secondary_logo_exists': os.path.exists(secondary_logo_path)
+    }
+
 def get_version_info():
     """Get comprehensive version information"""
     version = get_version()
@@ -220,6 +230,9 @@ def dashboard_carousel():
     # Load translations
     translations = load_translations(language)
     
+    # Check logo availability
+    logo_info = check_logo_files()
+    
     pages = get_active_pages()
     rendered_pages = []
     for page in pages:
@@ -295,8 +308,8 @@ def dashboard_carousel():
         css_link = Markup(f'<link rel="stylesheet" href="/static/css/{rendered_pages[0]["css_file"]}">')
     # In the template render, if type is 'text-md', pass html_content and font_size
     if rendered_pages and rendered_pages[0]['type'] == 'text-md':
-        return render_template(template_name, html_content=rendered_pages[0]['html_content'], font_size=rendered_pages[0]['font_size'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='text-md')
-    return render_template(template_name, pages=rendered_pages, css_link=css_link, last_update_month=last_update_month, company_name=company_name, version=get_version(), translations=translations, language=language)
+        return render_template(template_name, html_content=rendered_pages[0]['html_content'], font_size=rendered_pages[0]['font_size'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='text-md', logo_info=logo_info)
+    return render_template(template_name, pages=rendered_pages, css_link=css_link, last_update_month=last_update_month, company_name=company_name, version=get_version(), translations=translations, language=language, logo_info=logo_info)
 
 @app.route('/dashboard')
 def dashboard():
@@ -306,9 +319,13 @@ def dashboard():
     company_name = global_config.get('company_name', 'Jayme da Costa')
     language = global_config.get('language', 'pt')
     translations = load_translations(language)
+    
+    # Check logo availability
+    logo_info = check_logo_files()
+    
     # (Assume widgets is built as before, or add your widget logic here)
     widgets = []  # Replace with your widget loading logic
-    return render_template('dashboard.html', widgets=widgets, last_update_month=last_update_month, company_name=company_name, language=language, translations=translations)
+    return render_template('dashboard.html', widgets=widgets, last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, logo_info=logo_info)
 
 @app.route('/admin')
 def admin():
@@ -321,8 +338,11 @@ def admin():
     # Load translations
     translations = load_translations(language)
     
+    # Check logo availability
+    logo_info = check_logo_files()
+    
     pages = get_pages()
-    return render_template('admin.html', pages=pages, version=get_version(), company_name=company_name, last_update_month=last_update_month, language=language, translations=translations)
+    return render_template('admin.html', pages=pages, version=get_version(), company_name=company_name, last_update_month=last_update_month, language=language, translations=translations, logo_info=logo_info)
 
 @app.route('/api/pages')
 def api_pages():

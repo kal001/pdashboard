@@ -1,4 +1,11 @@
 /* Dashboard CSS - Modern Design for TV Display */
+:root {
+    --header-height: 120px;
+    --header-padding: 30px 40px;
+    --logo-height: 60px;
+    --logo-margin: 20px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -23,7 +30,8 @@ body {
 .dashboard-header {
     background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
-    padding: 24px;
+    padding: var(--header-padding);
+    min-height: var(--header-height);
     border-bottom: 2px solid #60a5fa;
     display: flex;
     justify-content: space-between;
@@ -33,16 +41,16 @@ body {
 .logo-container {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: var(--logo-margin);
 }
 
 .main-logo {
-    height: 60px;
+    height: var(--logo-height);
     width: auto;
 }
 
 .secondary-logo {
-    height: 45px;
+    height: calc(var(--logo-height) * 0.75);
     width: auto;
 }
 
@@ -54,6 +62,22 @@ body {
     font-size: 2.5rem;
     font-weight: bold;
     margin-bottom: 8px;
+    color: #ffffff;
+}
+
+.datetime-info {
+    font-size: 1.25rem;
+    color: #bfdbfe;
+    margin-bottom: 8px;
+}
+
+.datetime-info span {
+    margin-left: 16px;
+}
+
+.last-update {
+    font-size: 1rem;
+    color: #bfdbfe;
 }
 
 .datetime-info {

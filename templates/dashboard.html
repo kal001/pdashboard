@@ -7,25 +7,30 @@
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body class="bg-[#141a1f] h-screen min-h-screen" style='font-family: Inter, "Noto Sans", sans-serif;'>
     <div class="flex flex-col min-h-screen h-screen">
         <!-- Header -->
-        <header class="flex items-center justify-between border-b border-[#2b3640] px-10 py-3 bg-[#102366]">
-            <div class="flex items-center gap-4">
-                <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="{{ company_name }}" class="h-10 w-auto bg-white rounded shadow p-1">
-                <img src="{{ url_for('static', filename='assets/getsitelogo.jpeg') }}" alt="Logo Secundário" class="h-10 w-auto bg-white rounded shadow p-1">
+        <header class="dashboard-header">
+            <div class="logo-container">
+                {% if logo_info.main_logo_exists %}
+                <img src="{{ url_for('static', filename='assets/main_logo.png') }}" alt="{{ company_name }}" class="main-logo">
+                {% endif %}
+                {% if logo_info.secondary_logo_exists %}
+                <img src="{{ url_for('static', filename='assets/secondary_logo.png') }}" alt="Secondary Logo" class="secondary-logo">
+                {% endif %}
             </div>
-            <div class="flex-1 flex flex-col items-center">
-                <span class="text-3xl font-extrabold text-white">{{ last_update_month }}</span>
+            <div class="header-info">
+                <span class="company-name">{{ last_update_month }}</span>
             </div>
-            <div class="text-right text-white">
-                <h1 class="text-2xl font-bold">{{ company_name }}</h1>
-                <div class="text-sm">
+            <div class="header-info">
+                <h1 class="company-name">{{ company_name }}</h1>
+                <div class="datetime-info">
                     <span id="current-date"></span>
                     <span id="current-time"></span>
                 </div>
-                <div class="text-xs opacity-80">
+                <div class="last-update">
                     Última atualização: <span id="last-update-time"></span>
                 </div>
             </div>
