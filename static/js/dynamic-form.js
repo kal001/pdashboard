@@ -83,7 +83,7 @@ class DynamicFormHandler {
         
         config.fields.forEach(field => {
             const fieldDiv = document.createElement('div');
-            fieldDiv.style.marginBottom = '12px';
+            fieldDiv.className = `form-field ${field.required ? 'required' : ''}`;
             
             const label = document.createElement('label');
             label.textContent = window.t ? window.t(field.label) : field.label;
@@ -93,10 +93,6 @@ class DynamicFormHandler {
             input.name = field.name;
             input.value = field.value;
             input.required = field.required;
-            input.style.width = '100%';
-            input.style.padding = '8px';
-            input.style.borderRadius = '6px';
-            input.style.border = '1.5px solid #e9ecef';
             
             fieldDiv.appendChild(label);
             fieldDiv.appendChild(input);

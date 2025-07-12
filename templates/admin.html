@@ -68,28 +68,28 @@
                         <h3 style="margin-bottom:15px; color:#1e3c72;"></h3>
                         
                         <!-- Common Fields Section -->
-                        <div style="margin-bottom:20px;">
-                            <h4 style="color:#1e3c72; margin-bottom:10px; font-size:16px;"></h4>
-                            <div style="margin-bottom:12px;">
+                        <div class="form-section common-fields">
+                            <h4></h4>
+                            <div class="form-field required">
                                 <label></label>
-                                <input type="text" name="folder_name" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;">
+                                <input type="text" name="folder_name" required>
                             </div>
-                            <div style="margin-bottom:12px;"><label></label><input type="text" name="id" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                            <div style="margin-bottom:12px;"><label></label><input type="text" name="title" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                            <div style="margin-bottom:12px;"><label></label><input type="text" name="description" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                            <div style="margin-bottom:12px;"><label></label><select name="active" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"><option value="true"></option><option value="false"></option></select></div>
-                            <div style="margin-bottom:12px;">
+                            <div class="form-field required"><label></label><input type="text" name="id" required></div>
+                            <div class="form-field required"><label></label><input type="text" name="title" required></div>
+                            <div class="form-field"><label></label><input type="text" name="description"></div>
+                            <div class="form-field"><label></label><select name="active"><option value="true"></option><option value="false"></option></select></div>
+                            <div class="form-field required">
                                 <label></label>
-                                <select name="type" id="add-page-type-select" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></select>
+                                <select name="type" id="add-page-type-select"></select>
                             </div>
-                            <div style="margin-bottom:12px;"><label></label><input type="number" name="duration" value="10" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                            <div style="margin-bottom:12px;"><label></label><input type="text" name="template" value="carousel.html" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
-                            <div style="margin-bottom:12px;"><label></label><input type="text" name="css_file" value="producao.css" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                            <div class="form-field"><label></label><input type="number" name="duration" value="10"></div>
+                            <div class="form-field"><label></label><input type="text" name="template" value="carousel.html"></div>
+                            <div class="form-field"><label></label><input type="text" name="css_file" value="producao.css"></div>
                         </div>
                         
                         <!-- Type-Specific Fields Section -->
-                        <div id="type-specific-fields" style="margin-bottom:20px; display:none;">
-                            <h4 style="color:#1e3c72; margin-bottom:10px; font-size:16px;"></h4>
+                        <div id="type-specific-fields" class="form-section type-specific-fields" style="display:none;">
+                            <h4></h4>
                             <div id="type-fields-container">
                                 <!-- Dynamic fields will be inserted here -->
                             </div>

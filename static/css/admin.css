@@ -254,6 +254,77 @@ code {
     color: #e74c3c;
 }
 
+/* Add styles for dynamic form sections */
+.form-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.form-section h4 {
+    color: #1e3c72;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.type-specific-fields {
+    background: #e8f4fd;
+    border-left: 4px solid #007bff;
+}
+
+.common-fields {
+    background: #f8f9fa;
+    border-left: 4px solid #28a745;
+}
+
+/* Form field styling */
+.form-field {
+    margin-bottom: 12px;
+}
+
+.form-field label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-field input,
+.form-field select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.5px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+/* Required field indicator */
+.form-field.required label::after {
+    content: " *";
+    color: #dc3545;
+}
+
+/* Type selector styling */
+#add-page-type-select {
+    background-color: #fff;
+}
+
+/* Dynamic fields container */
+#type-fields-container {
+    padding: 10px 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .admin-header {
@@ -278,6 +349,15 @@ code {
     
     .page-actions {
         margin: 0;
+    }
+
+    .form-section {
+        padding: 10px;
+    }
+    
+    .form-field input,
+    .form-field select {
+        font-size: 16px; /* Prevent zoom on iOS */
     }
 }
 
