@@ -1,22 +1,22 @@
 # API Documentation - PDashboard
 
 ## Table of Contents
-1. [Visão Geral](#visão-geral)
+1. [Overview](#overview)
 2. [Base URL](#base-url)
-3. [Documentação Interativa](#documentação-interativa)
-4. [Auto-Reload dos Clientes](#auto-reload-dos-clientes)
+3. [Interactive Documentation](#interactive-documentation)
+4. [Client Auto-Reload](#client-auto-reload)
 5. [Endpoints](#endpoints)
-    - [Dashboard Principal](#dashboard-principal)
-    - [Gestão de Páginas Modulares](#gestão-de-páginas-modulares)
-    - [Dados do Dashboard](#dados-do-dashboard)
-    - [Configuração do Sistema](#configuração-do-sistema)
-    - [Saúde do Sistema](#saúde-do-sistema)
+    - [Main Dashboard](#main-dashboard)
+    - [Modular Page Management](#modular-page-management)
+    - [Dashboard Data](#dashboard-data)
+    - [System Configuration](#system-configuration)
+    - [System Health](#system-health)
 
 ---
 
-## Visão Geral
+## Overview
 
-A API do PDashboard fornece endpoints para gestão de páginas modulares, widgets e configuração do sistema. Todos os endpoints retornam dados em formato JSON.
+The PDashboard API provides endpoints for managing modular pages, widgets, and system configuration. All endpoints return data in JSON format.
 
 ## Base URL
 
@@ -24,53 +24,53 @@ A API do PDashboard fornece endpoints para gestão de páginas modulares, widget
 http://localhost:8000
 ```
 
-## Documentação Interativa
+## Interactive Documentation
 
-A documentação interativa da API (Swagger UI) está disponível em:
+The interactive API documentation (Swagger UI) is available at:
 
 ```
 http://localhost:8000/api/v1/docs/
 ```
 
-Você pode explorar e testar todos os endpoints diretamente pelo navegador.
+You can explore and test all endpoints directly in your browser.
 
-## Auto-Reload dos Clientes
+## Client Auto-Reload
 
-O sistema inclui funcionalidade de auto-reload que atualiza automaticamente todos os dashboards conectados quando há alterações na configuração:
+The system includes an auto-reload feature that automatically updates all connected dashboards when configuration changes occur:
 
-### Como Funciona
-- **Detecção Automática**: O dashboard verifica mudanças na configuração a cada 30 segundos
-- **Atualização Instantânea**: Quando detecta alterações, recarrega automaticamente a página
-- **Sem Intervenção Manual**: Não é necessário refrescar manualmente os browsers dos clientes
+### How It Works
+- **Automatic Detection:** The dashboard checks for configuration changes every 30 seconds
+- **Instant Update:** When changes are detected, the page automatically reloads
+- **No Manual Intervention:** No need to manually refresh client browsers
 
-### O que Dispara o Auto-Reload
-- ✅ **Ativar/Desativar páginas** (via painel admin ou API)
-- ✅ **Reordenar páginas** (via drag & drop no admin)
-- ✅ **Alterações nos ficheiros config.json**
-- ✅ **Qualquer mudança na configuração das páginas**
+### What Triggers Auto-Reload
+- ✅ **Activate/Deactivate pages** (via admin panel or API)
+- ✅ **Reorder pages** (via drag & drop in admin)
+- ✅ **Changes to config.json files**
+- ✅ **Any change to page configuration**
 
-### Benefícios
-- **Sincronização Automática**: Todos os displays mostram sempre a configuração mais recente
-- **Zero Downtime**: Atualizações sem interrupção da visualização
-- **Multi-Client**: Funciona em múltiplos browsers/displays simultaneamente
+### Benefits
+- **Automatic Synchronization:** All displays always show the latest configuration
+- **Zero Downtime:** Updates without interrupting the display
+- **Multi-Client:** Works with multiple browsers/displays simultaneously
 
 ## Endpoints
 
-### Dashboard Principal
+### Main Dashboard
 
 #### GET /
-Retorna a página principal do dashboard com carrossel de páginas modulares.
+Returns the main dashboard page with the modular page carousel.
 
-**Resposta:** HTML da página do dashboard
+**Response:** HTML of the dashboard page
 
 ---
 
-### Gestão de Páginas Modulares
+### Modular Page Management
 
 #### GET /api/pages
-Retorna a lista de todas as páginas modulares com sua configuração.
+Returns the list of all modular pages with their configuration.
 
-**Resposta:**
+**Response:**
 ```json
 {
   "pages": [
@@ -89,15 +89,15 @@ Retorna a lista de todas as páginas modulares com sua configuração.
 }
 ```
 
-O painel de administração consome este endpoint para mostrar, para cada página, o template, css_file e widgets ativos.
+The admin panel consumes this endpoint to display, for each page, the template, css_file, and active widgets.
 
 #### GET /api/pages/{page_id}
-Retorna a configuração de uma página específica.
+Returns the configuration of a specific page.
 
-**Parâmetros:**
-- `page_id` (path): ID da página
+**Parameters:**
+- `page_id` (path): Page ID
 
-**Resposta:**
+**Response:**
 ```json
 {
   "id": "producao3",
@@ -113,16 +113,16 @@ Retorna a configuração de uma página específica.
 ```
 
 #### POST /api/pages/{page_id}/toggle
-Ativa ou desativa uma página específica.
+Activates or deactivates a specific page.
 
-**Parâmetros:**
-- `page_id` (path): ID da página
+**Parameters:**
+- `page_id` (path): Page ID
 
-**Resposta:**
+**Response:**
 ```json
 {
   "success": true,
-  "message": "Página ativada/desativada com sucesso",
+  "message": "Page activated/deactivated successfully",
   "page": {
     "id": "producao3",
     "active": true
@@ -131,7 +131,7 @@ Ativa ou desativa uma página específica.
 ```
 
 #### POST /api/pages/reorder
-Reordena as páginas do dashboard.
+Reorders the dashboard pages.
 
 **Body:**
 ```json
@@ -140,22 +140,22 @@ Reordena as páginas do dashboard.
 }
 ```
 
-**Resposta:**
+**Response:**
 ```json
 {
   "success": true,
-  "message": "Páginas reordenadas com sucesso"
+  "message": "Pages reordered successfully"
 }
 ```
 
 ---
 
-### Dados do Dashboard
+### Dashboard Data
 
 #### GET /api/data
-Retorna todos os dados necessários para o dashboard baseado na configuração das páginas e widgets.
+Returns all data needed for the dashboard based on the configuration of pages and widgets.
 
-**Resposta:**
+**Response:**
 ```json
 {
   "pages": [
@@ -170,7 +170,7 @@ Retorna todos os dados necessários para o dashboard baseado na configuração d
           "percent_change": 4.2,
           "trend": "▲",
           "trend_color": "green",
-          "labels": ["Jan", "Fev", "Mar"],
+          "labels": ["Jan", "Feb", "Mar"],
           "chart_data": [1000, 1100, 1250],
           "value_color": "#0bda5b"
         },
@@ -182,7 +182,7 @@ Retorna todos os dados necessários para o dashboard baseado na configuração d
           "percent_change": -2.1,
           "trend": "▼",
           "trend_color": "red",
-          "labels": ["Jan", "Fev", "Mar"],
+          "labels": ["Jan", "Feb", "Mar"],
           "chart_data": [950, 920, 900],
           "value_color": "#fa6238"
         }
@@ -198,21 +198,21 @@ Retorna todos os dados necessários para o dashboard baseado na configuração d
 ```
 
 #### GET /api/data/{page_id}
-Retorna os dados de uma página específica.
+Returns the data for a specific page.
 
-**Parâmetros:**
-- `page_id` (path): ID da página
+**Parameters:**
+- `page_id` (path): Page ID
 
-**Resposta:** Dados dos widgets da página específica (mesma estrutura do array `widgets` acima)
+**Response:** Data for the specific page's widgets (same structure as the `widgets` array above)
 
 #### GET /api/data/{page_id}/{widget_id}
-Retorna os dados de um widget específico.
+Returns the data for a specific widget.
 
-**Parâmetros:**
-- `page_id` (path): ID da página
-- `widget_id` (path): ID do widget
+**Parameters:**
+- `page_id` (path): Page ID
+- `widget_id` (path): Widget ID
 
-**Resposta:**
+**Response:**
 ```json
 {
   "id": "widget1",
@@ -222,7 +222,7 @@ Retorna os dados de um widget específico.
   "percent_change": 4.2,
   "trend": "▲",
   "trend_color": "green",
-  "labels": ["Jan", "Fev", "Mar"],
+  "labels": ["Jan", "Feb", "Mar"],
   "chart_data": [1000, 1100, 1250],
   "value_color": "#0bda5b"
 }
@@ -230,12 +230,12 @@ Retorna os dados de um widget específico.
 
 ---
 
-### Configuração do Sistema
+### System Configuration
 
 #### GET /api/config
-Retorna a configuração geral do sistema.
+Returns the general system configuration.
 
-**Resposta:**
+**Response:**
 ```json
 {
   "carousel_interval": 10000,
@@ -252,9 +252,9 @@ Retorna a configuração geral do sistema.
 ```
 
 #### GET /api/health
-Verifica o estado de saúde do sistema.
+Checks the system health status.
 
-**Resposta:**
+**Response:**
 ```json
 {
   "status": "healthy",
@@ -267,14 +267,14 @@ Verifica o estado de saúde do sistema.
 
 ---
 
-## Códigos de Status
+## Status Codes
 
-- `200 OK`: Requisição bem-sucedida
-- `400 Bad Request`: Parâmetros inválidos
-- `404 Not Found`: Recurso não encontrado
-- `500 Internal Server Error`: Erro interno do servidor
+- `200 OK`: Successful request
+- `400 Bad Request`: Invalid parameters
+- `404 Not Found`: Resource not found
+- `500 Internal Server Error`: Internal server error
 
-## Estrutura de Dados
+## Data Structures
 
 ### Widget Data
 ```json
@@ -304,42 +304,42 @@ Verifica o estado de saúde do sistema.
 }
 ```
 
-## Exemplos de Uso
+## Usage Examples
 
-### Obter todas as páginas
+### Get all pages
 ```bash
 curl http://localhost:8000/api/pages
 ```
 
-### Ativar/desativar uma página
+### Activate/deactivate a page
 ```bash
 curl -X POST http://localhost:8000/api/pages/producao3/toggle
 ```
 
-### Reordenar páginas
+### Reorder pages
 ```bash
 curl -X POST http://localhost:8000/api/pages/reorder -H "Content-Type: application/json" -d '{"order": [1,2,3]}'
 ```
 
-### Obter dados de uma página específica
+### Get data for a specific page
 ```bash
 curl http://localhost:8000/api/data/producao3
 ```
 
-### Obter dados de um widget específico
+### Get data for a specific widget
 ```bash
 curl http://localhost:8000/api/data/producao3/widget1
 ```
 
-### Verificar saúde do sistema
+### Check system health
 ```bash
 curl http://localhost:8000/api/health
 ```
 
-## Notas de Implementação
+## Implementation Notes
 
-- Todos os endpoints são síncronos
-- Os dados são lidos do ficheiro Excel em `data/`
-- As configurações das páginas são lidas dos ficheiros `config.json` em `pages/`
-- O sistema suporta hot-reload de templates em desenvolvimento
-- O sistema é extensível para novos tipos de página e widgets no futuro 
+- All endpoints are synchronous
+- Data is read from the Excel file in `data/`
+- Page configurations are read from `config.json` files in `pages/`
+- The system supports hot-reload of templates in development
+- The system is extensible for new page and widget types in the future 
