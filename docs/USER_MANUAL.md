@@ -134,8 +134,8 @@ The system supports four types of dashboards, each with different layouts and co
 }
 ```
 
-![2x2 Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
-*Example of a 2x2 dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
+![2x2 Dashboard Example](https://drive.google.com/uc?id=1v52Ire4vOgFC5kHNG76FxrWbbe5-DEel)  
+*Example of a 2x2 dashboard ([view/download](https://drive.google.com/file/d/1v52Ire4vOgFC5kHNG76FxrWbbe5-DEel/view))*
 
 **Configuration Fields**: Same as 3x2, but `type` is "2x2" and up to 4 widgets
 
@@ -161,8 +161,8 @@ The system supports four types of dashboards, each with different layouts and co
 }
 ```
 
-![2x2 Cards Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
-*Example of a 2x2-cards dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
+![2x2 Cards Dashboard Example](https://drive.google.com/uc?id=1ZRj0gF3QWn-_zkMKJufgnyxo-qxUzRx3)  
+*Example of a 2x2-cards dashboard ([view/download](https://drive.google.com/file/d/1ZRj0gF3QWn-_zkMKJufgnyxo-qxUzRx3/view))*
 
 **Configuration Fields**:
 - `id`: Unique page identifier
@@ -237,8 +237,8 @@ The specified sheet should contain 4 rows (one for each card) with these columns
 }
 ```
 
-![2x1 Graph Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
-*Example of a 2x1-graph dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
+![2x1 Graph Dashboard Example](https://drive.google.com/uc?id=1vd-HCYWbjk4r5uBvW1MuqBjPzOkD2tod)  
+*Example of a 2x1-graph dashboard ([view/download](https://drive.google.com/file/d/1vd-HCYWbjk4r5uBvW1MuqBjPzOkD2tod/view))*
 
 **Configuration Fields**: Same as 3x2, but `type` is "2x1-graph" and exactly 2 widgets. Each widget can specify custom column names for month, BGT, Real, and FCT data.
 
@@ -261,8 +261,8 @@ The specified sheet should contain 4 rows (one for each card) with these columns
 }
 ```
 
-![Text MD Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
-*Example of a text-md dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
+![Text MD Dashboard Example](https://drive.google.com/uc?id=1fqEfJdH68zmiSxYbirSPwmyTsUx0NNKy)  
+*Example of a text-md dashboard ([view/download](https://drive.google.com/file/d/1fqEfJdH68zmiSxYbirSPwmyTsUx0NNKy/view))*
 
 **Configuration Fields**:
 - `id`, `title`, `description`, `active`, `duration`, `template`, `css_file`: Same as above
@@ -294,8 +294,8 @@ The specified sheet should contain 4 rows (one for each card) with these columns
 }
 ```
 
-![Image Dashboard Example](https://drive.google.com/uc?id=1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw)  
-*Example of an image dashboard ([view/download](https://drive.google.com/file/d/1Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw/view?usp=sharing))*
+![Image Dashboard Example](https://drive.google.com/uc?id=18nrNHvl3YPeYzI0YjK55_0mGWpJfi80C)  
+*Example of an image dashboard ([view/download](https://drive.google.com/file/d/18nrNHvl3YPeYzI0YjK55_0mGWpJfi80C/view))*
 
 **Configuration Fields**:
 - `id`, `title`, `description`, `active`, `duration`, `template`, `css_file`: Same as above
