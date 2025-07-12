@@ -35,7 +35,7 @@ class AdminPanel {
         
         this.pagesList.innerHTML = '';
         
-        this.pages.forEach(page => {
+        this.pages.forEach((page, idx) => {
             const pageItem = document.createElement('div');
             pageItem.className = 'page-item';
             pageItem.dataset.pageId = page.page_id; // Use actual page ID, not sequential ID
@@ -80,10 +80,27 @@ class AdminPanel {
                             onclick="togglePage(${page.id})">
                         ${page.active ? window.t('active') : window.t('inactive')}
                     </button>
+                    <button class="arrow-btn up-arrow" title="${window.t('move_up')}" ${idx === 0 ? 'disabled' : ''}>&#9650;</button>
+                    <button class="arrow-btn down-arrow" title="${window.t('move_down')}" ${idx === this.pages.length - 1 ? 'disabled' : ''}>&#9660;</button>
                 </div>
                 <div class="drag-handle">⋮⋮</div>
             `;
             
+            // Add event listeners for up/down arrows
+            const upBtn = pageItem.querySelector('.up-arrow');
+            const downBtn = pageItem.querySelector('.down-arrow');
+            if (upBtn) {
+                upBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.movePage(idx, idx - 1);
+                });
+            }
+            if (downBtn) {
+                downBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.movePage(idx, idx + 1);
+                });
+            }
             this.pagesList.appendChild(pageItem);
         });
         
@@ -92,13 +109,48 @@ class AdminPanel {
     
     initDragAndDrop() {
         if (!this.pagesList) return;
-        
         const pageItems = this.pagesList.querySelectorAll('.page-item');
-        
+        const container = this.pagesList;
+        let dropIndicator = document.createElement('div');
+        dropIndicator.className = 'drop-indicator';
+        let lastDropTarget = null;
+        let lastDropPosition = null;
+
+        // Auto-scroll variables
+        let autoScrollInterval = null;
+        const SCROLL_ZONE_HEIGHT = 60;
+        const SCROLL_SPEED = 18;
+
+        // Helper to clear drop indicator
+        function clearDropIndicator() {
+            if (dropIndicator.parentNode) {
+                dropIndicator.parentNode.removeChild(dropIndicator);
+            }
+            lastDropTarget = null;
+            lastDropPosition = null;
+        }
+
+        // Helper for auto-scroll
+        function startAutoScroll(e) {
+            if (autoScrollInterval) return;
+            autoScrollInterval = setInterval(() => {
+                const rect = container.getBoundingClientRect();
+                if (e.clientY < rect.top + SCROLL_ZONE_HEIGHT) {
+                    window.scrollBy(0, -SCROLL_SPEED);
+                } else if (e.clientY > rect.bottom - SCROLL_ZONE_HEIGHT) {
+                    window.scrollBy(0, SCROLL_SPEED);
+                }
+            }, 30);
+        }
+        function stopAutoScroll() {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+        }
+
         pageItems.forEach(item => {
-            // Make the entire item draggable, not just the handle
             item.addEventListener('dragstart', (e) => {
-                // Only allow dragging from the handle or the item itself
                 if (e.target.classList.contains('drag-handle') || e.target.classList.contains('page-item')) {
                     this.draggedItem = item;
                     item.classList.add('dragging');
@@ -108,36 +160,64 @@ class AdminPanel {
                     e.preventDefault();
                 }
             });
-            
             item.addEventListener('dragend', () => {
                 item.classList.remove('dragging');
                 this.draggedItem = null;
+                clearDropIndicator();
+                stopAutoScroll();
             });
-            
             item.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
-                
-                // Add visual feedback
+                // Auto-scroll
+                startAutoScroll(e);
+                // Drop indicator logic
                 if (this.draggedItem && this.draggedItem !== item) {
-                    item.classList.add('drag-over');
+                    const rect = item.getBoundingClientRect();
+                    const offset = e.clientY - rect.top;
+                    const position = offset < rect.height / 2 ? 'above' : 'below';
+                    if (lastDropTarget !== item || lastDropPosition !== position) {
+                        clearDropIndicator();
+                        if (position === 'above') {
+                            item.parentNode.insertBefore(dropIndicator, item);
+                        } else {
+                            item.parentNode.insertBefore(dropIndicator, item.nextSibling);
+                        }
+                        lastDropTarget = item;
+                        lastDropPosition = position;
+                    }
                 }
             });
-            
             item.addEventListener('dragleave', (e) => {
-                // Remove visual feedback when leaving
-                item.classList.remove('drag-over');
+                // Only clear if leaving the item and not entering the indicator
+                if (!e.relatedTarget || !e.relatedTarget.classList || !e.relatedTarget.classList.contains('drop-indicator')) {
+                    clearDropIndicator();
+                }
+                stopAutoScroll();
             });
-            
             item.addEventListener('drop', (e) => {
                 e.preventDefault();
-                item.classList.remove('drag-over');
-                
+                clearDropIndicator();
+                stopAutoScroll();
                 if (this.draggedItem && this.draggedItem !== item) {
-                    this.reorderItems(this.draggedItem, item);
+                    const rect = item.getBoundingClientRect();
+                    const offset = e.clientY - rect.top;
+                    const position = offset < rect.height / 2 ? 'above' : 'below';
+                    if (position === 'above') {
+                        item.parentNode.insertBefore(this.draggedItem, item);
+                    } else {
+                        item.parentNode.insertBefore(this.draggedItem, item.nextSibling);
+                    }
+                    this.updateOrder();
                 }
             });
         });
+        // Also handle dragover on the container for auto-scroll at edges
+        container.addEventListener('dragover', (e) => {
+            startAutoScroll(e);
+        });
+        container.addEventListener('dragleave', stopAutoScroll);
+        container.addEventListener('drop', stopAutoScroll);
     }
     
     reorderItems(draggedItem, targetItem) {
@@ -261,6 +341,15 @@ class AdminPanel {
                 messageDiv.remove();
             }, 5000);
         }
+    }
+
+    movePage(fromIdx, toIdx) {
+        if (toIdx < 0 || toIdx >= this.pages.length) return;
+        const temp = this.pages[fromIdx];
+        this.pages.splice(fromIdx, 1);
+        this.pages.splice(toIdx, 0, temp);
+        this.renderPages();
+        this.updateOrder();
     }
 }
 

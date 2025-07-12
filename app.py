@@ -175,7 +175,62 @@ def init_db():
     except Exception as e:
         app.logger.warning(f"Error during page discovery: {e}")
     
+    # Resolve any duplicate order indexes on startup
+    try:
+        resolve_duplicate_orders(cursor)
+        conn.commit()
+        app.logger.info("Order index resolution completed on startup")
+    except Exception as e:
+        app.logger.error(f"Error during startup order resolution: {e}")
+    
     conn.close()
+
+def resolve_duplicate_orders(cursor):
+    """Resolve duplicate order indexes by reassigning them sequentially"""
+    try:
+        # Get all pages ordered by their current order_num
+        cursor.execute("""
+            SELECT id, page_id, title, order_num 
+            FROM pages 
+            ORDER BY order_num, title
+        """)
+        pages = cursor.fetchall()
+        
+        if not pages:
+            return
+        
+        # Check for duplicates
+        order_counts = {}
+        for page in pages:
+            order_num = page[3]  # order_num
+            order_counts[order_num] = order_counts.get(order_num, 0) + 1
+        
+        # If no duplicates, no need to fix
+        if all(count == 1 for count in order_counts.values()):
+            return
+        
+        app.logger.info("Found duplicate order indexes, resolving...")
+        
+        # Reassign order numbers sequentially starting from 1
+        new_order = 1
+        for page in pages:
+            page_id = page[1]  # page_id
+            old_order = page[3]  # order_num
+            
+            if old_order != new_order:
+                cursor.execute("""
+                    UPDATE pages 
+                    SET order_num = ? 
+                    WHERE page_id = ?
+                """, (new_order, page_id))
+                app.logger.info(f"Updated page '{page_id}' order from {old_order} to {new_order}")
+            
+            new_order += 1
+        
+        app.logger.info("Order index resolution completed")
+        
+    except Exception as e:
+        app.logger.error(f"Error resolving duplicate orders: {e}")
 
 def discover_pages(cursor):
     """Discover pages from the pages folder and register them in the database"""
@@ -213,6 +268,9 @@ def discover_pages(cursor):
                     app.logger.info(f"Registered page: {config['title']}")
             except Exception as e:
                 app.logger.error(f"Error loading page config {config_file}: {e}")
+    
+    # Resolve any duplicate order indexes after discovering all pages
+    resolve_duplicate_orders(cursor)
 
 def get_pages():
     """Get all pages with their configuration from config.json files"""
@@ -238,6 +296,22 @@ def get_pages():
                 page_configs.append(config)
             except Exception as e:
                 app.logger.error(f"Error loading page config {config_file}: {e}")
+    
+    # Check for duplicate orders in config files and resolve them
+    order_values = [config.get('order', 999) for config in page_configs]
+    if len(order_values) != len(set(order_values)):
+        app.logger.warning("Found duplicate order values in config files, resolving...")
+        # Reassign order values sequentially
+        for i, config in enumerate(page_configs):
+            config['order'] = i + 1
+            # Update the config file
+            config_file = os.path.join(pages_dir, config['_dir'], 'config.json')
+            try:
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    json.dump(config, f, indent=2, ensure_ascii=False)
+                app.logger.info(f"Updated order for {config['id']} to {i + 1}")
+            except Exception as e:
+                app.logger.error(f"Error updating config file {config_file}: {e}")
     
     # Sort by order field if present, otherwise alphabetically
     page_configs.sort(key=lambda x: (x.get('order', 999), x.get('title', '')))
@@ -978,6 +1052,29 @@ def get_app_version():
     """Get application version information"""
     return jsonify(get_version_info())
 
+@app.route('/api/pages/resolve-orders', methods=['POST'])
+def resolve_page_orders():
+    """Manually trigger order resolution for all pages"""
+    try:
+        conn = sqlite3.connect('dashboard.db')
+        cursor = conn.cursor()
+        
+        # Resolve duplicate orders
+        resolve_duplicate_orders(cursor)
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Order resolution completed successfully'
+        })
+    except Exception as e:
+        app.logger.error(f"Error during manual order resolution: {e}")
+        return jsonify({
+            'success': False, 
+            'message': f'Error during order resolution: {str(e)}'
+        }), 500
+
 ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv', 'jpg', 'png', 'jpeg', 'txt', 'md'}
 DATA_FOLDER = os.path.join(os.getcwd(), 'data')
 
@@ -1138,6 +1235,14 @@ def api_v1_config():
 })
 def api_v1_health():
     return health_check()
+
+@api_v1.route('/pages/resolve-orders', methods=['POST'])
+@swag_from({
+    'summary': 'Resolve duplicate order indexes',
+    'responses': {200: {'description': 'Order resolution completed'}}
+})
+def api_v1_resolve_orders():
+    return resolve_page_orders()
 
 # Register blueprint
 app.register_blueprint(api_v1)

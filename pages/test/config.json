@@ -8,5 +8,6 @@
   "template": "carousel.html",
   "css_file": "producao.css",
   "image_file": "sample.jpg",
-  "order": 2
+  "order": 4,
+  "_dir": "test"
 }

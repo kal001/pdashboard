@@ -173,7 +173,10 @@ body {
 }
 
 .page-actions {
-    margin: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
 }
 
 .toggle-btn {
@@ -211,6 +214,28 @@ body {
 
 .drag-handle:hover {
     color: #4CAF50;
+}
+
+/* Arrow buttons for reordering */
+.arrow-btn {
+    background: #e9ecef;
+    border: none;
+    border-radius: 4px;
+    color: #333;
+    font-size: 18px;
+    padding: 6px 10px;
+    margin: 0 2px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    vertical-align: middle;
+}
+.arrow-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.arrow-btn.up-arrow:hover:not(:disabled), .arrow-btn.down-arrow:hover:not(:disabled) {
+    background: #4CAF50;
+    color: #fff;
 }
 
 /* Data Management */
@@ -331,6 +356,32 @@ code {
 /* Dynamic fields container */
 #type-fields-container {
     padding: 10px 0;
+}
+
+/* --- COMPACT PAGE ITEM STYLES --- */
+.page-item {
+    padding: 12px 18px;
+}
+.page-info p {
+    margin-bottom: 8px !important;
+}
+.page-info h3 {
+    margin-bottom: 2px;
+}
+/* Optionally, reduce .admin-content p margin for all paragraphs */
+.admin-content p {
+    margin-bottom: 12px;
+}
+/* End compact styles */
+
+/* Drop indicator for drag-and-drop */
+.drop-indicator {
+    height: 0;
+    border-top: 3px solid #4CAF50;
+    margin: 0 0 0 0;
+    border-radius: 2px;
+    transition: border-color 0.2s;
+    pointer-events: none;
 }
 
 /* Responsive Design */

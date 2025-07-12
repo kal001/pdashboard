@@ -46,5 +46,6 @@
       "column_month": "Mês"
     }
   ],
-  "order": 8
+  "order": 1,
+  "_dir": "teste"
 }

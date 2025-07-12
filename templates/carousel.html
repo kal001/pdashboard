@@ -72,7 +72,7 @@
         html += `
         <header class="dashboard-header">
             <div class="logo-container">
-                ${logo_info.main_logo_exists ? '<img src="/static/assets/main_logo.png" alt="{{ company_name }}" class="main-logo">' : ''}
+                ${logo_info.main_logo_exists ? '<a href="#" id="main-logo-link"><img src="/static/assets/main_logo.png" alt="{{ company_name }}" class="main-logo"></a>' : ''}
                 ${logo_info.secondary_logo_exists ? '<img src="/static/assets/secondary_logo.png" alt="Secondary Logo" class="secondary-logo">' : ''}
             </div>
             <div class="header-info">
@@ -171,7 +171,7 @@
             html += `
             <main class="flex-1 flex flex-col h-full min-h-0 min-w-0 p-4">
                 <div class="w-full h-full flex items-center justify-center">
-                    <div class="prose prose-lg max-w-none w-full h-full" style="font-size: ${page.font_size || '2rem'}; color: #fff; background: rgba(20,26,31,0.95); padding: 2rem; border-radius: 1rem; overflow-y: auto;">
+                    <div class="prose prose-lg max-w-none w-full h-full markdown-content" style="font-size: ${page.font_size || '2rem'}; color: #fff; background: rgba(20,26,31,0.95); padding: 2rem; border-radius: 1rem; overflow-y: auto;">
                         ${page.html_content}
                     </div>
                 </div>
@@ -608,6 +608,16 @@
             });
         }
         updateFooterVersion();
+        // After rendering, attach logo click event
+        setTimeout(function() {
+            var mainLogoLink = document.getElementById('main-logo-link');
+            if (mainLogoLink) {
+                mainLogoLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.reload();
+                });
+            }
+        }, 0);
     }
     function jumpToPage(idx) {
         current = idx;
@@ -675,6 +685,17 @@
     
     // Initial version update
     updateFooterVersion();
+    
+    // Make main logo clickable to refresh page
+    document.addEventListener('DOMContentLoaded', function() {
+        var mainLogoLink = document.getElementById('main-logo-link');
+        if (mainLogoLink) {
+            mainLogoLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.reload();
+            });
+        }
+    });
     
     // Cleanup on page unload
     window.addEventListener('beforeunload', function() {

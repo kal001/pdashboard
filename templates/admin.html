@@ -12,7 +12,7 @@
         <header class="admin-header">
             <div class="logo-container">
                 {% if logo_info.main_logo_exists %}
-                <img src="{{ url_for('static', filename='assets/main_logo.png') }}" alt="{{ company_name }}" class="main-logo">
+                <a href="#" id="main-logo-link"><img src="{{ url_for('static', filename='assets/main_logo.png') }}" alt="{{ company_name }}" class="main-logo"></a>
                 {% endif %}
                 {% if logo_info.secondary_logo_exists %}
                 <img src="{{ url_for('static', filename='assets/secondary_logo.png') }}" alt="Secondary Logo" class="main-logo">
@@ -524,6 +524,15 @@
                     } catch (err) {
                         msg.textContent = t('error_saving');
                     }
+                });
+            }
+
+            // Make main logo clickable to refresh page
+            var mainLogoLink = document.getElementById('main-logo-link');
+            if (mainLogoLink) {
+                mainLogoLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.reload();
                 });
             }
         });

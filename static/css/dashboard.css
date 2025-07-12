@@ -832,3 +832,13 @@ body {
     margin-left: 0.7rem;
     vertical-align: middle;
 } 
+
+/* Markdown content left padding for text-md pages */
+.markdown-content {
+    padding-left: 3rem !important;
+}
+@media (max-width: 900px) {
+    .markdown-content {
+        padding-left: 1.2rem !important;
+    }
+} 

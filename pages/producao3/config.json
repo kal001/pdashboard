@@ -64,5 +64,6 @@
       "column_month": "Month"
     }
   ],
-  "order": 5
+  "order": 2,
+  "_dir": "producao3"
 }
