@@ -1,5 +1,19 @@
 # Implementation Instructions - PDashboard
 
+## Table of Contents
+1. [Overview](#overview)
+2. [Implemented Features](#implemented-features)
+3. [Technology Stack](#technology-stack)
+4. [Project Structure](#project-structure)
+5. [Installation and Configuration](#installation-and-configuration)
+6. [Auto-Reload Implementation](#auto-reload-implementation)
+7. [Modular System](#modular-system)
+8. [Version Management and Changelog](#version-management-and-changelog)
+9. [Customization](#customization)
+10. [Adding New Languages and Making Translations](#adding-new-languages-and-making-translations)
+
+---
+
 ## Overview
 
 PDashboard is a modular dashboard system for operational performance monitoring in industrial environments, optimized for TV display. The system was developed for **Jayme da Costa** company and implements all design rules defined in the `dashboard_rules.md` document.

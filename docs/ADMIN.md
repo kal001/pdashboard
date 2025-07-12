@@ -1,5 +1,21 @@
 # Administrator Manual - Modular Dashboard
 
+## Table of Contents
+1. [Supported Dashboard Types](#supported-dashboard-types)
+2. [New Features in Version 1.1.0](#new-features-in-version-110)
+3. [Accessing the Admin Panel](#accessing-the-admin-panel)
+4. [API and Documentation](#api-and-documentation)
+5. [Client Auto-Reload](#client-auto-reload)
+6. [Activating/Deactivating Pages](#activatingdeactivating-pages)
+7. [Reordering Pages](#reordering-pages)
+8. [Editing Pages (config.json)](#editing-pages-configjson)
+9. [Best Practices](#best-practices)
+10. [Extensibility](#extensibility)
+11. [Customization](#customization)
+12. [Customizing Colors and Text Sizes (Header, Footer, and Dashboards)](#customizing-colors-and-text-sizes-header-footer-and-dashboards)
+
+---
+
 ## Supported Dashboard Types
 
 ### 3x2 (6 widgets)
