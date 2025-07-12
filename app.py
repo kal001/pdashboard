@@ -15,6 +15,23 @@ import time
 from werkzeug.utils import secure_filename
 import shutil
 import markdown2
+import datetime as dt
+
+# Helper function to safely convert to float
+
+def safe_float(val):
+    if val is None:
+        return None
+    if isinstance(val, dt.datetime):
+        return None
+    if isinstance(val, (int, float)):
+        return float(val)
+    if isinstance(val, str):
+        try:
+            return float(val)
+        except ValueError:
+            return None
+    return None
 
 # Import version utilities
 def get_version():
@@ -412,20 +429,20 @@ def dashboard_carousel():
                         'icon': icon
                     }
                     # Target logic
-                    if idx_target is not None and idx_target < len(row):
-                        target = row[idx_target]
-                        try:
-                            value_num = float(value)
-                            target_num = float(target)
-                            widget['target'] = target
+                    target = row[idx_target] if idx_target is not None and idx_target < len(row) else None
+                    value_num = safe_float(value)
+                    target_num = safe_float(target)
+                    if target_num is not None:
+                        widget['target'] = target
+                        if value_num is not None:
                             if value_num >= target_num:
                                 widget['value_color'] = '#0bda5b'
                                 widget['arrow'] = '▲'
                             else:
                                 widget['value_color'] = '#fa6238'
                                 widget['arrow'] = '▼'
-                        except (TypeError, ValueError):
-                            pass
+                    else:
+                        widget['value_color'] = '#fff'
                     widgets.append(widget)
                     count += 1
             else:
@@ -526,19 +543,26 @@ def dashboard_carousel():
                             percent_change = 0
                             trend = ''
                             trend_color = 'gray'
-                        value_color = "#0bda5b" if value >= target else "#fa6238"
-                        widgets.append({
+                        value_num = safe_float(value)
+                        target_num = safe_float(target)
+                        value_color = "#fff" if target_num is None else "#fa6238"
+                        if target_num is not None and value_num is not None:
+                            if value_num >= target_num:
+                                value_color = "#0bda5b"
+                        widget_dict = {
                             "title": widget_cfg['name'],
                             "type": widget_cfg.get('type', 'line'),
                             "labels": months,
                             "chart_data": real,  # Use real data as chart_data
                             "value": value,
-                            "target": target,
                             "value_color": value_color,
                             "trend": trend,
                             "trend_color": trend_color,
                             "percent_change": round(percent_change, 1)
-                        })
+                        }
+                        if target_num is not None:
+                            widget_dict["target"] = target
+                        widgets.append(widget_dict)
             rendered_pages.append({**page, "widgets": widgets})
         elif page['type'] == 'text-md':
             md_file = page.get('md_file', '')
@@ -729,10 +753,13 @@ def get_all_data():
                     
                     months, totals, targets = [], [], []
                     for row in sheet.iter_rows(min_row=2, values_only=True):
-                        if row[idx_total] is not None and row[idx_target] is not None:
+                        # Only require total to be present, target can be None
+                        if row[idx_total] is not None:
                             months.append(row[idx_month])
                             totals.append(row[idx_total])
-                            targets.append(row[idx_target])
+                            # Handle missing target values gracefully
+                            target_value = row[idx_target] if idx_target is not None and idx_target < len(row) else None
+                            targets.append(target_value)
                     if len(totals) >= 2:
                         value = totals[-1]
                         target = targets[-1]
@@ -759,7 +786,12 @@ def get_all_data():
                         percent_change = 0
                         trend = ''
                         trend_color = 'gray'
-                    value_color = "#0bda5b" if value >= target else "#fa6238"
+                    value_color = "#fa6238"
+                    value_num = safe_float(value)
+                    target_num = safe_float(target)
+                    if value_num is not None and target_num is not None:
+                        if value_num >= target_num:
+                            value_color = "#0bda5b"
                     page_widgets.append({
                         "id": widget_cfg['id'],
                         "name": widget_cfg['name'],
@@ -826,10 +858,13 @@ def get_page_data(page_id):
                 
                 months, totals, targets = [], [], []
                 for row in sheet.iter_rows(min_row=2, values_only=True):
-                    if row[idx_total] is not None and row[idx_target] is not None:
+                    # Only require total to be present, target can be None
+                    if row[idx_total] is not None:
                         months.append(row[idx_month])
                         totals.append(row[idx_total])
-                        targets.append(row[idx_target])
+                        # Handle missing target values gracefully
+                        target_value = row[idx_target] if idx_target is not None and idx_target < len(row) else None
+                        targets.append(target_value)
                 if len(totals) >= 2:
                     value = totals[-1]
                     target = targets[-1]
@@ -856,7 +891,12 @@ def get_page_data(page_id):
                     percent_change = 0
                     trend = ''
                     trend_color = 'gray'
-                value_color = "#0bda5b" if value >= target else "#fa6238"
+                value_color = "#fa6238"
+                value_num = safe_float(value)
+                target_num = safe_float(target)
+                if value_num is not None and target_num is not None:
+                    if value_num >= target_num:
+                        value_color = "#0bda5b"
                 page_widgets.append({
                     "id": widget_cfg['id'],
                     "name": widget_cfg['name'],

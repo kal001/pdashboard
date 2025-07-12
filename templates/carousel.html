@@ -96,7 +96,7 @@
                                     <span class="cards2x2-value" style="color: ${widget.value_color || '#fff'}">${formatNumber(widget.value)}</span>
                                     ${widget.arrow === '▲' ? `<i class="fa-regular fa-circle-up cards2x2card-arrow" style="color: #0bda5b;"></i>` : ''}
                                     ${widget.arrow === '▼' ? `<i class="fa-regular fa-circle-down cards2x2card-arrow" style="color: #fa6238;"></i>` : ''}
-                                    ${widget.target !== undefined ? `<span class="cards2x2-target">/ ${formatNumber(widget.target)}</span>` : ''}
+                                    ${widget.target !== undefined && widget.target !== null ? `<span class="cards2x2-target">/ ${formatNumber(widget.target)}</span>` : ''}
                                 </div>
                                 <i class="fa-solid ${widget.icon} cards2x2-icon"></i>
                             </div>
@@ -135,7 +135,7 @@
                                     <span class="widget-title">${widget.title}</span>
                                     <div class="flex items-end gap-4 mt-2">
                                         <span class="widget-value" style="color: ${widget.value_color}">${formatNumber(widget.value)}</span>
-                                        <span class="widget-target">/ ${formatNumber(widget.target)}</span>
+                                        ${widget.target !== undefined && widget.target !== null ? `<span class="widget-target">/ ${formatNumber(widget.target)}</span>` : ''}
                                     </div>
                                     <div class="flex gap-2 items-center mb-2 mt-2">
                                         <span class="widget-label">Mês Anterior</span>
