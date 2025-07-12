@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2024-07-12
+
+### Added
+- Text MD dashboards: display Markdown content as a dashboard page.
+- Image dashboards: display a full-page image as a dashboard.
+- Graph dashboards: new 2x1-graph dashboard type supporting both bar and line widgets, with advanced visual features (value labels, vertical lines, area fill, label collision avoidance, edge detection, etc.).
+- 2x2 dashboards: new grid layout for compact metric display.
+- Multi-lingual site: full internationalization (i18n) for all UI, admin, and dashboard labels.
+- Admin frontend: now supports uploading data files directly from the browser.
+- Major UI/UX improvements for all dashboard types.
+- Documentation updated for all new features and dashboard types.
+
 ## [1.1.0] - 2024-07-12
 
 ### Added

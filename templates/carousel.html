@@ -6,19 +6,55 @@
     <title>Dashboard Carrossel</title>
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
+    <link rel="stylesheet" href="/static/css/graph.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link rel="stylesheet" href="/static/css/producao.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     {{ css_link|safe }}
     <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
 </head>
 <body class="bg-[#141a1f] h-screen min-h-screen" style='font-family: Inter, "Noto Sans", sans-serif;'>
     <div id="carousel-root" class="flex flex-col min-h-screen h-screen"></div>
     <script>
+    // Read CSS variables at the top, global scope
+    const cssVars = getComputedStyle(document.documentElement);
+    const barRealBg = cssVars.getPropertyValue('--chart-bar-real-bg').trim();
+    const barFctBg = cssVars.getPropertyValue('--chart-bar-fct-bg').trim();
+    const barRealBorder = cssVars.getPropertyValue('--chart-bar-real-border').trim();
+    const barFctBorder = cssVars.getPropertyValue('--chart-bar-fct-border').trim();
+    const barBgtBg = cssVars.getPropertyValue('--chart-bar-bgt-bg').trim();
+    const barBgtBorder = cssVars.getPropertyValue('--chart-bar-bgt-border').trim();
+    const labelAbove = cssVars.getPropertyValue('--chart-label-above').trim();
+    const labelBelow = cssVars.getPropertyValue('--chart-label-below').trim();
+    const labelEqual = cssVars.getPropertyValue('--chart-label-equal').trim();
+    const labelBgt = cssVars.getPropertyValue('--chart-label-bgt').trim();
+    const labelFontSize = cssVars.getPropertyValue('--chart-label-font-size').trim();
+    const labelFontWeight = cssVars.getPropertyValue('--chart-label-font-weight').trim();
+    const legendColor = cssVars.getPropertyValue('--chart-legend-color').trim();
+    const legendFontSize = parseInt(cssVars.getPropertyValue('--chart-legend-font-size'));
+    const legendFontWeight = cssVars.getPropertyValue('--chart-legend-font-weight').trim();
+    const legendBoxWidth = parseInt(cssVars.getPropertyValue('--chart-legend-box-width'));
+    const legendPadding = parseInt(cssVars.getPropertyValue('--chart-legend-padding'));
+    const axisLabelColor = cssVars.getPropertyValue('--chart-axis-label-color').trim();
+    const axisLabelFontSize = parseInt(cssVars.getPropertyValue('--chart-axis-label-font-size'));
+    const axisLabelFontWeight = cssVars.getPropertyValue('--chart-axis-label-font-weight').trim();
     const pages = {{ pages|tojson }};
     const translations = {{ translations|tojson|safe }};
     const language = '{{ language }}';
     const logo_info = {{ logo_info|tojson }};
+    const numberFormat = {{ number_format|tojson }};
     function t(key, fallback) { return translations[key] || fallback; }
+    function formatNumber(val) {
+        if (typeof val !== 'number' || isNaN(val)) return val;
+        if (numberFormat === ' # ###') {
+            return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        } else if (numberFormat === '#,###') {
+            return val.toLocaleString('en-US');
+        } else if (numberFormat === '#.###') {
+            return val.toLocaleString('de-DE');
+        }
+        return val;
+    }
     let current = 0;
     function renderDots(currentIdx) {
         const dots = pages.map((_, i) =>
@@ -47,32 +83,41 @@
             </div>
         </header>
         `;
-        if (page.type === '3x2' || page.type === '2x2') {
+        if (page.type === '3x2' || page.type === '2x2' || page.type === '2x1-graph') {
             html += `
             <main class="flex-1 flex flex-col h-full min-h-0 min-w-0 p-4">
                 <div class="w-full h-full flex-1 min-h-0 min-w-0">
-                    <div class="grid ${page.type === '2x2' ? 'grid-cols-2 grid-rows-2' : 'grid-cols-3 grid-rows-2'} gap-8 w-full h-full min-h-0 min-w-0">
-                        ${page.widgets.map((widget, i) => `
-                        <div class="widget-card p-8 flex flex-col h-full w-full min-h-0 min-w-0" style="background: rgba(20,26,31,0.95); border-radius: 1rem;">
-                            <div class="flex flex-col gap-2 flex-1">
+                    <div class="grid ${page.type === '2x2' ? 'grid-cols-2 grid-rows-2' : page.type === '2x1-graph' ? 'grid-cols-2 grid-rows-1' : 'grid-cols-3 grid-rows-2'} gap-8 w-full h-full min-h-0 min-w-0">
+                        ${page.widgets.map((widget, i) =>
+                            page.type === '2x1-graph' ? `
+                            <div class="widget-card p-8 flex flex-col h-full w-full min-h-0 min-w-0" style="background: rgba(20,26,31,0.95); border-radius: 1rem;">
                                 <span class="widget-title">${widget.title}</span>
-                                <div class="flex items-end gap-4 mt-2">
-                                    <span class="widget-value" style="color: ${widget.value_color}">${widget.value}</span>
-                                    <span class="widget-target">/ ${widget.target}</span>
-                                </div>
-                                <div class="flex gap-2 items-center mb-2 mt-2">
-                                    <span class="widget-label">Mês Anterior</span>
-                                    <span class="percent-change" style="color: ${widget.trend_color}">
-                                        ${widget.trend}
-                                        ${widget.percent_change > 0 ? '+' : ''}${widget.percent_change}%
-                                    </span>
-                                </div>
                                 <div class="flex-1 flex flex-col justify-end">
-                                    <canvas id="chart-${i}" height="60"></canvas>
+                                    <canvas id="chart-${i}" height="120"></canvas>
                                 </div>
                             </div>
-                        </div>
-                        `).join('')}
+                            ` : `
+                            <div class="widget-card p-8 flex flex-col h-full w-full min-h-0 min-w-0" style="background: rgba(20,26,31,0.95); border-radius: 1rem;">
+                                <div class="flex flex-col gap-2 flex-1">
+                                    <span class="widget-title">${widget.title}</span>
+                                    <div class="flex items-end gap-4 mt-2">
+                                        <span class="widget-value" style="color: ${widget.value_color}">${formatNumber(widget.value)}</span>
+                                        <span class="widget-target">/ ${formatNumber(widget.target)}</span>
+                                    </div>
+                                    <div class="flex gap-2 items-center mb-2 mt-2">
+                                        <span class="widget-label">Mês Anterior</span>
+                                        <span class="percent-change" style="color: ${widget.trend_color}">
+                                            ${widget.trend}
+                                            ${widget.percent_change > 0 ? '+' : ''}${widget.percent_change}%
+                                        </span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col justify-end">
+                                        <canvas id="chart-${i}" height="60"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            `
+                        ).join('')}
                     </div>
                 </div>
             </main>
@@ -138,50 +183,393 @@
         document.getElementById('carousel-root').innerHTML = html;
         renderDots(idx);
         // Render charts
-        if (page.type === '3x2' || page.type === '2x2') {
+        if (page.type === '3x2' || page.type === '2x2' || page.type === '2x1-graph') {
             page.widgets.forEach((widget, i) => {
                 const ctx = document.getElementById(`chart-${i}`);
                 if (ctx) {
-                    new Chart(ctx.getContext('2d'), {
-                        type: 'line',
-                        data: {
-                            labels: widget.labels,
-                            datasets: [{
-                                data: widget.chart_data,
-                                borderColor: '#9dadbe',
-                                backgroundColor: 'rgba(43,54,64,0.35)',
-                                borderWidth: 5,
-                                pointRadius: 0,
-                                fill: true,
-                                tension: 0.4
-                            }]
-                        },
-                        options: {
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                x: {
-                                    display: true,
-                                    grid: {
-                                        display: true,
-                                        color: 'rgba(43,54,64,0.5)',
-                                        lineWidth: 2
+                    // Before each Chart.js chart creation:
+                    
+                    if (page.type === '2x1-graph' && widget.type === 'bar') {
+                        // Prepare data for Real/FCT and BGT, replacing null/undefined with 0
+                        const realOrFctData = widget.real.map((val, idx) => {
+                            if (val !== null && val !== undefined) return val;
+                            if (widget.fct && widget.fct[idx] !== null && widget.fct[idx] !== undefined) return widget.fct[idx];
+                            return 0;
+                        });
+                        const realOrFctType = widget.real_or_fct_type;
+                        const bgtData = widget.bgt.map(val => (val !== null && val !== undefined) ? val : 0);
+                        // Build background and border styles for Real/FCT
+                        const realOrFctBackground = realOrFctType.map(t => t === 'real' ? barRealBg : t === 'fct' ? barFctBg : 'rgba(0,0,0,0)'); // FCT no fill
+                        const realOrFctBorder = realOrFctType.map(t => t === 'real' ? barRealBorder : t === 'fct' ? barFctBorder : 'rgba(0,0,0,0)');
+                        const realOrFctBorderDash = realOrFctType.map(t => t === 'fct' ? [6,4] : []);
+                        const chartConfig = {
+                            type: 'bar',
+                            data: {
+                                labels: widget.labels,
+                                datasets: [
+                                    {
+                                        label: 'Real/FCT',
+                                        data: realOrFctData,
+                                        backgroundColor: realOrFctBackground,
+                                        borderColor: realOrFctBorder,
+                                        borderWidth: 2,
+                                        borderRadius: 6,
                                     },
-                                    ticks: {
-                                        color: '#e0e0e0',
-                                        font: { size: 20, weight: 'bold' }
+                                    {
+                                        label: 'BGT',
+                                        data: bgtData,
+                                        backgroundColor: barBgtBg,
+                                        borderColor: barBgtBorder,
+                                        borderWidth: 2,
+                                        borderRadius: 6
+                                    }
+                                ]
+                            },
+                            options: {
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        labels: {
+                                            color: legendColor,
+                                            font: { size: legendFontSize, weight: legendFontWeight },
+                                            boxWidth: legendBoxWidth,
+                                            padding: legendPadding
+                                        }
                                     }
                                 },
-                                y: {
-                                    display: false,
-                                    min: 0,
-                                    max: Math.max(...widget.chart_data, 0)
-                                }
+                                scales: {
+                                    x: {
+                                        display: true,
+                                        grid: { display: false },
+                                        ticks: {
+                                            color: axisLabelColor,
+                                            font: { size: axisLabelFontSize, weight: axisLabelFontWeight },
+                                            callback: function(value, index) {
+                                                if (this.chart.data.labels && this.chart.data.labels[index] !== undefined) {
+                                                    return this.chart.data.labels[index];
+                                                }
+                                                return value;
+                                            }
+                                        }
+                                    },
+                                    y: {
+                                        display: false, // Hide y-axis
+                                        grid: { display: false }, // Remove horizontal gridlines
+                                        ticks: {
+                                            display: false,
+                                            callback: function(value) {
+                                                // Always use 0 as minimumFractionDigits for axis ticks
+                                                if (typeof value === 'number' && isFinite(value)) {
+                                                    return value.toLocaleString(undefined, { minimumFractionDigits: 0 });
+                                                }
+                                                return value;
+                                            }
+                                        }
+                                    }
+                                },
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                animation: false
                             },
-                            elements: { line: { borderJoinStyle: 'round' } },
-                            responsive: true,
-                            maintainAspectRatio: false
-                        }
-                    });
+                            plugins: [
+                                {
+                                    id: 'customBarBorder',
+                                    afterDraw: chart => {
+                                        const ctx = chart.ctx;
+                                        chart.getDatasetMeta(0).data.forEach((bar, idx) => {
+                                            if (realOrFctType[idx] === 'fct') {
+                                                ctx.save();
+                                                ctx.setLineDash([6,4]);
+                                                ctx.strokeStyle = 'rgba(34,197,94,1)';
+                                                ctx.lineWidth = 2;
+                                                ctx.strokeRect(bar.x - bar.width/2, bar.y, bar.width, bar.base - bar.y);
+                                                ctx.setLineDash([]);
+                                                ctx.restore();
+                                            }
+                                        });
+                                    }
+                                },
+                                {
+                                    id: 'barValueLabels',
+                                    afterDatasetsDraw: chart => {
+                                        const ctx = chart.ctx;
+                                        ctx.save();
+                                        // Real/FCT bars (datasetIndex 0)
+                                        const meta0 = chart.getDatasetMeta(0);
+                                        meta0.data.forEach((bar, idx) => {
+                                            const value = chart.data.datasets[0].data[idx];
+                                            const bgt = chart.data.datasets[1].data[idx];
+                                            let color = labelEqual, arrow = '→';
+                                            if (value > bgt) { color = labelAbove; arrow = '▲'; }
+                                            else if (value < bgt) { color = labelBelow; arrow = '▼'; }
+                                            let displayValue = value;
+                                            if (typeof value === 'number' && isFinite(value)) {
+                                                displayValue = value.toLocaleString(undefined, { minimumFractionDigits: 0 });
+                                            }
+                                            ctx.font = `${labelFontWeight} ${labelFontSize} sans-serif`;
+                                            ctx.fillStyle = color;
+                                            ctx.textAlign = 'center';
+                                            ctx.textBaseline = 'bottom';
+                                            ctx.fillText(`${formatNumber(displayValue)} ${arrow}`, bar.x, bar.y - 6);
+                                        });
+                                        // BGT bars (datasetIndex 1)
+                                        const meta1 = chart.getDatasetMeta(1);
+                                        meta1.data.forEach((bar, idx) => {
+                                            const value = chart.data.datasets[1].data[idx];
+                                            if (value !== null && value !== undefined) {
+                                                let displayBgt = value;
+                                                if (typeof value === 'number' && isFinite(value)) {
+                                                    displayBgt = value.toLocaleString(undefined, { minimumFractionDigits: 0 });
+                                                }
+                                                ctx.font = `${labelFontWeight} ${labelFontSize} sans-serif`;
+                                                ctx.fillStyle = labelBgt;
+                                                ctx.textAlign = 'center';
+                                                ctx.textBaseline = 'bottom';
+                                                ctx.fillText(formatNumber(displayBgt), bar.x, bar.y - 6);
+                                            }
+                                        });
+                                        ctx.restore();
+                                    }
+                                }
+                            ]
+                        };
+                        new Chart(ctx.getContext('2d'), chartConfig);
+                    } else if (page.type === '2x1-graph' && widget.type === 'line') {
+                        // Prepare running totals for Real/FCT and BGT
+                        let runningTotal = 0;
+                        let runningBgt = 0;
+                        const realOrFctData = widget.real.map((val, idx) => {
+                            let v = null;
+                            if (val !== null && val !== undefined) v = val;
+                            else if (widget.fct && widget.fct[idx] !== null && widget.fct[idx] !== undefined) v = widget.fct[idx];
+                            else v = 0;
+                            runningTotal += v;
+                            return runningTotal;
+                        });
+                        const realOrFctType = widget.real_or_fct_type;
+                        const bgtData = widget.bgt.map((val, idx) => {
+                            let v = (val !== null && val !== undefined) ? val : 0;
+                            runningBgt += v;
+                            return runningBgt;
+                        });
+                        // Chart.js segment styling for solid/dotted
+                        new Chart(ctx.getContext('2d'), {
+                            type: 'line',
+                            data: {
+                                labels: widget.labels,
+                                datasets: [
+                                    {
+                                        label: 'Real/FCT',
+                                        data: realOrFctData, // continuous, no nulls between real and fct
+                                        borderColor: barRealBorder,
+                                        backgroundColor: 'rgba(0,0,0,0)',
+                                        borderWidth: 7, // increased line weight
+                                        pointRadius: 5,
+                                        fill: false,
+                                        tension: 0.2,
+                                        segment: {
+                                            borderDash: ctx => realOrFctType[ctx.p1DataIndex] === 'fct' ? [8,6] : [],
+                                            borderColor: ctx => realOrFctType[ctx.p1DataIndex] === 'fct' ? barFctBorder : barRealBorder
+                                        }
+                                    },
+                                    {
+                                        label: 'BGT',
+                                        data: bgtData,
+                                        borderColor: barBgtBorder,
+                                        backgroundColor: 'rgba(255,255,255,0.10)', // subtle area fill
+                                        borderWidth: 4,
+                                        pointRadius: 5,
+                                        fill: true,
+                                        tension: 0.2
+                                    }
+                                ]
+                            },
+                            options: {
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        labels: {
+                                            color: legendColor,
+                                            font: { size: legendFontSize, weight: legendFontWeight },
+                                            boxWidth: legendBoxWidth,
+                                            padding: legendPadding
+                                        }
+                                    },
+                                    // Value labels and vertical lines plugin
+                                    valueLabelsAndLines: {
+                                        // Custom plugin options if needed
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        display: true,
+                                        grid: { display: false },
+                                        ticks: {
+                                            color: axisLabelColor,
+                                            font: { size: axisLabelFontSize, weight: axisLabelFontWeight },
+                                            callback: function(value, index) {
+                                                if (this.chart.data.labels && this.chart.data.labels[index] !== undefined) {
+                                                    return this.chart.data.labels[index];
+                                                }
+                                                return value;
+                                            }
+                                        }
+                                    },
+                                    y: {
+                                        display: false,
+                                        grid: { display: false },
+                                        ticks: { display: false }
+                                    }
+                                },
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                animation: false
+                            },
+                            plugins: [{
+                                id: 'valueLabelsAndLines',
+                                afterDatasetsDraw: function(chart) {
+                                    const ctx = chart.ctx;
+                                    ctx.save();
+                                    const meta0 = chart.getDatasetMeta(0); // Real/FCT
+                                    const meta1 = chart.getDatasetMeta(1); // BGT
+                                    for (let idx = 0; idx < meta0.data.length; idx++) {
+                                        const point0 = meta0.data[idx];
+                                        const point1 = meta1.data[idx];
+                                        const value0 = chart.data.datasets[0].data[idx];
+                                        const value1 = chart.data.datasets[1].data[idx];
+                                        // Default label positions
+                                        let y0 = point0.y - 18;
+                                        let y1 = point1.y + 24;
+                                        let x0 = point0.x;
+                                        let x1 = point1.x;
+                                        // If both points exist, check for overlap after offset
+                                        if (point0 && point1 && Math.abs(y0 - y1) < 28) {
+                                            y0 = point0.y - 28;
+                                            y1 = point1.y + 36;
+                                        }
+                                        // Real/FCT label
+                                        if (value0 !== null && value0 !== undefined) {
+                                            ctx.font = `${labelFontWeight} ${labelFontSize} sans-serif`;
+                                            const label0 = formatNumber(value0).toString();
+                                            let color = barRealBorder;
+                                            const bgt = chart.data.datasets[1].data[idx];
+                                            if (value0 > bgt) color = labelAbove;
+                                            else if (value0 < bgt) color = labelBelow;
+                                            else color = labelEqual;
+                                            ctx.fillStyle = color;
+                                            ctx.textBaseline = 'bottom';
+                                            if (idx === 0) {
+                                                ctx.textAlign = 'left';
+                                                ctx.fillText(label0, x0 + 8, y0);
+                                            } else if (idx === meta0.data.length - 1) {
+                                                ctx.textAlign = 'right';
+                                                ctx.fillText(label0, x0 - 8, y0);
+                                            } else {
+                                                ctx.textAlign = 'center';
+                                                ctx.fillText(label0, x0, y0);
+                                            }
+                                        }
+                                        // BGT label
+                                        if (value1 !== null && value1 !== undefined) {
+                                            ctx.font = `${labelFontWeight} ${labelFontSize} sans-serif`;
+                                            const label1 = formatNumber(value1).toString();
+                                            ctx.fillStyle = labelBgt;
+                                            ctx.textBaseline = 'top';
+                                            if (idx === 0) {
+                                                ctx.textAlign = 'left';
+                                                ctx.fillText(label1, x1 + 8, y1);
+                                            } else if (idx === meta1.data.length - 1) {
+                                                ctx.textAlign = 'right';
+                                                ctx.fillText(label1, x1 - 8, y1);
+                                            } else {
+                                                ctx.textAlign = 'center';
+                                                ctx.fillText(label1, x1, y1);
+                                            }
+                                        }
+                                        // Vertical lines
+                                        if (point0) {
+                                            ctx.beginPath();
+                                            ctx.moveTo(point0.x, point0.y);
+                                            ctx.lineTo(point0.x, chart.scales.y.getPixelForValue(chart.scales.y.min));
+                                            ctx.lineWidth = 2;
+                                            ctx.strokeStyle = barRealBorder;
+                                            ctx.globalAlpha = 0.25;
+                                            ctx.stroke();
+                                            ctx.globalAlpha = 1.0;
+                                        }
+                                        if (point1) {
+                                            ctx.beginPath();
+                                            ctx.moveTo(point1.x, point1.y);
+                                            ctx.lineTo(point1.x, chart.scales.y.getPixelForValue(chart.scales.y.min));
+                                            ctx.lineWidth = 2;
+                                            ctx.strokeStyle = barBgtBorder;
+                                            ctx.globalAlpha = 0.25;
+                                            ctx.stroke();
+                                            ctx.globalAlpha = 1.0;
+                                        }
+                                    }
+                                    ctx.restore();
+                                }
+                            }]
+                        });
+                    } else {
+                        new Chart(ctx.getContext('2d'), {
+                            type: 'line',
+                            data: {
+                                labels: widget.labels,
+                                datasets: [{
+                                    data: widget.chart_data,
+                                    borderColor: '#9dadbe',
+                                    backgroundColor: 'rgba(43,54,64,0.35)',
+                                    borderWidth: 5,
+                                    pointRadius: 0,
+                                    fill: true,
+                                    tension: 0.4
+                                }]
+                            },
+                            options: {
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    x: {
+                                        display: true,
+                                        grid: {
+                                            display: true,
+                                            color: 'rgba(43,54,64,0.5)',
+                                            lineWidth: 2
+                                        },
+                                        ticks: {
+                                            color: axisLabelColor,
+                                            font: { size: axisLabelFontSize, weight: axisLabelFontWeight },
+                                            callback: function(value, index) {
+                                                if (this.chart.data.labels && this.chart.data.labels[index] !== undefined) {
+                                                    return this.chart.data.labels[index];
+                                                }
+                                                return value;
+                                            }
+                                        }
+                                    },
+                                    y: {
+                                        display: false,
+                                        min: 0,
+                                        max: Math.max(...widget.chart_data, 0),
+                                        ticks: {
+                                            display: false,
+                                            callback: function(value) {
+                                                // Always use 0 as minimumFractionDigits for axis ticks
+                                                if (typeof value === 'number' && isFinite(value)) {
+                                                    return value.toLocaleString(undefined, { minimumFractionDigits: 0 });
+                                                }
+                                                return value;
+                                            }
+                                        }
+                                    }
+                                },
+                                elements: { line: { borderJoinStyle: 'round' } },
+                                responsive: true,
+                                maintainAspectRatio: false
+                            }
+                        });
+                    }
                 }
             });
         }

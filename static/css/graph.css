@@ -1,0 +1,29 @@
+:root {
+  /* Bar colors */
+  --chart-bar-real-bg: rgba(34,197,94,0.85);
+  --chart-bar-fct-bg: rgba(0,0,0,0);
+  --chart-bar-real-border: rgba(34,197,94,1);
+  --chart-bar-fct-border: rgba(34,197,94,1);
+  --chart-bar-bgt-bg: rgba(255,255,255,1);
+  --chart-bar-bgt-border: rgba(255,255,255,1);
+
+  /* Value label colors */
+  --chart-label-above: #0bda5b;
+  --chart-label-below: #fa6238;
+  --chart-label-equal: #bdbdbd;
+  --chart-label-bgt: #fff;
+  --chart-label-font-size: 28px;
+  --chart-label-font-weight: bold;
+
+  /* Legend styles */
+  --chart-legend-color: #fff;
+  --chart-legend-font-size: 28px;
+  --chart-legend-font-weight: bold;
+  --chart-legend-box-width: 40px;
+  --chart-legend-padding: 30px;
+
+  /* Axis label styles */
+  --chart-axis-label-color: #e0e0e0;
+  --chart-axis-label-font-size: 18px;
+  --chart-axis-label-font-weight: bold;
+} 

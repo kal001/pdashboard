@@ -226,6 +226,7 @@ def dashboard_carousel():
     last_update_month = global_config.get('last_update_month', '')
     company_name = global_config.get('company_name', 'Jayme da Costa')
     language = global_config.get('language', 'pt')
+    number_format = global_config.get('number_format', ' # ###')
     
     # Load translations
     translations = load_translations(language)
@@ -236,7 +237,7 @@ def dashboard_carousel():
     pages = get_active_pages()
     rendered_pages = []
     for page in pages:
-        if page['type'] in ('3x2', '2x2'):
+        if page['type'] in ('3x2', '2x2', '2x1-graph'):
             xlsx_path = os.path.join('data', page['xlsx_file'])
             wb = openpyxl.load_workbook(xlsx_path, data_only=True)
             widgets = []
@@ -244,50 +245,111 @@ def dashboard_carousel():
                 if not widget_cfg.get('active', True):
                     continue
                 sheet = wb[widget_cfg['sheet']]
-                months, totals, targets = [], [], []
+                months, real, fct, bgt, real_or_fct_type = [], [], [], [], []
+                
+                # Get header row to find column indices
+                headers = list(next(sheet.iter_rows(min_row=1, max_row=1, values_only=True)))
+                
+                # Use different column logic based on dashboard type
+                if page['type'] == '2x1-graph':
+                    # 2x1-graph uses Real/FCT/BGT columns
+                    column_month = widget_cfg.get('column_month', 'Mês')
+                    column_real = widget_cfg.get('column_real', 'Real')
+                    column_fct = widget_cfg.get('column_fct', 'FCT')
+                    column_bgt = widget_cfg.get('column_bgt', 'BGT')
+                    
+                    # Find column indices
+                    idx_month = headers.index(column_month) if column_month in headers else 0
+                    idx_real = headers.index(column_real) if column_real in headers else None
+                    idx_fct = headers.index(column_fct) if column_fct in headers else None
+                    idx_bgt = headers.index(column_bgt) if column_bgt in headers else None
+                else:
+                    # 3x2 and 2x2 use Total/Target columns
+                    column_month = widget_cfg.get('column_month', 'Mês')
+                    column_total = widget_cfg.get('column_total', 'Total')
+                    column_target = widget_cfg.get('column_target', 'Meta')
+                    
+                    # Find column indices
+                    idx_month = headers.index(column_month) if column_month in headers else 0
+                    idx_total = headers.index(column_total) if column_total in headers else 1
+                    idx_target = headers.index(column_target) if column_target in headers else 2
+                
                 for row in sheet.iter_rows(min_row=2, values_only=True):
-                    if row[1] is not None and row[2] is not None:
-                        months.append(row[0])
-                        totals.append(row[1])
-                        targets.append(row[2])
-                if len(totals) >= 2:
-                    value = totals[-1]
-                    target = targets[-1]
-                    prev = totals[-2]
-                    curr = totals[-1]
-                    if prev is not None and curr is not None and prev != 0:
-                        percent_change = ((curr - prev) / prev) * 100
-                        if percent_change > 0:
-                            trend = '▲'
-                            trend_color = 'green'
-                        elif percent_change < 0:
-                            trend = '▼'
-                            trend_color = 'red'
+                    # Now process data rows
+                    if row[idx_month] is not None:
+                        months.append(row[idx_month])
+                        if page['type'] == '2x1-graph':
+                            # 2x1-graph uses Real/FCT/BGT columns
+                            # Real or FCT
+                            if idx_real is not None and row[idx_real] is not None:
+                                real.append(row[idx_real])
+                                fct.append(None)
+                                real_or_fct_type.append('real')
+                            elif idx_fct is not None and row[idx_fct] is not None:
+                                real.append(None)
+                                fct.append(row[idx_fct])
+                                real_or_fct_type.append('fct')
+                            else:
+                                real.append(None)
+                                fct.append(None)
+                                real_or_fct_type.append(None)
+                            # BGT
+                            bgt.append(row[idx_bgt] if idx_bgt is not None else None)
                         else:
-                            trend = '→'
+                            # 3x2 and 2x2 use Total/Target columns
+                            real.append(row[idx_total] if idx_total is not None else None)
+                            fct.append(None)
+                            real_or_fct_type.append('real')
+                            bgt.append(row[idx_target] if idx_target is not None else None)
+                if page['type'] == '2x1-graph':
+                    widgets.append({
+                        "title": widget_cfg['name'],
+                        "type": widget_cfg.get('type', 'bar'),
+                        "labels": months,
+                        "real": real,
+                        "fct": fct,
+                        "bgt": bgt,
+                        "real_or_fct_type": real_or_fct_type
+                    })
+                else:
+                    # For 3x2 and 2x2, use the chart_data structure and restore color/percent/trend logic
+                    value = real[-1] if real else 0
+                    target = bgt[-1] if bgt else 0
+                    if len(real) >= 2:
+                        prev = real[-2]
+                        curr = real[-1]
+                        if prev is not None and curr is not None and prev != 0:
+                            percent_change = ((curr - prev) / prev) * 100
+                            if percent_change > 0:
+                                trend = '▲'
+                                trend_color = 'green'
+                            elif percent_change < 0:
+                                trend = '▼'
+                                trend_color = 'red'
+                            else:
+                                trend = '→'
+                                trend_color = 'gray'
+                        else:
+                            percent_change = 0
+                            trend = ''
                             trend_color = 'gray'
                     else:
                         percent_change = 0
                         trend = ''
                         trend_color = 'gray'
-                else:
-                    value = totals[-1] if totals else 0
-                    target = targets[-1] if targets else 0
-                    percent_change = 0
-                    trend = ''
-                    trend_color = 'gray'
-                value_color = "#0bda5b" if value >= target else "#fa6238"
-                widgets.append({
-                    "title": widget_cfg['name'],
-                    "value": f"{value:,}".replace(',', ' '),
-                    "target": f"{target:,}".replace(',', ' '),
-                    "trend": trend,
-                    "trend_color": trend_color,
-                    "percent_change": round(percent_change, 1),
-                    "labels": months,
-                    "chart_data": totals,
-                    "value_color": value_color
-                })
+                    value_color = "#0bda5b" if value >= target else "#fa6238"
+                    widgets.append({
+                        "title": widget_cfg['name'],
+                        "type": widget_cfg.get('type', 'line'),
+                        "labels": months,
+                        "chart_data": real,  # Use real data as chart_data
+                        "value": value,
+                        "target": target,
+                        "value_color": value_color,
+                        "trend": trend,
+                        "trend_color": trend_color,
+                        "percent_change": round(percent_change, 1)
+                    })
             rendered_pages.append({**page, "widgets": widgets})
         elif page['type'] == 'text-md':
             md_file = page.get('md_file', '')
@@ -311,10 +373,10 @@ def dashboard_carousel():
         css_link = Markup(f'<link rel="stylesheet" href="/static/css/{rendered_pages[0]["css_file"]}">')
     # In the template render, if type is 'text-md', pass html_content and font_size
     if rendered_pages and rendered_pages[0]['type'] == 'text-md':
-        return render_template(template_name, html_content=rendered_pages[0]['html_content'], font_size=rendered_pages[0]['font_size'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='text-md', logo_info=logo_info)
+        return render_template(template_name, html_content=rendered_pages[0]['html_content'], font_size=rendered_pages[0]['font_size'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='text-md', logo_info=logo_info, number_format=number_format)
     if rendered_pages and rendered_pages[0]['type'] == 'image':
-        return render_template(template_name, image_file=rendered_pages[0]['image_file'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='image', logo_info=logo_info)
-    return render_template(template_name, pages=rendered_pages, css_link=css_link, last_update_month=last_update_month, company_name=company_name, version=get_version(), translations=translations, language=language, logo_info=logo_info)
+        return render_template(template_name, image_file=rendered_pages[0]['image_file'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='image', logo_info=logo_info, number_format=number_format)
+    return render_template(template_name, pages=rendered_pages, css_link=css_link, last_update_month=last_update_month, company_name=company_name, version=get_version(), translations=translations, language=language, logo_info=logo_info, number_format=number_format)
 
 @app.route('/dashboard')
 def dashboard():
@@ -453,7 +515,7 @@ def get_all_data():
         pages_data = []
         for page in get_active_pages():
             page_widgets = []
-            if page['type'] in ('3x2', '2x2'):
+            if page['type'] in ('3x2', '2x2', '2x1-graph'):
                 xlsx_path = os.path.join('data', page['xlsx_file'])
                 if not os.path.exists(xlsx_path):
                     continue
@@ -462,12 +524,26 @@ def get_all_data():
                     if not widget_cfg.get('active', True):
                         continue
                     sheet = wb[widget_cfg['sheet']]
+                    
+                    # Get header row to find column indices
+                    headers = list(next(sheet.iter_rows(min_row=1, max_row=1, values_only=True)))
+                    
+                    # Use configurable column names with fallbacks
+                    column_month = widget_cfg.get('column_month', 'Mês')
+                    column_total = widget_cfg.get('column_total', 'Total')
+                    column_target = widget_cfg.get('column_target', 'Meta')
+                    
+                    # Find column indices
+                    idx_month = headers.index(column_month) if column_month in headers else 0
+                    idx_total = headers.index(column_total) if column_total in headers else 1
+                    idx_target = headers.index(column_target) if column_target in headers else 2
+                    
                     months, totals, targets = [], [], []
                     for row in sheet.iter_rows(min_row=2, values_only=True):
-                        if row[1] is not None and row[2] is not None:
-                            months.append(row[0])
-                            totals.append(row[1])
-                            targets.append(row[2])
+                        if row[idx_total] is not None and row[idx_target] is not None:
+                            months.append(row[idx_month])
+                            totals.append(row[idx_total])
+                            targets.append(row[idx_target])
                     if len(totals) >= 2:
                         value = totals[-1]
                         target = targets[-1]
@@ -536,7 +612,7 @@ def get_page_data(page_id):
         if not page:
             return abort(404)
         page_widgets = []
-        if page['type'] in ('3x2', '2x2'):
+        if page['type'] in ('3x2', '2x2', '2x1-graph'):
             xlsx_path = os.path.join('data', page['xlsx_file'])
             if not os.path.exists(xlsx_path):
                 return abort(404)
@@ -545,12 +621,26 @@ def get_page_data(page_id):
                 if not widget_cfg.get('active', True):
                     continue
                 sheet = wb[widget_cfg['sheet']]
+                
+                # Get header row to find column indices
+                headers = list(next(sheet.iter_rows(min_row=1, max_row=1, values_only=True)))
+                
+                # Use configurable column names with fallbacks
+                column_month = widget_cfg.get('column_month', 'Mês')
+                column_total = widget_cfg.get('column_total', 'Total')
+                column_target = widget_cfg.get('column_target', 'Meta')
+                
+                # Find column indices
+                idx_month = headers.index(column_month) if column_month in headers else 0
+                idx_total = headers.index(column_total) if column_total in headers else 1
+                idx_target = headers.index(column_target) if column_target in headers else 2
+                
                 months, totals, targets = [], [], []
                 for row in sheet.iter_rows(min_row=2, values_only=True):
-                    if row[1] is not None and row[2] is not None:
-                        months.append(row[0])
-                        totals.append(row[1])
-                        targets.append(row[2])
+                    if row[idx_total] is not None and row[idx_target] is not None:
+                        months.append(row[idx_month])
+                        totals.append(row[idx_total])
+                        targets.append(row[idx_target])
                 if len(totals) >= 2:
                     value = totals[-1]
                     target = targets[-1]
@@ -605,7 +695,7 @@ def get_widget_data(page_id, widget_id):
                 break
         if not page:
             return abort(404)
-        if page['type'] in ('3x2', '2x2'):
+        if page['type'] in ('3x2', '2x2', '2x1-graph'):
             xlsx_path = os.path.join('data', page['xlsx_file'])
             if not os.path.exists(xlsx_path):
                 return abort(404)
@@ -614,12 +704,26 @@ def get_widget_data(page_id, widget_id):
                 if widget_cfg['id'] != widget_id or not widget_cfg.get('active', True):
                     continue
                 sheet = wb[widget_cfg['sheet']]
+                
+                # Get header row to find column indices
+                headers = list(next(sheet.iter_rows(min_row=1, max_row=1, values_only=True)))
+                
+                # Use configurable column names with fallbacks
+                column_month = widget_cfg.get('column_month', 'Mês')
+                column_total = widget_cfg.get('column_total', 'Total')
+                column_target = widget_cfg.get('column_target', 'Meta')
+                
+                # Find column indices
+                idx_month = headers.index(column_month) if column_month in headers else 0
+                idx_total = headers.index(column_total) if column_total in headers else 1
+                idx_target = headers.index(column_target) if column_target in headers else 2
+                
                 months, totals, targets = [], [], []
                 for row in sheet.iter_rows(min_row=2, values_only=True):
-                    if row[1] is not None and row[2] is not None:
-                        months.append(row[0])
-                        totals.append(row[1])
-                        targets.append(row[2])
+                    if row[idx_total] is not None and row[idx_target] is not None:
+                        months.append(row[idx_month])
+                        totals.append(row[idx_total])
+                        targets.append(row[idx_target])
                 if len(totals) >= 2:
                     value = totals[-1]
                     target = targets[-1]

@@ -34,6 +34,15 @@
   - `xlsx_file`: Excel file name in `/data/` with the data
   - `template`, `css_file`, etc.
 
+### 2x1-graph (2 widgets)
+- 2x1 grid layout (2 columns, 1 row), exactly 2 widgets for side-by-side graphs.
+- Main fields in config.json:
+  - `type`: "2x1-graph"
+  - `widgets`: array of exactly 2 widgets
+  - `xlsx_file`: Excel file name in `/data/` with the data
+  - Each widget can specify custom column names: `column_month`, `column_bgt`, `column_real`, `column_fct`
+  - `template`, `css_file`, etc.
+
 ### Text MD (Markdown)
 - Uses the entire dashboard area to display formatted Markdown text.
 - No widgets.
@@ -123,10 +132,11 @@ The system includes auto-reload functionality that automatically updates all con
 - Edit the fields:
   - `id`: unique identifier
   - `title`: display name
-  - `type`: currently "3x2", "2x2", "text-md", or "image"
+  - `type`: currently "3x2", "2x2", "2x1-graph", "text-md", or "image"
   - `template`: HTML template used (e.g., carousel.html)
   - `css_file`: specific CSS (optional)
   - `widgets`: array of active widgets
+  - `number_format`: string for number formatting (e.g., " # ###")
 
 ### config.json Example
 ```json
@@ -139,12 +149,14 @@ The system includes auto-reload functionality that automatically updates all con
   "widgets": [
     { "id": "widget1", "active": true, "name": "Line 3 - Equipment A", "sheet": "ModelA" },
     { "id": "widget2", "active": true, "name": "Line 3 - Equipment B", "sheet": "ModelB" }
-  ]
+  ],
+  "number_format": " # ###"
 }
 ```
 
 - To add widgets, include new objects in the `widgets` array.
 - The `active` field controls whether the widget appears.
+- The `number_format` field controls how all dashboard values are displayed.
 
 ## Best Practices
 - Always backup `pages/` and `data/` before major changes

@@ -1,0 +1,36 @@
+{
+  "id": "graph2x1",
+  "title": "2x1 Graph Sample",
+  "description": "Sample dashboard with two graph widgets side by side",
+  "active": true,
+  "type": "2x1-graph",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "xlsx_file": "producao.xlsx", 
+  "widgets": [
+    {
+      "id": "graph1",
+      "active": true,
+      "name": "Graph Widget 1",
+      "sheet": "ReceitasQ",
+      "type": "bar",
+      "column_month": "Quarter",
+      "column_bgt": "BGT",
+      "column_real": "Real",
+      "column_fct": "FCT"
+    },
+    {
+      "id": "graph2",
+      "active": true,
+      "name": "Graph Widget 2",
+      "sheet": "ReceitasM",
+      "type": "line",
+      "column_month": "Mês",
+      "column_bgt": "BGT",
+      "column_real": "Real",
+      "column_fct": "FCT"
+    }
+  ],
+  "order": 1
+} 

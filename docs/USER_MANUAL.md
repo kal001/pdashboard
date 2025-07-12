@@ -1,4 +1,14 @@
-# PDashboard User Manual
+# User Manual (v1.2.0)
+
+## What's New in 1.2.0
+- Text MD dashboards: display Markdown content as a dashboard page
+- Image dashboards: display a full-page image as a dashboard
+- Graph dashboards: new 2x1-graph dashboard type (bar and line)
+- 2x2 dashboards: new grid layout for compact metric display
+- Multi-lingual site: full i18n for all UI, admin, and dashboard labels
+- Admin frontend: upload data files directly from the browser
+- Major UI/UX improvements for all dashboard types (value labels, vertical lines, area fills, label collision avoidance, edge detection, etc.)
+
 
 ## Table of Contents
 1. [Adding New Pages](#1-adding-new-pages)
@@ -25,7 +35,7 @@
      - **Title**: Display name shown in the dashboard
      - **Description**: Optional description of the page
      - **Active**: Check to make the page visible in the carousel
-     - **Type**: Select dashboard type (3x2, 2x2, or text-md)
+     - **Type**: Select dashboard type (3x2, 2x2, 2x1-graph, text-md, or image)
      - **Duration**: Time in seconds the page stays in the carousel
      - **Template**: Usually `carousel.html`
      - **CSS File**: Custom styling file (optional)
@@ -123,6 +133,50 @@ The system supports four types of dashboards, each with different layouts and co
 
 **Configuration Fields**: Same as 3x2, but `type` is "2x2" and up to 4 widgets
 
+### 2x1-graph Dashboard (2 widgets)
+**Layout**: 2 columns × 1 row grid, optimized for side-by-side graph widgets
+
+**config.json Example**:
+```json
+{
+  "id": "graph2x1",
+  "title": "2x1 Graph Sample",
+  "description": "Sample dashboard with two graph widgets side by side",
+  "active": true,
+  "type": "2x1-graph",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "xlsx_file": "producao.xlsx",
+  "widgets": [
+    {
+      "id": "graph1",
+      "active": true,
+      "name": "Graph Widget 1",
+      "sheet": "ReceitasQ",
+      "type": "bar",
+      "column_month": "Mês",
+      "column_bgt": "BGT",
+      "column_real": "Real",
+      "column_fct": "FCT"
+    },
+    {
+      "id": "graph2",
+      "active": true,
+      "name": "Graph Widget 2",
+      "sheet": "ReceitasM",
+      "type": "bar",
+      "column_month": "Mês",
+      "column_bgt": "BGT",
+      "column_real": "Real",
+      "column_fct": "FCT"
+    }
+  ]
+}
+```
+
+**Configuration Fields**: Same as 3x2, but `type` is "2x1-graph" and exactly 2 widgets. Each widget can specify custom column names for month, BGT, Real, and FCT data.
+
 ### Text MD Dashboard (Markdown)
 **Layout**: Full-screen text display with Markdown formatting
 
@@ -186,6 +240,119 @@ The system supports four types of dashboards, each with different layouts and co
 
 ---
 
+## 2x1-graph Dashboard Type
+
+The `2x1-graph` dashboard type displays two large side-by-side widgets, each of which can be a bar or line chart. This layout is ideal for comparing two key metrics or trends in a visually prominent way.
+
+### Configuration in `config.json`
+
+To create a 2x1-graph dashboard, set the `type` field to `2x1-graph` in your page's `config.json`:
+
+```json
+{
+  "id": "my_2x1_graph_page",
+  "title": "Production vs. Budget",
+  "type": "2x1-graph",
+  "xlsx_file": "mydata.xlsx",
+  "widgets": [
+    { "id": "left", "name": "Graph Widget 1", "type": "bar", ... },
+    { "id": "right", "name": "Graph Widget 2", "type": "line", ... }
+  ]
+}
+```
+
+### Widget Structure
+
+Each widget in the `widgets` array can be either a `bar` or `line` type. The configuration for each type is as follows:
+
+#### Bar Widget Example
+```json
+{
+  "id": "left",
+  "name": "Bar Widget",
+  "type": "bar",
+  "sheet": "Sheet1",
+  "column_month": "Mês",
+  "column_real": "Real",
+  "column_fct": "FCT",
+  "column_bgt": "BGT"
+}
+```
+
+#### Line Widget Example
+```json
+{
+  "id": "right",
+  "name": "Line Widget",
+  "type": "line",
+  "sheet": "Sheet1",
+  "column_month": "Mês",
+  "column_real": "Real",
+  "column_fct": "FCT",
+  "column_bgt": "BGT"
+}
+```
+
+### Excel Data Requirements
+- **Bar and Line widgets** both require columns for:
+  - `Mês` (Month/Category)
+  - `Real` (Actual)
+  - `FCT` (Forecast)
+  - `BGT` (Budget)
+- The system will automatically use Real values where available, and switch to FCT values when Real is missing, for the Real/FCT series.
+
+### Visual Features
+- **Bar Chart:**
+  - Real and FCT bars are visually distinct (solid/dotted border, color-coded)
+  - BGT bars are always solid
+  - Value labels above each bar, color-coded by performance
+  - Vertical lines for visual alignment
+- **Line Chart:**
+  - Real/FCT line is solid for Real, dotted for FCT
+  - BGT line is always solid
+  - Value labels above (Real/FCT) and below (BGT) each point, with automatic collision avoidance and edge detection
+  - Vertical lines from each point to the x-axis
+  - Subtle area fill under the BGT line for emphasis
+
+### Example `config.json` for a 2x1-graph Page
+```json
+{
+  "id": "production_vs_budget",
+  "title": "Production vs. Budget",
+  "type": "2x1-graph",
+  "xlsx_file": "production_data.xlsx",
+  "widgets": [
+    {
+      "id": "prod_bar",
+      "name": "Production (Bar)",
+      "type": "bar",
+      "sheet": "Sheet1",
+      "column_month": "Mês",
+      "column_real": "Real",
+      "column_fct": "FCT",
+      "column_bgt": "BGT"
+    },
+    {
+      "id": "prod_line",
+      "name": "Production (Line)",
+      "type": "line",
+      "sheet": "Sheet1",
+      "column_month": "Mês",
+      "column_real": "Real",
+      "column_fct": "FCT",
+      "column_bgt": "BGT"
+    }
+  ]
+}
+```
+
+### Special Notes
+- Value formatting, color, and label collision avoidance are handled automatically for both chart types.
+- The 2x1-graph dashboard is ideal for high-visibility, side-by-side metric comparison.
+- All features are internationalized and visually consistent with other dashboard types.
+
+---
+
 ## 3. Using the Admin UI
 
 ### File Upload Management
@@ -225,10 +392,10 @@ The system supports four types of dashboards, each with different layouts and co
 #### Viewing Page Configuration
 - **Page Cards**: Each page shows:
   - Page title and description
-  - Dashboard type (3x2, 2x2, text-md)
+  - Dashboard type (3x2, 2x2, 2x1-graph, text-md, image)
   - Active status
-  - Data file name (Excel file for 3x2/2x2, Markdown file for text-md)
-  - Active widgets count (for 3x2/2x2 types)
+  - Data file name (Excel file for 3x2/2x2/2x1-graph, Markdown file for text-md, Image file for image)
+  - Active widgets count (for 3x2/2x2/2x1-graph types)
 
 #### Reordering Pages
 - **Drag & Drop**: Click and drag page cards to change their order
@@ -239,7 +406,7 @@ The system supports four types of dashboards, each with different layouts and co
 - **Template**: HTML template used (usually "carousel.html")
 - **CSS File**: Custom styling applied to the page
 - **Duration**: Time the page stays visible in the carousel
-- **Widgets**: For 3x2/2x2 types, shows active widget count
+- **Widgets**: For 3x2/2x2/2x1-graph types, shows active widget count
 - **Data Files**: Shows which Excel or Markdown file provides the data
 
 ---
@@ -258,7 +425,7 @@ The **Global Configuration** section (at the top of the admin panel) controls sy
 - **Persistent**: Language choice is saved and remembered
 
 ### Dashboard Types Management
-- **View Types**: See all available dashboard types (3x2, 2x2, text-md)
+- **View Types**: See all available dashboard types (3x2, 2x2, 2x1-graph, text-md, image)
 - **Add New Type**: Enter a new type name and click **"Add"**
 - **Remove Types**: Click the × button next to any type
 - **Type Usage**: New types become available when creating pages
@@ -286,7 +453,7 @@ The **Global Configuration** section (at the top of the admin panel) controls sy
 - **Backup Data**: Regularly backup important data files
 
 ### Dashboard Design
-- **Widget Limits**: Respect the widget limits (6 for 3x2, 4 for 2x2)
+- **Widget Limits**: Respect the widget limits (6 for 3x2, 4 for 2x2, 2 for 2x1-graph)
 - **Duration Balance**: Set appropriate durations for each page type
 - **CSS Customization**: Use custom CSS files for page-specific styling
 - **Content Quality**: For text-md pages, ensure Markdown content is well-formatted
@@ -345,7 +512,7 @@ The **Global Configuration** section (at the top of the admin panel) controls sy
 |-------|----------|-------------|---------|
 | `id` | Yes | Unique identifier | "producao3" |
 | `title` | Yes | Display name | "Produção Linha 3" |
-| `type` | Yes | Dashboard type | "3x2", "2x2", "text-md", "image" |
+| `type` | Yes | Dashboard type | "3x2", "2x2", "2x1-graph", "text-md", "image" |
 | `active` | No | Visibility status | true/false |
 | `duration` | No | Carousel time (seconds) | 10 |
 | `template` | No | HTML template | "carousel.html" |
@@ -358,6 +525,34 @@ The **Global Configuration** section (at the top of the admin panel) controls sy
 - **Data Files**: `.xlsx`, `.xls`, `.csv`
 - **Content Files**: `.md`, `.txt`
 - **Image Files**: `.jpg`, `.png`, `.jpeg`
+
+### Number Formatting for Dashboard Values
+
+All values shown in dashboards (3x2 and 2x1-graph) are formatted according to the `number_format` field in `/pages/config.json`.
+
+- **Field:** `number_format`
+- **Example:**
+  ```json
+  "number_format": " # ###"
+  ```
+- **Description:**
+  - Controls how numbers are displayed (e.g., space as thousands separator).
+  - Applies to all value labels, targets, and chart values in dashboards.
+  - To change the format, edit `/pages/config.json` and set the desired pattern.
+
+**Supported patterns:**
+- `# ###` (space as thousands separator)
+- `#,###` (comma as thousands separator)
+- `#.###` (dot as thousands separator)
+
+**Example config.json:**
+```json
+{
+  "company_name": "Name of the Company",
+  "number_format": " # ###",
+  ...
+}
+```
 
 ## Customization
 

@@ -5,7 +5,9 @@
     "3x2",
     "2x2",
     "text-md",
-    "image"
+    "image",
+    "2x1-graph"
   ],
-  "language": "pt"
+  "language": "pt",
+  "number_format": " # ###"
 }

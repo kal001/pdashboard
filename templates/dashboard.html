@@ -134,7 +134,24 @@
                 },
                 options: {
                     plugins: { legend: { display: false } },
-                    scales: { x: { display: false }, y: { display: false } },
+                    scales: { 
+                        x: { 
+                            display: true,
+                            grid: { display: false },
+                            ticks: {
+                                color: '#e0e0e0',
+                                font: { size: 12, weight: 'bold' },
+                                callback: function(value, index) {
+                                    const widgetLabels = {{ widget.labels|tojson }};
+                                    if (widgetLabels && widgetLabels[index] !== undefined) {
+                                        return widgetLabels[index];
+                                    }
+                                    return value;
+                                }
+                            }
+                        }, 
+                        y: { display: false } 
+                    },
                     elements: { line: { borderJoinStyle: 'round' } },
                     responsive: true,
                     maintainAspectRatio: false
