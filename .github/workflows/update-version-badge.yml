@@ -34,8 +34,8 @@ jobs:
           
           # Check if badge already exists and update it, or add new one
           if grep -q "badge/version-" README.md; then
-            # Update existing badge
-            sed -i "s/badge\/version-[^)]*/badge\/version-${{ steps.version.outputs.version }}/g" README.md
+            # Update existing badge (replace the whole badge line)
+            sed -i "s|!\\[Version\\](https://img.shields.io/badge/version-[^)]*)|![Version](https://img.shields.io/badge/version-${{ steps.version.outputs.version }}-blue.svg)|g" README.md
           else
             # Add new badge after title
             sed -i "2i\\
