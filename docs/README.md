@@ -2,12 +2,13 @@
 
 ## Table of Contents
 
-- [User Manual](docs/USER_MANUAL.md)
-- [Administrator Manual](docs/ADMIN.md)
-- [Logging Guide](docs/LOGGING.md)
-- [Deployment Guide](docs/DEPLOYMENT.md)
-- [Technical Instructions](docs/instructions.md)
-- [API Reference](docs/API.md)
+1. [Overview](#overview)
+2. [Key Features](#key-features)
+3. [API and Documentation](#api-and-documentation)
+4. [Real-Time Updates](#real-time-updates)
+5. [Environment Configuration](#environment-configuration)
+6. [Quick Installation](#quick-installation)
+7. [Detailed Documents](#detailed-documents)
 
 ## Overview
 
@@ -86,12 +87,13 @@ make up-prod
 
 > **Tip:** Edit `.env.development` or `.env.production` according to your environment.
 
-## Detailed Documentation
-- [Administrator Manual](docs/ADMIN.md)
-- [Deployment Guide](docs/DEPLOYMENT.md)
-- [Technical Instructions](docs/instructions.md)
-- [API](docs/API.md)
+## Detailed Documents
 
----
+For comprehensive information about specific aspects of the system:
 
-For details on page configuration, widgets, data, troubleshooting and customization, see the documents above. 
+- [User Manual](docs/USER_MANUAL.md) - Complete user guide with screenshots and examples
+- [Administrator Manual](docs/ADMIN.md) - System administration and configuration
+- [Logging Guide](docs/LOGGING.md) - Logging configuration and troubleshooting
+- [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment instructions
+- [Technical Instructions](docs/instructions.md) - Technical implementation details
+- [API Reference](docs/API.md) - Complete REST API documentation 
