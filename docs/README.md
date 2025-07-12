@@ -1,5 +1,14 @@
 # Modular Industrial Dashboard
 
+## Table of Contents
+
+- [User Manual](docs/USER_MANUAL.md)
+- [Administrator Manual](docs/ADMIN.md)
+- [Logging Guide](docs/LOGGING.md)
+- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Technical Instructions](docs/instructions.md)
+- [API Reference](docs/API.md)
+
 ## Overview
 
 Modular dashboard for TV, developed with Flask, with dynamic Excel data and per-page configuration. Ideal for industrial/factory environments.
