@@ -74,5 +74,6 @@
   "error_toggling_page": "Erro ao alterar estado da página.",
   "connection_error_short": "Erro de conexão.",
   "files_selected": "ficheiros selecionados",
-  "markdown_file": "Ficheiro Markdown:"
+  "markdown_file": "Ficheiro Markdown:",
+  "image_file": "Ficheiro de imagem:"
 } 

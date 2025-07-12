@@ -45,6 +45,17 @@
 - Supports all standard Markdown features (tables, lists, quotes, links, etc.).
 - The file can be edited and re-uploaded via admin.
 
+### Image (Full-screen Image)
+- Uses the entire dashboard area to display a single image.
+- No widgets.
+- Main fields in config.json:
+  - `type`: "image"
+  - `image_file`: Image file name in `/data/` (e.g., `sample.jpg`)
+  - `template`, `css_file`, etc.
+- Supports common image formats (JPG, PNG, JPEG).
+- Image is displayed centered with proportional scaling.
+- The file can be uploaded via admin panel.
+
 ---
 
 ## New Features in Version 1.1.0
@@ -112,7 +123,7 @@ The system includes auto-reload functionality that automatically updates all con
 - Edit the fields:
   - `id`: unique identifier
   - `title`: display name
-  - `type`: currently "3x2", "2x2", or "text-md"
+  - `type`: currently "3x2", "2x2", "text-md", or "image"
   - `template`: HTML template used (e.g., carousel.html)
   - `css_file`: specific CSS (optional)
   - `widgets`: array of active widgets

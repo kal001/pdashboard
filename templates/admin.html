@@ -81,6 +81,8 @@
                         <div style="margin-bottom:12px;"><label></label><input type="text" name="template" value="carousel.html" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
                         <div style="margin-bottom:12px;"><label></label><input type="text" name="css_file" value="producao.css" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
                         <div style="margin-bottom:12px;"><label></label><input type="text" name="xlsx_file" value="producao.xlsx" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                        <div style="margin-bottom:12px;"><label></label><input type="text" name="md_file" value="sample.md" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                        <div style="margin-bottom:12px;"><label></label><input type="text" name="image_file" value="sample.jpg" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
                         <div style="display:flex;gap:12px;align-items:center;">
                             <button type="submit" class="toggle-btn active"></button>
                             <button type="button" id="cancel-add-page" class="toggle-btn inactive"></button>
@@ -131,6 +133,11 @@
         // Translations data
         const translations = {{ translations|tojson|safe }};
         const currentLanguage = '{{ language }}';
+        
+        // Add translation for image_file if not present
+        if (!translations['image_file']) {
+            translations['image_file'] = currentLanguage === 'pt' ? 'Arquivo de imagem:' : 'Image file:';
+        }
         
         // Translation helper function
         function t(key, fallback = key) {
@@ -188,6 +195,8 @@
                 labels[7].textContent = t('template');
                 labels[8].textContent = t('css_file');
                 labels[9].textContent = t('xlsx_file');
+                labels[10].textContent = t('md_file');
+                labels[11].textContent = t('image_file');
                 addPageForm.querySelector('button[type="submit"]').textContent = t('create_page');
                 cancelAddPage.textContent = t('cancel');
             }
@@ -340,6 +349,8 @@
                         template: formData.get('template'),
                         css_file: formData.get('css_file'),
                         xlsx_file: formData.get('xlsx_file'),
+                        md_file: formData.get('md_file'),
+                        image_file: formData.get('image_file'),
                         widgets: []
                     };
                     fetch('/api/pages/create', {

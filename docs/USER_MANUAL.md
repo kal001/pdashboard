@@ -43,7 +43,7 @@
 
 ## 2. Dashboard Types & Configuration
 
-The system supports three types of dashboards, each with different layouts and configuration options.
+The system supports four types of dashboards, each with different layouts and configuration options.
 
 ### 3x2 Dashboard (6 widgets)
 **Layout**: 3 columns × 2 rows grid, optimized for TV displays
@@ -153,6 +153,36 @@ The system supports three types of dashboards, each with different layouts and c
 - Tables, lists, headings, links, images
 - Blockquotes and code blocks
 - Custom styling for better readability
+
+### Image Dashboard (Full-screen Image)
+**Layout**: Full-screen image display, centered and proportionally scaled
+
+**config.json Example**:
+```json
+{
+  "id": "test",
+  "title": "Test Page",
+  "description": "Test page using sample image",
+  "active": true,
+  "type": "image",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "image_file": "sample.jpg"
+}
+```
+
+**Configuration Fields**:
+- `id`, `title`, `description`, `active`, `duration`, `template`, `css_file`: Same as above
+- `type`: Must be "image"
+- `image_file`: Image file in `/data/` folder (supports .jpg, .png, .jpeg)
+
+**Image Features**:
+- Full-screen display with proper aspect ratio preservation
+- Centered positioning with proportional scaling
+- Supports common image formats (JPG, PNG, JPEG)
+- Dark background for better image visibility
+- Rounded corners for modern appearance
 
 ---
 
@@ -308,17 +338,21 @@ The **Global Configuration** section (at the top of the admin panel) controls sy
 | 3x2 | 3×2 grid | Up to 6 | Excel file | Production monitoring |
 | 2x2 | 2×2 grid | Up to 4 | Excel file | Compact dashboards |
 | text-md | Full screen | None | Markdown file | Information display |
+| image | Full screen | None | Image file | Image display |
 
 ### Common Configuration Fields
 | Field | Required | Description | Example |
 |-------|----------|-------------|---------|
 | `id` | Yes | Unique identifier | "producao3" |
 | `title` | Yes | Display name | "Produção Linha 3" |
-| `type` | Yes | Dashboard type | "3x2", "2x2", "text-md" |
+| `type` | Yes | Dashboard type | "3x2", "2x2", "text-md", "image" |
 | `active` | No | Visibility status | true/false |
 | `duration` | No | Carousel time (seconds) | 10 |
 | `template` | No | HTML template | "carousel.html" |
 | `css_file` | No | Custom CSS | "producao.css" |
+| `xlsx_file` | No* | Excel data file | "producao.xlsx" |
+| `md_file` | No* | Markdown file | "sample.md" |
+| `image_file` | No* | Image file | "sample.jpg" |
 
 ### File Types Supported
 - **Data Files**: `.xlsx`, `.xls`, `.csv`

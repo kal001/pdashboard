@@ -1,0 +1,12 @@
+{
+  "id": "test",
+  "title": "Test Page",
+  "description": "Test page using sample image",
+  "active": true,
+  "type": "image",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "image_file": "sample.jpg",
+  "order": 1
+} 

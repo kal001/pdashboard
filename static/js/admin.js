@@ -50,6 +50,9 @@ class AdminPanel {
             } else if (page.type === 'text-md') {
                 dataFileLabel = window.t('markdown_file');
                 dataFileValue = page.config && page.config.md_file ? page.config.md_file : '-';
+            } else if (page.type === 'image') {
+                dataFileLabel = window.t('image_file');
+                dataFileValue = page.config && page.config.image_file ? page.config.image_file : '-';
             }
 
             pageItem.innerHTML = `

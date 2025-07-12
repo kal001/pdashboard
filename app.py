@@ -300,6 +300,9 @@ def dashboard_carousel():
             else:
                 html_content = '<p><em>Arquivo markdown não encontrado.</em></p>'
             rendered_pages.append({**page, "html_content": html_content, "font_size": font_size})
+        elif page['type'] == 'image':
+            image_file = page.get('image_file', '')
+            rendered_pages.append({**page, "image_file": image_file})
         # Add more types as needed
     # Use the template and css_file from the first page (all pages use the same template in carousel)
     template_name = rendered_pages[0].get('template', 'carousel.html') if rendered_pages else 'carousel.html'
@@ -309,6 +312,8 @@ def dashboard_carousel():
     # In the template render, if type is 'text-md', pass html_content and font_size
     if rendered_pages and rendered_pages[0]['type'] == 'text-md':
         return render_template(template_name, html_content=rendered_pages[0]['html_content'], font_size=rendered_pages[0]['font_size'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='text-md', logo_info=logo_info)
+    if rendered_pages and rendered_pages[0]['type'] == 'image':
+        return render_template(template_name, image_file=rendered_pages[0]['image_file'], last_update_month=last_update_month, company_name=company_name, language=language, translations=translations, page_type='image', logo_info=logo_info)
     return render_template(template_name, pages=rendered_pages, css_link=css_link, last_update_month=last_update_month, company_name=company_name, version=get_version(), translations=translations, language=language, logo_info=logo_info)
 
 @app.route('/dashboard')
@@ -669,6 +674,11 @@ def serve_page_template(page_id, template):
         return content, 200, {'Content-Type': 'text/html'}
     else:
         return f'Template not found: {template}', 404
+
+@app.route('/data/<path:filename>')
+def serve_data_file(filename):
+    """Serve files from the /data directory (for images, markdown, etc.)"""
+    return send_from_directory('data', filename)
 
 @app.route('/api/health')
 def health_check():
