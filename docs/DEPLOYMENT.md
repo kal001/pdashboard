@@ -1,5 +1,17 @@
 # Deployment Manual - Production (LXC/Proxmox)
 
+## Table of Contents
+1. [Environment Configuration](#environment-configuration)
+2. [Prerequisites](#prerequisites)
+3. [Production Deployment Steps](#production-deployment-steps)
+4. [API Verification](#api-verification)
+5. [System Update](#system-update)
+6. [Version Update](#version-update)
+7. [Switching between Development and Production](#switching-between-development-and-production)
+8. [Troubleshooting](#troubleshooting)
+
+---
+
 ## Environment Configuration
 
 The project uses different configuration files for development and production:

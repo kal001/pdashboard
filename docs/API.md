@@ -1,5 +1,19 @@
 # API Documentation - PDashboard
 
+## Table of Contents
+1. [Visão Geral](#visão-geral)
+2. [Base URL](#base-url)
+3. [Documentação Interativa](#documentação-interativa)
+4. [Auto-Reload dos Clientes](#auto-reload-dos-clientes)
+5. [Endpoints](#endpoints)
+    - [Dashboard Principal](#dashboard-principal)
+    - [Gestão de Páginas Modulares](#gestão-de-páginas-modulares)
+    - [Dados do Dashboard](#dados-do-dashboard)
+    - [Configuração do Sistema](#configuração-do-sistema)
+    - [Saúde do Sistema](#saúde-do-sistema)
+
+---
+
 ## Visão Geral
 
 A API do PDashboard fornece endpoints para gestão de páginas modulares, widgets e configuração do sistema. Todos os endpoints retornam dados em formato JSON.
