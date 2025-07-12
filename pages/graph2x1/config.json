@@ -7,7 +7,7 @@
   "duration": 10,
   "template": "carousel.html",
   "css_file": "producao.css",
-  "xlsx_file": "producao.xlsx", 
+  "xlsx_file": "producao.xlsx",
   "widgets": [
     {
       "id": "graph1",
@@ -33,4 +33,4 @@
     }
   ],
   "order": 1
-} 
+}

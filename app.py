@@ -857,11 +857,14 @@ def health_check():
 def get_config():
     """Get system configuration"""
     global_config = get_global_config()
+    logo_info = check_logo_files()
+    
     return jsonify({
         'carousel_interval': 10000,
         'company_name': global_config.get('company_name', 'Company Name'),
-        'logo_primary': '/static/assets/logo.png',
-        'logo_secondary': '/static/assets/getsitelogo.jpeg',
+        'logo_primary': '/static/assets/main_logo.png' if logo_info['main_logo_exists'] else None,
+        'logo_secondary': '/static/assets/secondary_logo.png' if logo_info['secondary_logo_exists'] else None,
+        'logo_info': logo_info,
         'theme': {
             'primary_color': '#4CAF50',
             'warning_color': '#FF9800',
