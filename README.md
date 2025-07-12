@@ -1,6 +1,6 @@
 # PDashboard - Dashboard Fabril Modular
 
-![Version](https://img.shields.io/badge/version-1.0.4-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
 
 Sistema modular para dashboards industriais, otimizado para TV, com configuração por página e dados dinâmicos de Excel.
 
@@ -13,6 +13,9 @@ Sistema modular para dashboards industriais, otimizado para TV, com configuraç�
 - **API REST completa** com documentação interativa
 - **Auto-reload automático** dos clientes quando há alterações
 - **Sistema de versão em tempo real** (sem reiniciar containers)
+- **Internacionalização completa (i18n)**: admin totalmente traduzido e dinâmico (Português/Inglês)
+- **Upload de múltiplos ficheiros**: selecione e envie vários ficheiros de uma só vez
+- **Input de ficheiro customizado**: interface moderna, totalmente traduzível e amigável
 
 ## Atualizações em Tempo Real
 - **Auto-Reload**: Todos os dashboards conectados atualizam automaticamente

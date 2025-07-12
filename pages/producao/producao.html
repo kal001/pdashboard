@@ -1,0 +1,109 @@
+<div class="page-content production-page">
+  <div class="page-header">
+    <h1 class="page-title">🏭 Produção Mensal</h1>
+    <div class="page-subtitle">Dados de produção por família de equipamento</div>
+  </div>
+  
+  <div class="production-grid" id="production-grid">
+    <!-- Production cards will be dynamically inserted here -->
+  </div>
+  
+  <div class="page-footer">
+    <div class="last-update">Última atualização: <span id="last-update"></span></div>
+  </div>
+</div>
+
+<script>
+function renderProductionPage(data) {
+  const grid = document.getElementById('production-grid');
+  const lastUpdate = document.getElementById('last-update');
+  
+  if (!data.production || !data.production.families) {
+    grid.innerHTML = '<div class="error-message">Dados de produção não disponíveis</div>';
+    return;
+  }
+  
+  // Update last update time
+  lastUpdate.textContent = new Date().toLocaleString('pt-PT');
+  
+  // Render production families
+  const familiesHtml = data.production.families.map(family => `
+    <div class="production-card ${family.status}">
+      <div class="card-header">
+        <h3 class="family-name">${family.name}</h3>
+        <div class="status-indicator ${family.status}"></div>
+      </div>
+      
+      <div class="card-content">
+        <div class="production-stats">
+          <div class="stat-item">
+            <span class="stat-label">Produzido</span>
+            <span class="stat-value">${family.produced}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Meta</span>
+            <span class="stat-value">${family.target}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">%</span>
+            <span class="stat-value percentage ${family.status}">${family.percentage}%</span>
+          </div>
+        </div>
+        
+        <div class="trend-chart">
+          <canvas id="trend-${family.name.replace(/\s+/g, '-')}" width="200" height="60"></canvas>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  
+  grid.innerHTML = familiesHtml;
+  
+  // Render mini charts
+  data.production.families.forEach(family => {
+    const canvasId = `trend-${family.name.replace(/\s+/g, '-')}`;
+    const canvas = document.getElementById(canvasId);
+    if (canvas) {
+      renderMiniChart(canvas, family.trend, family.status);
+    }
+  });
+}
+
+function renderMiniChart(canvas, data, status) {
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width;
+  const height = canvas.height;
+  
+  // Clear canvas
+  ctx.clearRect(0, 0, width, height);
+  
+  if (!data || data.length < 2) return;
+  
+  // Calculate points
+  const points = data.map((value, index) => ({
+    x: (index / (data.length - 1)) * width,
+    y: height - (value / Math.max(...data)) * height
+  }));
+  
+  // Draw line
+  ctx.strokeStyle = getStatusColor(status);
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  
+  for (let i = 1; i < points.length; i++) {
+    ctx.lineTo(points[i].x, points[i].y);
+  }
+  
+  ctx.stroke();
+}
+
+function getStatusColor(status) {
+  const colors = {
+    'success': '#4CAF50',
+    'warning': '#FF9800',
+    'danger': '#F44336'
+  };
+  return colors[status] || '#2196F3';
+}
+</script> 

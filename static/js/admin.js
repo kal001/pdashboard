@@ -48,18 +48,18 @@ class AdminPanel {
                         <h3>${page.title}</h3>
                     </div>
                     <p class="page-description">${page.description}</p>
-                    <p class="page-type">Tipo: ${page.type}</p>
-                    <p class="page-order">Ordem: ${page.order}</p>
+                    <p class="page-type">${window.t('type')} ${page.type}</p>
+                    <p class="page-order">${window.t('order')}${page.order}</p>
                     <div class="page-extra-info" style="margin-top: 10px;">
-                        <p><strong>Template:</strong> ${page.config && page.config.template ? page.config.template : '-'}</p>
-                        <p><strong>CSS:</strong> ${page.config && page.config.css_file ? page.config.css_file : '-'}</p>
-                        <p><strong>Widgets ativos:</strong> ${page.config && page.config.widgets ? page.config.widgets.filter(w => w.active !== false).map(w => w.name).join(', ') : '-'}</p>
+                        <p><strong>${window.t('template_label')}</strong> ${page.config && page.config.template ? page.config.template : '-'}</p>
+                        <p><strong>${window.t('css_label')}</strong> ${page.config && page.config.css_file ? page.config.css_file : '-'}</p>
+                        <p><strong>${window.t('active_widgets')}</strong> ${page.config && page.config.widgets ? page.config.widgets.filter(w => w.active !== false).map(w => w.name).join(', ') : '-'}</p>
                     </div>
                 </div>
                 <div class="page-actions">
                     <button class="toggle-btn ${page.active ? 'active' : 'inactive'}" 
                             onclick="togglePage(${page.id})">
-                        ${page.active ? 'Ativo' : 'Inativo'}
+                        ${page.active ? window.t('active') : window.t('inactive')}
                     </button>
                 </div>
                 <div class="drag-handle">⋮⋮</div>
@@ -124,7 +124,7 @@ class AdminPanel {
         items.forEach((item, index) => {
             const orderElement = item.querySelector('.page-order');
             if (orderElement) {
-                orderElement.textContent = `Ordem: ${index + 1}`;
+                orderElement.textContent = `${window.t('order')}${index + 1}`;
             }
         });
         
@@ -145,13 +145,13 @@ class AdminPanel {
             const result = await response.json();
             
             if (response.ok && result.success) {
-                this.showMessage('Ordem das páginas atualizada com sucesso!', 'success');
+                this.showMessage(window.t('order_updated'), 'success');
             } else {
-                this.showMessage('Erro ao atualizar ordem das páginas.', 'error');
+                this.showMessage(window.t('error_updating_order'), 'error');
             }
         } catch (error) {
             console.error('Error saving order:', error);
-            this.showMessage('Erro ao atualizar ordem das páginas.', 'error');
+            this.showMessage(window.t('error_updating_order'), 'error');
         }
     }
     
@@ -165,39 +165,39 @@ class AdminPanel {
             const data = await response.json();
             
             if (response.ok) {
-                const lastUpdate = new Date(data.metadata.last_update).toLocaleString('pt-PT');
+                const lastUpdate = new Date(data.metadata.last_update).toLocaleString();
                 
                 statusContainer.innerHTML = `
                     <div style="color: #4CAF50; font-weight: bold;">
-                        ✅ Dados carregados com sucesso
+                        ${window.t('data_loaded')}
                     </div>
                     <div style="margin-top: 10px; font-size: 14px;">
-                        <strong>Última atualização:</strong> ${lastUpdate}
+                        <strong>${window.t('last_update')}:</strong> ${lastUpdate}
                     </div>
                     <div style="margin-top: 5px; font-size: 14px;">
-                        <strong>Versão:</strong> ${data.metadata.version}
+                        <strong>${window.t('version')}:</strong> ${data.metadata.version}
                     </div>
                     <div style="margin-top: 10px;">
-                        <strong>Páginas ativas:</strong> ${this.pages.filter(p => p.active).length} de ${this.pages.length}
+                        <strong>${window.t('active_pages')}:</strong> ${this.pages.filter(p => p.active).length}${window.t('pages_count')}${this.pages.length}
                     </div>
                 `;
             } else {
                 statusContainer.innerHTML = `
                     <div style="color: #f44336; font-weight: bold;">
-                        ❌ Erro ao carregar dados
+                        ${window.t('error_loading_data')}
                     </div>
                     <div style="margin-top: 10px; font-size: 14px;">
-                        Verifique se os ficheiros Excel existem na pasta data/
+                        ${window.t('check_excel_files')}
                     </div>
                 `;
             }
         } catch (error) {
             statusContainer.innerHTML = `
                 <div style="color: #f44336; font-weight: bold;">
-                    ❌ Erro de conexão
+                    ${window.t('connection_error')}
                 </div>
                 <div style="margin-top: 10px; font-size: 14px;">
-                    Não foi possível conectar ao servidor
+                    ${window.t('connection_failed')}
                 </div>
             `;
         }
@@ -231,7 +231,7 @@ async function togglePage(pageId) {
     // Add loading state
     const button = event.target;
     const originalText = button.textContent;
-    button.textContent = 'Carregando...';
+    button.textContent = window.t('loading');
     button.disabled = true;
     
     try {
@@ -247,7 +247,7 @@ async function togglePage(pageId) {
         if (response.ok && result.success) {
             // Update button state
             const isActive = result.page.active;
-            button.textContent = isActive ? 'Ativo' : 'Inativo';
+            button.textContent = isActive ? window.t('active') : window.t('inactive');
             button.className = `toggle-btn ${isActive ? 'active' : 'inactive'}`;
             button.disabled = false;
             // Show success message
@@ -261,7 +261,7 @@ async function togglePage(pageId) {
             
             const adminPanel = window.adminPanel;
             if (adminPanel) {
-                adminPanel.showMessage('Erro ao alterar estado da página.', 'error');
+                adminPanel.showMessage(window.t('error_toggling_page'), 'error');
             }
         }
     } catch (error) {
@@ -271,7 +271,7 @@ async function togglePage(pageId) {
         
         const adminPanel = window.adminPanel;
         if (adminPanel) {
-            adminPanel.showMessage('Erro de conexão.', 'error');
+            adminPanel.showMessage(window.t('connection_error_short'), 'error');
         }
     }
 }

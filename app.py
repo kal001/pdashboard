@@ -10,6 +10,8 @@ import openpyxl
 from flasgger import Swagger, swag_from
 from flask import Blueprint
 import time
+from werkzeug.utils import secure_filename
+import shutil
 
 # Import version utilities
 def get_version():
@@ -20,16 +22,47 @@ def get_version():
     except FileNotFoundError:
         return "0.0.0"
 
+def get_global_config():
+    """Get global configuration from /pages/config.json"""
+    config_path = os.path.join('pages', 'config.json')
+    if os.path.exists(config_path):
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error reading config: {e}")
+    return {}
+
+def load_translations(language='pt'):
+    """Load translations for the specified language"""
+    try:
+        i18n_path = os.path.join('static', 'i18n', f'{language}.json')
+        if os.path.exists(i18n_path):
+            with open(i18n_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        else:
+            # Fallback to Portuguese if language file doesn't exist
+            fallback_path = os.path.join('static', 'i18n', 'pt.json')
+            if os.path.exists(fallback_path):
+                with open(fallback_path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+    except Exception as e:
+        print(f"Error loading translations for {language}: {e}")
+    
+    # Return empty dict if no translations found
+    return {}
+
 def get_version_info():
     """Get comprehensive version information"""
     version = get_version()
+    global_config = get_global_config()
     
     return {
         'version': version,
         'build_date': datetime.now().isoformat(),
         'app_name': 'PDashboard',
         'description': 'Dashboard Fabril Modular',
-        'company': 'Jayme da Costa'
+        'company': global_config.get('company_name', 'Jayme da Costa')
     }
 
 app = Flask(__name__)
@@ -177,13 +210,15 @@ def render_page_with_template(page, widgets):
 
 @app.route('/')
 def dashboard_carousel():
-    # Load global config for last_update_month
-    global_config_path = os.path.join('pages', 'config.json')
-    last_update_month = ''
-    if os.path.exists(global_config_path):
-        with open(global_config_path, encoding='utf-8') as f:
-            global_config = json.load(f)
-            last_update_month = global_config.get('last_update_month', '')
+    # Load global config
+    global_config = get_global_config()
+    last_update_month = global_config.get('last_update_month', '')
+    company_name = global_config.get('company_name', 'Jayme da Costa')
+    language = global_config.get('language', 'pt')
+    
+    # Load translations
+    translations = load_translations(language)
+    
     pages = get_active_pages()
     rendered_pages = []
     for page in pages:
@@ -248,26 +283,33 @@ def dashboard_carousel():
     css_link = ''
     if rendered_pages and rendered_pages[0].get('css_file'):
         css_link = Markup(f'<link rel="stylesheet" href="/static/css/{rendered_pages[0]["css_file"]}">')
-    return render_template(template_name, pages=rendered_pages, css_link=css_link, last_update_month=last_update_month, version=get_version())
+    return render_template(template_name, pages=rendered_pages, css_link=css_link, last_update_month=last_update_month, company_name=company_name, version=get_version(), translations=translations, language=language)
 
 @app.route('/dashboard')
 def dashboard():
     # Load global config
-    global_config_path = os.path.join('pages', 'config.json')
-    last_update_month = ''
-    if os.path.exists(global_config_path):
-        with open(global_config_path, encoding='utf-8') as f:
-            global_config = json.load(f)
-            last_update_month = global_config.get('last_update_month', '')
+    global_config = get_global_config()
+    last_update_month = global_config.get('last_update_month', '')
+    company_name = global_config.get('company_name', 'Jayme da Costa')
+    language = global_config.get('language', 'pt')
+    translations = load_translations(language)
     # (Assume widgets is built as before, or add your widget logic here)
     widgets = []  # Replace with your widget loading logic
-    return render_template('dashboard.html', widgets=widgets, last_update_month=last_update_month)
+    return render_template('dashboard.html', widgets=widgets, last_update_month=last_update_month, company_name=company_name, language=language, translations=translations)
 
 @app.route('/admin')
 def admin():
     """Admin backoffice for managing dashboard pages"""
+    global_config = get_global_config()
+    company_name = global_config.get('company_name', 'Jayme da Costa')
+    last_update_month = global_config.get('last_update_month', '')
+    language = global_config.get('language', 'pt')
+    
+    # Load translations
+    translations = load_translations(language)
+    
     pages = get_pages()
-    return render_template('admin.html', pages=pages, version=get_version())
+    return render_template('admin.html', pages=pages, version=get_version(), company_name=company_name, last_update_month=last_update_month, language=language, translations=translations)
 
 @app.route('/api/pages')
 def api_pages():
@@ -431,11 +473,12 @@ def get_all_data():
                 "id": page['id'],
                 "widgets": page_widgets
             })
+        global_config = get_global_config()
         data = {
             "pages": pages_data,
             "metadata": {
                 "last_update": datetime.now().isoformat(),
-                "company": "Jayme da Costa",
+                "company": global_config.get('company_name', 'Jayme da Costa'),
                 "version": get_version()
             }
         }
@@ -608,9 +651,10 @@ def health_check():
 @app.route('/api/config')
 def get_config():
     """Get system configuration"""
+    global_config = get_global_config()
     return jsonify({
         'carousel_interval': 10000,
-        'company_name': 'Jayme da Costa',
+        'company_name': global_config.get('company_name', 'Jayme da Costa'),
         'logo_primary': '/static/assets/logo.png',
         'logo_secondary': '/static/assets/getsitelogo.jpeg',
         'theme': {
@@ -618,8 +662,32 @@ def get_config():
             'warning_color': '#FF9800',
             'danger_color': '#F44336',
             'info_color': '#2196F3'
-        }
+        },
+        'dashboard_types': global_config.get('dashboard_types', ['3x2'])
     })
+
+@app.route('/api/config/update', methods=['POST'])
+def update_global_config():
+    """Update global config in /pages/config.json (company_name, last_update_month)"""
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'message': 'No data provided'}), 400
+    allowed_keys = {'company_name', 'last_update_month', 'language', 'dashboard_types'}
+    config_path = os.path.join('pages', 'config.json')
+    config = get_global_config()
+    updated = False
+    for key in allowed_keys:
+        if key in data:
+            config[key] = data[key]
+            updated = True
+    if not updated:
+        return jsonify({'success': False, 'message': 'No valid fields to update'}), 400
+    try:
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        return jsonify({'success': True, 'message': 'Config updated successfully', 'config': config})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error updating config: {str(e)}'}), 500
 
 # Server-Sent Events for real-time updates
 @app.route('/api/events')
@@ -644,6 +712,80 @@ def broadcast_update():
 def get_app_version():
     """Get application version information"""
     return jsonify(get_version_info())
+
+ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv', 'jpg', 'png', 'jpeg', 'txt', 'md'}
+DATA_FOLDER = os.path.join(os.getcwd(), 'data')
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/api/data/upload', methods=['POST'])
+def upload_data_file():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file part'}), 400
+    files = request.files.getlist('file')
+    if not files or all(f.filename == '' for f in files):
+        return jsonify({'success': False, 'message': 'No selected file'}), 400
+    uploaded = []
+    errors = []
+    for file in files:
+        if file and file.filename and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            try:
+                file.save(os.path.join(DATA_FOLDER, filename))
+                uploaded.append(filename)
+            except Exception as e:
+                errors.append({'filename': file.filename, 'error': str(e)})
+        else:
+            errors.append({'filename': getattr(file, 'filename', 'unknown'), 'error': 'File type not allowed or missing filename'})
+    if uploaded:
+        return jsonify({'success': True, 'message': 'Files uploaded', 'filenames': uploaded, 'errors': errors})
+    else:
+        return jsonify({'success': False, 'message': 'No files uploaded', 'errors': errors}), 400
+
+@app.route('/api/data/files', methods=['GET'])
+def list_data_files():
+    try:
+        files = [f for f in os.listdir(DATA_FOLDER) if os.path.isfile(os.path.join(DATA_FOLDER, f))]
+        return jsonify({'success': True, 'files': files})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/data/files/<filename>', methods=['DELETE'])
+def delete_data_file(filename):
+    try:
+        filename = secure_filename(filename)
+        file_path = os.path.join(DATA_FOLDER, filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            return jsonify({'success': True, 'message': 'File deleted'})
+        else:
+            return jsonify({'success': False, 'message': 'File not found'}), 404
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/pages/create', methods=['POST'])
+def create_page():
+    data = request.get_json()
+    if not data or 'folder_name' not in data or 'config' not in data:
+        return jsonify({'success': False, 'message': 'Missing folder_name or config'}), 400
+    folder_name = secure_filename(data['folder_name'])
+    config = data['config']
+    pages_dir = os.path.join(os.getcwd(), 'pages')
+    page_dir = os.path.join(pages_dir, folder_name)
+    if os.path.exists(page_dir):
+        return jsonify({'success': False, 'message': 'Folder already exists'}), 400
+    try:
+        os.makedirs(page_dir)
+        config_path = os.path.join(page_dir, 'config.json')
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        return jsonify({'success': True, 'message': 'Page created', 'folder': folder_name})
+    except Exception as e:
+        # Clean up folder if error
+        if os.path.exists(page_dir):
+            shutil.rmtree(page_dir)
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 swagger_template = {
     "swagger": "2.0",

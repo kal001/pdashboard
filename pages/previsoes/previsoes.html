@@ -1,0 +1,135 @@
+<div class="page-content forecast-page">
+  <div class="page-header">
+    <h1 class="page-title">📊 Previsões</h1>
+    <div class="page-subtitle">Previsões de produção para os próximos 3 meses</div>
+  </div>
+  
+  <div class="forecast-container">
+    <div class="forecast-chart">
+      <canvas id="forecast-chart" width="800" height="400"></canvas>
+    </div>
+    
+    <div class="forecast-summary" id="forecast-summary">
+      <!-- Forecast summary will be dynamically inserted here -->
+    </div>
+  </div>
+  
+  <div class="page-footer">
+    <div class="last-update">Última atualização: <span id="last-update"></span></div>
+  </div>
+</div>
+
+<script>
+function renderForecastPage(data) {
+  const summary = document.getElementById('forecast-summary');
+  const lastUpdate = document.getElementById('last-update');
+  
+  if (!data.forecast || !data.forecast.families) {
+    summary.innerHTML = '<div class="error-message">Dados de previsão não disponíveis</div>';
+    return;
+  }
+  
+  // Update last update time
+  lastUpdate.textContent = new Date().toLocaleString('pt-PT');
+  
+  // Render forecast summary
+  const summaryHtml = data.forecast.families.map(family => `
+    <div class="forecast-family">
+      <h3 class="family-name">${family.name}</h3>
+      <div class="forecast-values">
+        ${family.values.map((value, index) => `
+          <div class="forecast-month">
+            <span class="month-name">${data.forecast.months[index]}</span>
+            <span class="month-value">${value}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  
+  summary.innerHTML = summaryHtml;
+  
+  // Render Chart.js chart
+  renderForecastChart(data.forecast);
+}
+
+function renderForecastChart(forecastData) {
+  const ctx = document.getElementById('forecast-chart').getContext('2d');
+  
+  // Destroy existing chart if it exists
+  if (window.forecastChart) {
+    window.forecastChart.destroy();
+  }
+  
+  const datasets = forecastData.families.map((family, index) => ({
+    label: family.name,
+    data: family.values,
+    backgroundColor: getFamilyColor(index),
+    borderColor: getFamilyColor(index),
+    borderWidth: 2,
+    fill: false
+  }));
+  
+  window.forecastChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: forecastData.months,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: '#333',
+            font: {
+              size: 14
+            }
+          }
+        },
+        title: {
+          display: true,
+          text: 'Previsões de Produção',
+          color: '#333',
+          font: {
+            size: 18,
+            weight: 'bold'
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0,0,0,0.1)'
+          },
+          ticks: {
+            color: '#333',
+            font: {
+              size: 12
+            }
+          }
+        },
+        x: {
+          grid: {
+            color: 'rgba(0,0,0,0.1)'
+          },
+          ticks: {
+            color: '#333',
+            font: {
+              size: 12
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function getFamilyColor(index) {
+  const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#F44336', '#00BCD4'];
+  return colors[index % colors.length];
+}
+</script> 

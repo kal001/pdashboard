@@ -1,0 +1,20 @@
+{
+  "id": "performance",
+  "title": "Performance",
+  "description": "Indicadores de performance operacional",
+  "icon": "📈",
+  "type": "performance",
+  "default_active": true,
+  "order": 4,
+  "data_source": "performance",
+  "refresh_interval": 300000,
+  "template": "performance.html",
+  "css_class": "performance-page",
+  "settings": {
+    "show_target": true,
+    "show_progress": true,
+    "show_status": true
+  },
+  "columns": 3,
+  "indicators": ["Eficiência", "Qualidade", "Disponibilidade"]
+} 

@@ -1,0 +1,145 @@
+<div class="page-content financial-page">
+  <div class="page-header">
+    <h1 class="page-title">💰 Valores</h1>
+    <div class="page-subtitle">Valores monetários da produção em k€</div>
+  </div>
+  
+  <div class="financial-container">
+    <div class="financial-overview">
+      <div class="current-value">
+        <h2>Valor Atual</h2>
+        <div class="value-display" id="current-value">0 k€</div>
+        <div class="value-change" id="value-change">+0%</div>
+      </div>
+      
+      <div class="previous-value">
+        <h3>Mês Anterior</h3>
+        <div class="value-display" id="previous-value">0 k€</div>
+      </div>
+    </div>
+    
+    <div class="financial-chart">
+      <canvas id="financial-chart" width="800" height="300"></canvas>
+    </div>
+  </div>
+  
+  <div class="page-footer">
+    <div class="last-update">Última atualização: <span id="last-update"></span></div>
+  </div>
+</div>
+
+<script>
+function renderFinancialPage(data) {
+  const currentValue = document.getElementById('current-value');
+  const previousValue = document.getElementById('previous-value');
+  const valueChange = document.getElementById('value-change');
+  const lastUpdate = document.getElementById('last-update');
+  
+  if (!data.financial) {
+    currentValue.textContent = 'Dados não disponíveis';
+    return;
+  }
+  
+  // Update values
+  currentValue.textContent = `${data.financial.current_month} k€`;
+  previousValue.textContent = `${data.financial.previous_month} k€`;
+  
+  // Calculate and display change
+  const change = data.financial.current_month - data.financial.previous_month;
+  const changePercent = ((change / data.financial.previous_month) * 100).toFixed(1);
+  
+  valueChange.textContent = `${change >= 0 ? '+' : ''}${changePercent}%`;
+  valueChange.className = `value-change ${change >= 0 ? 'positive' : 'negative'}`;
+  
+  // Update last update time
+  lastUpdate.textContent = new Date().toLocaleString('pt-PT');
+  
+  // Render Chart.js chart
+  renderFinancialChart(data.financial);
+}
+
+function renderFinancialChart(financialData) {
+  const ctx = document.getElementById('financial-chart').getContext('2d');
+  
+  // Destroy existing chart if it exists
+  if (window.financialChart) {
+    window.financialChart.destroy();
+  }
+  
+  window.financialChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: financialData.months,
+      datasets: [{
+        label: 'Valor (k€)',
+        data: financialData.trend,
+        borderColor: '#4CAF50',
+        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#4CAF50',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        title: {
+          display: true,
+          text: 'Evolução dos Valores',
+          color: '#333',
+          font: {
+            size: 16,
+            weight: 'bold'
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0,0,0,0.1)'
+          },
+          ticks: {
+            color: '#333',
+            font: {
+              size: 12
+            },
+            callback: function(value) {
+              return value + ' k€';
+            }
+          }
+        },
+        x: {
+          grid: {
+            color: 'rgba(0,0,0,0.1)'
+          },
+          ticks: {
+            color: '#333',
+            font: {
+              size: 12
+            }
+          }
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      elements: {
+        point: {
+          hoverBackgroundColor: '#4CAF50'
+        }
+      }
+    }
+  });
+}
+</script> 

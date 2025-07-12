@@ -1,28 +1,88 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="{{ language }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Jayme da Costa Dashboard</title>
+    <title>Admin - {{ company_name }} Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 <body>
     <div class="admin-container">
         <header class="admin-header">
             <div class="logo-container">
-                <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Jayme da Costa" class="main-logo">
+                <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="{{ company_name }}" class="main-logo">
             </div>
-            <h1>Painel de Administração</h1>
+            <h1 id="admin-title"></h1>
             <div class="header-actions">
                 <span class="version-info" id="header-version"></span>
-                <a href="/" class="view-dashboard-btn">Ver Dashboard</a>
+                <a href="/" class="view-dashboard-btn"></a>
             </div>
         </header>
 
+        <div class="admin-content" style="margin-bottom: 0;">
+            <section>
+                <h2 id="global-config-header"></h2>
+                <form id="global-config-form">
+                    <div style="margin-bottom: 20px;">
+                        <label for="company_name" style="display:block;font-weight:bold;margin-bottom:6px;"></label>
+                        <input type="text" id="company_name" name="company_name" value="{{ company_name }}" style="width:100%;padding:12px 10px;border:2px solid #e9ecef;border-radius:8px;font-size:16px;">
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label for="last_update_month" style="display:block;font-weight:bold;margin-bottom:6px;"></label>
+                        <input type="text" id="last_update_month" name="last_update_month" value="{{ last_update_month }}" style="width:100%;padding:12px 10px;border:2px solid #e9ecef;border-radius:8px;font-size:16px;">
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label for="language" style="display:block;font-weight:bold;margin-bottom:6px;"></label>
+                        <select id="language" name="language" style="width:100%;padding:12px 10px;border:2px solid #e9ecef;border-radius:8px;font-size:16px;">
+                            <option value="pt" {% if language == "pt" %}selected{% endif %}></option>
+                            <option value="en" {% if language == "en" %}selected{% endif %}></option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label for="dashboard-type-new" style="display:block;font-weight:bold;margin-bottom:6px;"></label>
+                        <div id="dashboard-types-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;"></div>
+                        <input type="text" id="dashboard-type-new" placeholder="" style="padding:8px;border-radius:6px;border:1.5px solid #e9ecef;">
+                        <button type="button" id="dashboard-type-add" class="toggle-btn active" style="padding:6px 16px;margin-left:8px;"></button>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <button type="submit" class="toggle-btn active"></button>
+                        <span id="global-config-message" style="font-size:15px;"></span>
+                    </div>
+                </form>
+            </section>
+        </div>
+
         <main class="admin-content">
             <section class="pages-management">
-                <h2>Gestão de Páginas do Dashboard</h2>
-                <p>Ative ou desative páginas e altere a ordem de exibição no carrossel.</p>
+                <h2 id="pages-management-header"></h2>
+                <p id="pages-management-desc"></p>
+                <button id="add-page-btn" class="toggle-btn active" style="margin-bottom:20px;"></button>
+                <div id="add-page-form-container" style="display:none; margin-bottom:30px;">
+                    <form id="add-page-form" style="background:#f8f9fa; border-radius:8px; padding:20px; border:2px solid #e9ecef; max-width:600px;">
+                        <h3 style="margin-bottom:15px; color:#1e3c72;"></h3>
+                        <div style="margin-bottom:12px;">
+                            <label></label>
+                            <input type="text" name="folder_name" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;">
+                        </div>
+                        <div style="margin-bottom:12px;"><label></label><input type="text" name="id" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                        <div style="margin-bottom:12px;"><label></label><input type="text" name="title" required style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                        <div style="margin-bottom:12px;"><label></label><input type="text" name="description" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                        <div style="margin-bottom:12px;"><label></label><select name="active" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"><option value="true"></option><option value="false"></option></select></div>
+                        <div style="margin-bottom:12px;">
+                            <label></label>
+                            <select name="type" id="add-page-type-select" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></select>
+                        </div>
+                        <div style="margin-bottom:12px;"><label></label><input type="number" name="duration" value="10" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                        <div style="margin-bottom:12px;"><label></label><input type="text" name="template" value="carousel.html" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                        <div style="margin-bottom:12px;"><label></label><input type="text" name="css_file" value="producao.css" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                        <div style="margin-bottom:12px;"><label></label><input type="text" name="xlsx_file" value="producao.xlsx" style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #e9ecef;"></div>
+                        <div style="display:flex;gap:12px;align-items:center;">
+                            <button type="submit" class="toggle-btn active"></button>
+                            <button type="button" id="cancel-add-page" class="toggle-btn inactive"></button>
+                            <span id="add-page-message" style="margin-left:10px;"></span>
+                        </div>
+                    </form>
+                </div>
                 
                 <div class="pages-list" id="pages-list">
                     <!-- Pages will be loaded dynamically -->
@@ -30,19 +90,31 @@
             </section>
 
             <section class="data-management">
-                <h2>Gestão de Dados</h2>
-                <p>Os dados são carregados automaticamente dos ficheiros Excel na pasta <code>data/</code></p>
-                
-                <div class="data-info">
-                    <div class="data-file-info">
-                        <h3>Estrutura dos Ficheiros Excel</h3>
-                        <p>Os ficheiros de dados são carregados automaticamente da pasta <code>data/</code>. Certifique-se de que os ficheiros necessários estão presentes e atualizados.</p>
+                <h2 id="data-management-header"></h2>
+                <div class="data-info" style="display: flex; flex-direction: column; gap: 30px;">
+                    <!-- File Upload Form -->
+                    <div class="data-upload" style="background: #f8f9fa; border-radius: 8px; padding: 20px; border: 2px solid #e9ecef; margin-bottom: 20px;">
+                        <form id="data-upload-form" enctype="multipart/form-data">
+                            <label for="data-file" style="font-weight:bold;" id="upload-label"></label>
+                            <input type="file" id="data-file" name="file" accept=".xlsx,.xls,.csv,.jpg,.png,.jpeg,.txt,.md" style="display:none;" multiple>
+                            <button type="button" id="custom-file-btn" class="toggle-btn" style="margin-right:10px;"></button>
+                            <span id="selected-files-label" style="margin-right:10px;color:#333;"></span>
+                            <button type="submit" class="toggle-btn active"></button>
+                            <span id="data-upload-message" style="margin-left:10px;"></span>
+                        </form>
                     </div>
-                    
-                    <div class="data-status">
-                        <h3>Estado dos Dados</h3>
+                    <!-- File List -->
+                    <div class="data-files-list" style="background: #f8f9fa; border-radius: 8px; padding: 20px; border: 2px solid #e9ecef;">
+                        <h3 id="files-in-data-header" style="font-size: 20px; color: #1e3c72; margin-bottom: 15px;"></h3>
+                        <ul id="data-files-ul" style="list-style:none; padding:0; margin:0;"></ul>
+                    </div>
+                    <!-- Data Status -->
+                    <div class="data-status-content" style="background: #f8f9fa; border-radius: 8px; padding: 20px; border-left: 4px solid #4CAF50;">
                         <div id="data-status-content">
-                            <!-- Status will be loaded via JavaScript -->
+                            <span style="color: #4CAF50; font-weight: bold;" id="data-status-success"></span><br>
+                            <span id="data-status-last-update-label"></span><span id="data-status-last-update"></span><br>
+                            <span id="data-status-version-label"></span><span id="data-status-version"></span><br>
+                            <span id="data-status-pages-label"></span><span id="data-status-pages"></span>
                         </div>
                     </div>
                 </div>
@@ -51,8 +123,344 @@
     </div>
 
     <script>
+        // Translations data
+        const translations = {{ translations|tojson|safe }};
+        const currentLanguage = '{{ language }}';
+        
+        // Translation helper function
+        function t(key, fallback = key) {
+            return translations[key] || fallback;
+        }
+        
         // Pages data will be loaded via API
         let pagesData = [];
+        document.addEventListener('DOMContentLoaded', function() {
+            // Declare all DOM variables only once at the top
+            const addPageBtn = document.getElementById('add-page-btn');
+            const addPageFormContainer = document.getElementById('add-page-form-container');
+            const addPageForm = document.getElementById('add-page-form');
+            const addPageMsg = document.getElementById('add-page-message');
+            const cancelAddPage = document.getElementById('cancel-add-page');
+            
+            // Update all static text with translations
+            document.getElementById('admin-title').textContent = t('admin_title');
+            document.querySelector('.view-dashboard-btn').textContent = t('view_dashboard');
+            
+            // Update form labels
+            document.querySelector('label[for="company_name"]').textContent = t('company_name');
+            document.querySelector('label[for="last_update_month"]').textContent = t('last_update_month');
+            document.querySelector('label[for="language"]').textContent = t('select_language');
+            
+            // Update section titles
+            document.getElementById('global-config-header').textContent = t('edit_global_config');
+            document.getElementById('pages-management-header').textContent = t('pages_management');
+            document.getElementById('pages-management-desc').textContent = t('pages_management_desc');
+            document.getElementById('data-management-header').textContent = t('files_management');
+            document.getElementById('files-in-data-header').textContent = t('files_in_data');
+            
+            // Update button texts
+            document.getElementById('add-page-btn').textContent = t('add_new_page');
+            document.querySelector('button[type="submit"]').textContent = t('save');
+            document.getElementById('dashboard-type-add').textContent = t('add_type');
+            
+            // Update form placeholders
+            document.getElementById('dashboard-type-new').placeholder = t('new_type_placeholder');
+            
+            // Update dashboard types label
+            document.querySelector('label[for="dashboard-type-new"]').textContent = t('dashboard_types');
+            
+            // Update add page form
+            if (addPageForm) {
+                addPageForm.querySelector('h3').textContent = t('new_page');
+                const labels = addPageForm.querySelectorAll('label');
+                labels[0].textContent = t('folder_name');
+                labels[1].textContent = t('id');
+                labels[2].textContent = t('title');
+                labels[3].textContent = t('description');
+                labels[4].textContent = t('active');
+                labels[5].textContent = t('type');
+                labels[6].textContent = t('duration');
+                labels[7].textContent = t('template');
+                labels[8].textContent = t('css_file');
+                labels[9].textContent = t('xlsx_file');
+                addPageForm.querySelector('button[type="submit"]').textContent = t('create_page');
+                cancelAddPage.textContent = t('cancel');
+            }
+            
+            // Update data management section
+            document.getElementById('upload-label').textContent = t('upload_file');
+            document.getElementById('custom-file-btn').textContent = t('select_file', 'Select file(s)');
+            document.querySelector('.data-upload button[type="submit"]').textContent = t('upload');
+            document.querySelector('.data-files-list h3').textContent = t('files_in_data');
+            // Custom file input logic
+            const fileInput = document.getElementById('data-file');
+            const customFileBtn = document.getElementById('custom-file-btn');
+            const selectedFilesLabel = document.getElementById('selected-files-label');
+            customFileBtn.onclick = function() { fileInput.click(); };
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files.length === 0) {
+                    selectedFilesLabel.textContent = t('no_files');
+                } else if (fileInput.files.length === 1) {
+                    selectedFilesLabel.textContent = fileInput.files[0].name;
+                } else {
+                    selectedFilesLabel.textContent = fileInput.files.length + ' ' + t('files_selected', 'files selected');
+                }
+            });
+            
+            // Update data status section
+            document.getElementById('data-status-success').textContent = t('data_loaded');
+            document.getElementById('data-status-last-update-label').textContent = t('last_update') + ': ';
+            document.getElementById('data-status-version-label').textContent = t('version') + ': ';
+            document.getElementById('data-status-pages-label').textContent = t('active_pages') + ': ';
+            
+            // Update select options
+            const languageSelect = document.getElementById('language');
+            if (languageSelect) {
+                languageSelect.options[0].textContent = t('portuguese');
+                languageSelect.options[1].textContent = t('english');
+            }
+            
+            // Update active select options
+            const activeSelect = document.querySelector('select[name="active"]');
+            if (activeSelect) {
+                activeSelect.options[0].textContent = t('yes');
+                activeSelect.options[1].textContent = t('no');
+            }
+            
+            // Data upload, list, and delete
+            const uploadForm = document.getElementById('data-upload-form');
+            const uploadMsg = document.getElementById('data-upload-message');
+            const filesUl = document.getElementById('data-files-ul');
+            
+            function refreshFilesList() {
+                fetch('/api/data/files').then(r => r.json()).then(data => {
+                    filesUl.innerHTML = '';
+                    if (data.success && data.files.length > 0) {
+                        data.files.forEach(f => {
+                            const li = document.createElement('li');
+                            li.style.display = 'flex';
+                            li.style.alignItems = 'center';
+                            li.style.justifyContent = 'space-between';
+                            li.style.padding = '8px 0';
+                            li.innerHTML = `<span>${f}</span> <button class='toggle-btn inactive' style='padding:4px 12px;font-size:14px;' data-file='${f}'>${t('delete')}</button>`;
+                            filesUl.appendChild(li);
+                        });
+                    } else {
+                        filesUl.innerHTML = `<li style="color:#999;">${t('no_files')}</li>`;
+                    }
+                });
+            }
+            
+            filesUl.addEventListener('click', function(e) {
+                if (e.target.tagName === 'BUTTON' && e.target.dataset.file) {
+                    const filename = e.target.dataset.file;
+                    if (confirm(t('delete_file_confirm') + filename + '?')) {
+                        fetch('/api/data/files/' + encodeURIComponent(filename), { method: 'DELETE' })
+                            .then(r => r.json()).then(data => {
+                                if (data.success) refreshFilesList();
+                                else alert(t('error_deleting') + (data.message || ''));
+                            });
+                    }
+                }
+            });
+            
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (!fileInput.files.length) {
+                        uploadMsg.textContent = t('select_file');
+                        return;
+                    }
+                    const formData = new FormData();
+                    for (let i = 0; i < fileInput.files.length; i++) {
+                        formData.append('file', fileInput.files[i]);
+                    }
+                    uploadMsg.textContent = t('uploading');
+                    fetch('/api/data/upload', {
+                        method: 'POST',
+                        body: formData
+                    }).then(r => r.json()).then(data => {
+                        if (data.success) {
+                            uploadMsg.textContent = t('upload_complete');
+                            fileInput.value = '';
+                            selectedFilesLabel.textContent = '';
+                            refreshFilesList();
+                        } else {
+                            uploadMsg.textContent = t('error_prefix') + (data.message || '');
+                        }
+                    }).catch(() => {
+                        uploadMsg.textContent = t('error_upload');
+                    });
+                });
+            }
+            refreshFilesList();
+            
+            // Data status info
+            function updateDataStatus() {
+                fetch('/api/data').then(r => r.json()).then(data => {
+                    if (data.metadata) {
+                        document.getElementById('data-status-last-update').textContent = new Date(data.metadata.last_update).toLocaleString();
+                        document.getElementById('data-status-version').textContent = data.metadata.version;
+                        if (data.pages) {
+                            document.getElementById('data-status-pages').textContent = data.pages.length + t('pages_count') + data.pages.length;
+                        }
+                    }
+                });
+            }
+            updateDataStatus();
+
+            // Add New Page logic
+            if (addPageBtn && addPageFormContainer && addPageForm) {
+                addPageBtn.onclick = function() {
+                    addPageFormContainer.style.display = 'block';
+                    addPageBtn.style.display = 'none';
+                };
+                cancelAddPage.onclick = function() {
+                    addPageFormContainer.style.display = 'none';
+                    addPageBtn.style.display = 'inline-block';
+                    addPageMsg.textContent = '';
+                    addPageForm.reset();
+                };
+                addPageForm.onsubmit = function(e) {
+                    e.preventDefault();
+                    addPageMsg.textContent = t('creating_page');
+                    const formData = new FormData(addPageForm);
+                    const config = {
+                        id: formData.get('id'),
+                        title: formData.get('title'),
+                        description: formData.get('description'),
+                        active: formData.get('active') === 'true',
+                        type: formData.get('type'),
+                        duration: parseInt(formData.get('duration'), 10),
+                        template: formData.get('template'),
+                        css_file: formData.get('css_file'),
+                        xlsx_file: formData.get('xlsx_file'),
+                        widgets: []
+                    };
+                    fetch('/api/pages/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            folder_name: formData.get('folder_name'),
+                            config
+                        })
+                    }).then(r => r.json()).then(data => {
+                        if (data.success) {
+                            addPageMsg.textContent = t('page_created');
+                            setTimeout(() => window.location.reload(), 1000);
+                        } else {
+                            addPageMsg.textContent = t('error_prefix') + (data.message || '');
+                        }
+                    }).catch(() => {
+                        addPageMsg.textContent = t('error_creating');
+                    });
+                };
+            }
+            
+            // Populate dashboard types in add page form
+            fetch('/api/config').then(r => r.json()).then(cfg => {
+                const typeSelect = document.getElementById('add-page-type-select');
+                if (typeSelect && cfg.dashboard_types) {
+                    typeSelect.innerHTML = '';
+                    cfg.dashboard_types.forEach(t => {
+                        const opt = document.createElement('option');
+                        opt.value = t;
+                        opt.textContent = t;
+                        typeSelect.appendChild(opt);
+                    });
+                    typeSelect.value = '3x2';
+                }
+            });
+
+            // Dashboard types edit logic
+            let dashboardTypes = [];
+            const typesList = document.getElementById('dashboard-types-list');
+            const typeInput = document.getElementById('dashboard-type-new');
+            const typeAddBtn = document.getElementById('dashboard-type-add');
+            
+            function renderTypes() {
+                typesList.innerHTML = '';
+                dashboardTypes.forEach((t, idx) => {
+                    const span = document.createElement('span');
+                    span.textContent = t;
+                    span.style.background = '#e9ecef';
+                    span.style.padding = '6px 12px';
+                    span.style.borderRadius = '6px';
+                    span.style.display = 'flex';
+                    span.style.alignItems = 'center';
+                    span.style.gap = '6px';
+                    const del = document.createElement('button');
+                    del.textContent = '×';
+                    del.style.background = 'none';
+                    del.style.border = 'none';
+                    del.style.color = '#f44336';
+                    del.style.fontWeight = 'bold';
+                    del.style.cursor = 'pointer';
+                    del.onclick = () => { dashboardTypes.splice(idx, 1); renderTypes(); };
+                    span.appendChild(del);
+                    typesList.appendChild(span);
+                });
+            }
+            
+            fetch('/api/config').then(r => r.json()).then(cfg => {
+                dashboardTypes = (cfg.dashboard_types || ['3x2']).slice();
+                renderTypes();
+            });
+            
+            typeAddBtn.onclick = function() {
+                const val = typeInput.value.trim();
+                if (val && !dashboardTypes.includes(val)) {
+                    dashboardTypes.push(val);
+                    renderTypes();
+                    typeInput.value = '';
+                }
+            };
+            
+            typeInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    typeAddBtn.click();
+                }
+            });
+            
+            // On config save, include dashboardTypes
+            const globalConfigForm = document.getElementById('global-config-form');
+            if (globalConfigForm) {
+                globalConfigForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const company_name = document.getElementById('company_name').value;
+                    const last_update_month = document.getElementById('last_update_month').value;
+                    const language = document.getElementById('language').value;
+                    const msg = document.getElementById('global-config-message');
+                    msg.textContent = t('saving');
+                    try {
+                        const resp = await fetch('/api/config/update', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ company_name, last_update_month, language, dashboard_types: dashboardTypes })
+                        });
+                        const data = await resp.json();
+                        if (data.success) {
+                            msg.textContent = t('config_saved');
+                            // Force reload to get new language from backend
+                            setTimeout(() => window.location.reload(true), 500);
+                        } else {
+                            msg.textContent = t('error_prefix') + (data.message || '');
+                        }
+                    } catch (err) {
+                        msg.textContent = t('error_saving');
+                    }
+                });
+            }
+        });
+    </script>
+    
+    <!-- Make translation function globally available for admin.js -->
+    <script>
+        // Make translation function globally available
+        window.t = function(key, fallback = key) {
+            return translations[key] || fallback;
+        };
     </script>
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 </body>

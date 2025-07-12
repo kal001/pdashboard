@@ -1,5 +1,25 @@
 # Manual do Administrador - Dashboard Modular
 
+## Novidades na versão 1.1.0
+
+### Internacionalização (i18n)
+- Todo o painel de administração agora está disponível em Português e Inglês.
+- Use o seletor de idioma no topo do painel para alternar instantaneamente entre os idiomas.
+- Todos os textos, botões, mensagens e placeholders são traduzidos dinamicamente.
+
+### Upload de Múltiplos Ficheiros
+- O formulário de upload de dados agora permite selecionar e enviar vários ficheiros de uma só vez.
+- Clique em "Selecionar ficheiros" para escolher múltiplos arquivos (Ctrl/Cmd + clique ou Shift + clique).
+- O nome dos ficheiros selecionados (ou a contagem) aparece ao lado do botão.
+- Clique em "Upload" para enviar todos os ficheiros de uma vez.
+- O backend salva todos os ficheiros válidos e retorna mensagens de sucesso/erro para cada um.
+
+### Input de Ficheiro Customizado
+- O botão de upload foi modernizado: interface amigável, totalmente traduzível e consistente com o idioma selecionado.
+- O texto do botão e as mensagens de status mudam conforme o idioma.
+
+---
+
 ## Acessando o Painel de Administração
 - Acesse: `http://<ip_do_servidor>:8000/admin`
 - O painel mostra todas as páginas configuradas

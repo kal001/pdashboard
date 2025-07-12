@@ -15,16 +15,35 @@ def get_version():
     except FileNotFoundError:
         return "0.0.0"
 
+def get_global_config():
+    """Read global configuration from pages/config.json"""
+    global_config_path = os.path.join('pages', 'config.json')
+    config = {
+        'company_name': 'Jayme da Costa',  # Default fallback
+        'last_update_month': ''
+    }
+    
+    if os.path.exists(global_config_path):
+        try:
+            with open(global_config_path, 'r', encoding='utf-8') as f:
+                file_config = json.load(f)
+                config.update(file_config)
+        except Exception as e:
+            print(f"Error loading global config: {e}")
+    
+    return config
+
 def get_version_info():
     """Get comprehensive version information"""
     version = get_version()
+    global_config = get_global_config()
     
     return {
         'version': version,
         'build_date': datetime.now().isoformat(),
         'app_name': 'PDashboard',
         'description': 'Dashboard Fabril Modular',
-        'company': 'Jayme da Costa'
+        'company': global_config.get('company_name', 'Jayme da Costa')
     }
 
 def update_version(new_version):

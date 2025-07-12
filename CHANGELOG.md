@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2024-07-12
+
+### Added
+- Full internationalization (i18n) of the admin UI: all visible text, buttons, labels, and messages are now translatable and dynamically updated.
+- Custom file input for uploads: fully translatable, modern UI, and displays selected file names/count.
+- Support for multiple file selection and upload in a single operation from the admin panel.
+- Backend `/api/data/upload` endpoint now supports multiple file uploads and returns per-file results.
+
+### Changed
+- All admin UI and file management actions now use the translation system.
+- Improved error handling and user feedback for file uploads.
+
+---
+
 ## [1.0.1] - 2024-07-12
 
 ### Changed

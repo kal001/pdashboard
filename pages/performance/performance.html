@@ -1,0 +1,82 @@
+<div class="page-content performance-page">
+  <div class="page-header">
+    <h1 class="page-title">📈 Performance</h1>
+    <div class="page-subtitle">Indicadores de performance operacional</div>
+  </div>
+  
+  <div class="performance-grid" id="performance-grid">
+    <!-- Performance indicators will be dynamically inserted here -->
+  </div>
+  
+  <div class="page-footer">
+    <div class="last-update">Última atualização: <span id="last-update"></span></div>
+  </div>
+</div>
+
+<script>
+function renderPerformancePage(data) {
+  const grid = document.getElementById('performance-grid');
+  const lastUpdate = document.getElementById('last-update');
+  
+  if (!data.performance || !data.performance.indicators) {
+    grid.innerHTML = '<div class="error-message">Dados de performance não disponíveis</div>';
+    return;
+  }
+  
+  // Update last update time
+  lastUpdate.textContent = new Date().toLocaleString('pt-PT');
+  
+  // Render performance indicators
+  const indicatorsHtml = data.performance.indicators.map(indicator => `
+    <div class="performance-card ${indicator.status}">
+      <div class="card-header">
+        <h3 class="indicator-name">${indicator.name}</h3>
+        <div class="status-indicator ${indicator.status}"></div>
+      </div>
+      
+      <div class="card-content">
+        <div class="performance-stats">
+          <div class="stat-item">
+            <span class="stat-label">Valor Atual</span>
+            <span class="stat-value">${indicator.value}%</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Target</span>
+            <span class="stat-value">${indicator.target}%</span>
+          </div>
+        </div>
+        
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill ${indicator.status}" style="width: ${Math.min(indicator.value, 100)}%"></div>
+          </div>
+          <div class="progress-label">${indicator.value}% / ${indicator.target}%</div>
+        </div>
+        
+        <div class="performance-status">
+          <span class="status-text ${indicator.status}">
+            ${getStatusText(indicator.status, indicator.value, indicator.target)}
+          </span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  
+  grid.innerHTML = indicatorsHtml;
+}
+
+function getStatusText(status, value, target) {
+  const diff = value - target;
+  
+  switch (status) {
+    case 'success':
+      return `Excelente! +${diff}% acima do target`;
+    case 'warning':
+      return `Atenção! ${diff}% abaixo do target`;
+    case 'danger':
+      return `Crítico! ${Math.abs(diff)}% abaixo do target`;
+    default:
+      return 'Status desconhecido';
+  }
+}
+</script> 

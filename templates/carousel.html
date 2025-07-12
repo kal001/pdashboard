@@ -16,6 +16,9 @@
     <div id="carousel-dots" class="fixed bottom-8 left-0 w-full flex justify-center items-center z-50"></div>
     <script>
     const pages = {{ pages|tojson }};
+    const translations = {{ translations|tojson|safe }};
+    const language = '{{ language }}';
+    function t(key, fallback) { return translations[key] || fallback; }
     let current = 0;
     function renderDots(currentIdx) {
         const dots = pages.map((_, i) =>
@@ -31,14 +34,14 @@
             html += `
             <header class="flex items-center justify-between border-b border-[#2b3640] px-10 py-3 bg-[#102366]">
                 <div class="flex items-center gap-4">
-                    <img src="/static/assets/logo.png" alt="Jayme da Costa" class="h-10 w-auto bg-white rounded shadow p-1">
+                    <img src="/static/assets/logo.png" alt="{{ company_name }}" class="h-10 w-auto bg-white rounded shadow p-1">
                     <img src="/static/assets/getsitelogo.jpeg" alt="Logo Secundário" class="h-10 w-auto bg-white rounded shadow p-1">
                 </div>
                 <div class="flex-1 flex flex-col items-center">
                     <span class="text-3xl font-extrabold text-white">{{ last_update_month }}</span>
                 </div>
                 <div class="text-right text-white">
-                    <h1 class="text-2xl font-bold">Jayme da Costa</h1>
+                    <h1 class="text-2xl font-bold">{{ company_name }}</h1>
                     <div class="text-sm">${page.title}</div>
                 </div>
             </header>
@@ -73,7 +76,7 @@
                 <!-- Legend removed as x-axis labels are now visible -->
                 <div class="flex items-center gap-2">
                     <span>🕐</span>
-                    <span>Última atualização</span>
+                    <span>${t('last_update', 'Última atualização')}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span>📊</span>

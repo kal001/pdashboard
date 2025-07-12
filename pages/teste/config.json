@@ -1,0 +1,12 @@
+{
+  "id": "Teste",
+  "title": "Página de Teste",
+  "description": "Esta é uma página de teste",
+  "active": true,
+  "type": "3x2",
+  "duration": 10,
+  "template": "carousel.html",
+  "css_file": "producao.css",
+  "xlsx_file": "producao.xlsx",
+  "widgets": []
+}

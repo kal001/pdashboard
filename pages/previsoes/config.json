@@ -1,0 +1,20 @@
+{
+  "id": "previsoes",
+  "title": "Previsões",
+  "description": "Previsões de produção para os próximos 3 meses",
+  "icon": "📊",
+  "type": "forecast",
+  "default_active": true,
+  "order": 2,
+  "data_source": "forecast",
+  "refresh_interval": 600000,
+  "template": "previsoes.html",
+  "css_class": "forecast-page",
+  "settings": {
+    "show_chart": true,
+    "show_values": true,
+    "months_ahead": 3
+  },
+  "columns": 2,
+  "chart_type": "bar"
+} 
