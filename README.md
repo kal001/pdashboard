@@ -87,4 +87,4 @@ The system uses two logo files that can be customized:
 
 ---
 
-### For details on configuration, customization, troubleshooting and contributions, see the documents above. 
+For details on configuration, customization, troubleshooting and contributions, see the documents above. 
