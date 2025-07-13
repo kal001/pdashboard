@@ -4,6 +4,8 @@
 
 Modular system for industrial dashboards, optimized for TV displays, with per-page configuration and dynamic Excel data.
 
+![Dashboard Example](https://drive.google.com/uc?id=1vd-HCYWbjk4r5uBvW1MuqBjPzOkD2tod  
+
 ## Key Features
 - Modular dashboard carousel (each page is independent)
 - 3x2 layout optimized for TV
