@@ -5,11 +5,17 @@
 Modular system for industrial dashboards, optimized for TV displays, with per-page configuration and dynamic Excel data.
 
 ![Dashboard Example](static/assets/2x1%20graph.png)
+### Example 2x1 finantial information
 
 ## Key Features
 - Modular dashboard carousel (each page is independent)
-- 3x2 layout optimized for TV
-- Configurable widgets per page
+- Pages have 6 different types available:
+    - 2x2 and 3x3 cards to show quantities produced
+    - Image to show a full screen image
+    - Text in markdown
+    - 2x1 graph to show finantial information
+    - 2x2 financial cards
+- Information to display comes from Excel file for easy maintainability
 - Admin panel to activate/deactivate/reorder pages
 - Easy Docker deployment (dev and production)
 - **Complete REST API** with interactive documentation
@@ -81,4 +87,4 @@ The system uses two logo files that can be customized:
 
 ---
 
-For details on configuration, customization, troubleshooting and contributions, see the documents above. 
+### For details on configuration, customization, troubleshooting and contributions, see the documents above. 
