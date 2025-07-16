@@ -5,7 +5,7 @@
 Modular system for industrial dashboards, optimized for TV displays, with per-page configuration and dynamic Excel data.
 
 ![Dashboard Example](static/assets/screencapture.gif)
-### Example 2x1 finantial information
+### Example dashboards
 
 ## Key Features
 - Modular dashboard carousel (each page is independent)
